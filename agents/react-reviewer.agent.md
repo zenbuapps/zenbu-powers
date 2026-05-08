@@ -17,8 +17,8 @@ mcpServers:
 skills:
   - "zenbu-powers:react-coding-standards"
   - "zenbu-powers:react-review-criteria"
-  - "zenbu-powers:react-router-v6"
-  - "zenbu-powers:tailwindcss-v3"
+  - "zenbu-powers:react-router"
+  - "zenbu-powers:tailwindcss"
   - "zenbu-powers:zenbu-design-system"
 ---
 

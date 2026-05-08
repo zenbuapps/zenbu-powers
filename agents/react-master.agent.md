@@ -17,10 +17,10 @@ mcpServers:
 skills:
   - "zenbu-powers:react-coding-standards"
   - "zenbu-powers:react-master"
-  - "zenbu-powers:react-router-v6"
-  - "zenbu-powers:tailwindcss-v3"
+  - "zenbu-powers:react-router"
+  - "zenbu-powers:tailwindcss"
   - "zenbu-powers:zenbu-design-system"
-  - "zenbu-powers:tanstack-query-v5"
+  - "zenbu-powers:tanstack-query"
 ---
 
 > **【CI 自我識別】** 啟動後，先執行 `printenv GITHUB_ACTIONS` 檢查是否在 GitHub Actions 環境中。
@@ -125,7 +125,7 @@ vi.mocked(useQuery).mockReturnValue({
 
 - `/zenbu-powers:react-coding-standards` — TypeScript / React 編碼標準、命名規範、元件結構、效能、狀態管理
 - `/zenbu-powers:react-master` — 測試撰寫、除錯技巧、表單進階處理、場景速查、交付審查流程
-- `/zenbu-powers:tanstack-query-v5` — TanStack Query v5 資料層參考
+- `/zenbu-powers:tanstack-query` — TanStack Query 資料層參考（依 package.json 自動切 v4 / v5）
 - `/zenbu-powers:zenbu-design-system` — ZenbuApps 統一設計系統
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。
