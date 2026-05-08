@@ -178,7 +178,7 @@ arguments.yml 已產出。
 若某一端尚未建立，則該行不顯示。
 
 Starter Skill 對照表見 `references/convention-mapping.md` 末段。
-**Node.js + Integration Test** → `/zenbu-powers:aibdd-auto-backend-starter`（variant: `nodejs-it`）
+**Node.js + Integration Test** → `/zenbu-powers:aibdd-auto-tdd（stage=starter, variant=nodejs-it）`
 
 ---
 

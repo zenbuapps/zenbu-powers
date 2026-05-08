@@ -1,6 +1,6 @@
 # red — TypeScript / React IT
 
-> 主 SKILL.md 已涵蓋：trigger 辨識、紅燈定義骨架、三步驟流程語意、共用 R1-R9 規則框架。本檔僅提供 TypeScript / React IT 特化內容。
+> **流程骨架見 `_stage-flow.md`**（紅燈定義、三步驟流程、Schema Analysis / Step Template 子章節、共用規則 R1–R9、Docker 環境檢查、完成條件骨架）。本檔僅提供 TypeScript / React IT 特化內容（前端 jsdom + MSW 場景）。
 
 寫出測試程式，確認有 Failing Test（Value Difference，非環境問題）。
 
@@ -16,8 +16,8 @@
 ## 三步驟流程
 
 ```
-Step 1: Schema Analysis    → 載入 references/schema-analysis/typescript.md
-Step 2: Step Template      → 載入 references/step-template/typescript.md
+Step 1: Schema Analysis    → 載入 references/schema-analysis/typescript.md（語言特化補充見「Step 1 補充」節）
+Step 2: Step Template      → 載入 references/step-template/typescript.md（語言特化補充見「Step 2 補充」節）
 Step 3: Red Implementation → 對每個 TODO step:
                               → 讀 TODO 取得 handler type
                               → 讀 /zenbu-powers:aibdd-handlers/references/{type}/typescript.md
@@ -25,23 +25,21 @@ Step 3: Red Implementation → 對每個 TODO step:
                               → 驗證紅燈（條件 b）
 ```
 
-### Step 1: Schema Analysis
+> 通用 Step 1 / Step 2 流程骨架見 `_stage-flow.md` 的 Schema Analysis / Step Template 子章節。
+> 以下補充 TypeScript 前端 IT 特有的差異點。
 
-載入 `references/schema-analysis/typescript.md`。
+### Step 1 補充：Schema Analysis（前端 IT）
 
-核心任務：
+前端 IT 不操作 ORM/Migration，本步驟改為：
 1. 讀取 .feature + api.yml
 2. 確認 Zod Schemas / API Client / MSW Handlers / Component Stubs 齊全
 3. GO/NO-GO 決策；若缺失則委派 `/zenbu-powers:aibdd-auto-frontend-msw-api-layer` 補齊
 
-### Step 2: Step Template Generation
+### Step 2 補充：Step Template Generation（前端 IT）
 
-載入 `references/step-template/typescript.md`。
-
-核心任務：
 1. 解析 .feature 中每個 Scenario 的 Given/When/Then steps
 2. 用決策樹分類每個 step 為 handler type
-3. 產生 Vitest `describe/it` 測試檔骨架，每個 step 含 TODO 標註
+3. 產生 Vitest `describe/it` 測試檔骨架，每個 step 含 TODO 標註（替代後端 Cucumber `Given/When/Then`）
 
 ### Step 3: Red Implementation
 

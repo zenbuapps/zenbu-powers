@@ -1,12 +1,45 @@
-# control-flow — TypeScript / React IT
+# control-flow — TypeScript IT（後端 + 前端）
 
-> 主 SKILL.md 已涵蓋：批次執行哲學、TodoWrite 一次只一個 in_progress、Skill 路由語意、最小增量原則。本檔僅提供 TypeScript / React IT 特化內容。
+> 主 SKILL.md 已涵蓋：批次執行哲學、TodoWrite 一次只一個 in_progress、Skill 路由語意、最小增量原則。
+> 語言無關核心流程（觸發辨識、Step 0–4 骨架、規則、異常處理）統一在同 skill `references/control-flow/_stage-flow.md`，請先 Read 該檔再讀本檔。
+> 本檔分兩節：**後端 (Node.js + Express + Cucumber)** 與 **前端 (React + Vitest + MSW)**，依專案類型載入對應段落。
 
-掃描 feature 檔案 → 建立 TodoWrite 任務清單 → 逐一執行 5 phase。
+掃描 feature 檔案 → 建立 TodoWrite 任務清單 → 逐一執行 phase。
 
 ---
 
-## Step 0：環境前置檢查
+## 後端 (Node.js + Express + Cucumber)
+
+### 環境前置檢查
+
+驗證後端專案是否已初始化（與 `references/starter/typescript.md` 後端段對齊）：
+- `package.json` 含 `@cucumber/cucumber`、`drizzle-orm`、`express`
+- `.cucumber.js` 設定檔存在
+- `features/` 目錄存在於後端專案根
+
+**不存在** → 詢問使用者是否先執行 `references/starter/typescript.md` 後端 starter 流程。
+
+### Features 路徑
+
+讀取 `${BACKEND_FEATURES_DIR}`（通常是 `backend/features/` 或 `specs/features/backend/`）。
+
+### 測試命令
+
+```bash
+npx cucumber-js
+```
+
+### Phase 數
+
+5 phase（schema-analysis → step-template → red → green → refactor），同前端結構。
+
+> **與前端共用**：排序策略（句型.md / 啟發規則）、TodoWrite 任務建立邏輯、逐一執行流程、最終回歸驗證——皆見 `_stage-flow.md`。本節只標明後端特有的命令與路徑差異。
+
+---
+
+## 前端 (React + Vitest + MSW)
+
+### Step 0：環境前置檢查
 
 驗證前端專案是否已初始化：
 - `package.json` 含 vitest, @testing-library/react, msw
@@ -100,7 +133,7 @@ npx vitest run
 |-----------|---------------|---------|----------|
 | typescript | it | `npx vitest run` | 5（含 schema-analysis + step-template） |
 
-若統一核心 `/zenbu-powers:aibdd-auto-control-flow` 被觸發且讀到上述設定，會委派到 `aibdd-auto-tdd (stage=control-flow, lang=typescript)`。
+語言無關的 phase 串接邏輯與規則見同 skill `references/control-flow/_stage-flow.md`；本檔只負責 TypeScript IT 特有的命令、目錄、phase 數設定。
 
 ---
 

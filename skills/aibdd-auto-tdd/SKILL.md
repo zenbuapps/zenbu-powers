@@ -4,10 +4,11 @@ description: >
   AIBDD TDD 流程統一決策中心——8 個 stage（control-flow / red / green / refactor /
   code-quality / step-template / schema-analysis / starter / test-skeleton）×
   3 語言（C# / PHP / TypeScript）的合一入口。
-  從用戶 prompt 或上游 aibdd-auto-{control-flow,red,green,refactor} 委派觸發，
+  從用戶 prompt（紅燈 / 綠燈 / 重構 / control-flow / starter / 批次跑 BDD 等）觸發，
   依語言推斷與 stage 路由載入對應 references/{stage}/{language}.md。
   當用戶說「紅燈」「綠燈」「control-flow」「跑 BDD 自動化」「重構」「TDD 批次」
-  「BDD pipeline」「test skeleton」「step template」「schema 分析」「骨架建立」等
+  「BDD pipeline」「test skeleton」「step template」「schema 分析」「骨架建立」
+  「初始化專案」「scaffold」「建專案」「make tests pass」「failing test」等
   觸發詞時啟用。
 ---
 
@@ -15,38 +16,27 @@ description: >
 
 > **本 skill 是 stage × language 的雙軸路由樞紐**。從觸發訊號決定 stage 與 language，再載入對應 reference。
 >
-> **可 user-invocable 也可被上游委派**：使用者可直接以「跑紅燈」「批次執行」等指令觸發；上游 `aibdd-auto-control-flow` / `aibdd-auto-red` / `aibdd-auto-green` / `aibdd-auto-refactor` 也會以 `aibdd-auto-tdd (stage=…, lang=…)` 形式委派。
+> **單一入口、user-invocable**：所有 BDD/TDD 自動化（control-flow / red / green / refactor / starter）皆透過本 skill 觸發。原本的 5 個薄皮 skill（`aibdd-auto-control-flow` / `aibdd-auto-red` / `aibdd-auto-green` / `aibdd-auto-refactor` / `aibdd-auto-backend-starter`）已合併入此 skill；外部呼叫一律改用 `/aibdd-auto-tdd（stage=...）` 形式。
 
 ---
 
 ## Trigger 辨識
 
-### 使用者直接呼叫
-
-下列觸發詞之一出現於 prompt 即啟用（依需求推斷 stage）：
+下列觸發詞之一出現於 prompt 即啟用，依關鍵字推斷 stage：
 
 | 觸發詞 | 推斷 stage |
 |---|---|
-| 「紅燈」「red」「跑紅燈」「實作測試」 | red |
-| 「綠燈」「green」「跑通測試」「讓測試過」 | green |
+| 「紅燈」「red」「跑紅燈」「實作測試」「failing test」 | red |
+| 「綠燈」「green」「跑通測試」「讓測試過」「make tests pass」「修綠燈」 | green |
 | 「重構」「refactor」「清理程式碼」 | refactor |
-| 「control-flow」「批次執行」「跑 BDD 自動化」「TDD 批次」「pipeline」 | control-flow |
+| 「control-flow」「批次執行」「跑 BDD 自動化」「TDD 批次」「pipeline」「批次跑 BDD」「自動化跑」 | control-flow |
+| 「starter」「scaffold」「scaffolding」「初始化專案」「骨架建立」「建專案」「建立後端骨架」 | starter |
 | 「step template」「step 骨架」「step 模板」 | step-template |
 | 「schema 分析」「schema-analysis」「schema 對齊」 | schema-analysis |
-| 「starter」「骨架建立」「scaffolding」「初始化專案」 | starter |
 | 「test skeleton」「test 骨架」「PHPUnit 骨架」 | test-skeleton |
 | 「code quality」「品質規範」「code-quality」 | code-quality |
 
-### 上游委派
-
-以下 skill 會於 description 或執行流程中委派至本 skill：
-
-- `aibdd-auto-control-flow` → `aibdd-auto-tdd (stage=control-flow, lang=…)`
-- `aibdd-auto-red` → `aibdd-auto-tdd (stage=red, lang=…)`
-- `aibdd-auto-green` → `aibdd-auto-tdd (stage=green, lang=…)`
-- `aibdd-auto-refactor` → `aibdd-auto-tdd (stage=refactor, lang=…)`
-
-委派 prompt 慣例：`aibdd-auto-tdd (stage=<stage>, lang=<csharp|php|typescript>, feature=<optional path>)`。
+> 主 SKILL.md 完成 (stage, lang) 雙軸路由後，**先 Read `references/{stage}/_stage-flow.md`（語言無關流程）→ 再 Read `references/{stage}/{language}.md`（語言特化）**。
 
 ---
 
@@ -103,6 +93,20 @@ description: >
 
 ---
 
+## Stage 串接
+
+本 skill 內部依 stage 串接 sub-stage，使用者只需以「stage=…」起點觸發即可：
+
+| 入口 stage | 內部串接 |
+|---|---|
+| `starter` | 單獨呼叫；完成後依語言交給 `discovery`（greenfield）或 `control-flow`（已有 specs） |
+| `control-flow` | 掃描 features → 對每個 feature 依語言變體展開 phase（`schema-analysis` → `step-template` → `red` → `green` → `refactor`，PHP 為 `test-skeleton` → `red` → `green` → `refactor`） |
+| `red` / `green` / `refactor` | 可單獨被 user 觸發；亦可被 control-flow phase 依序內部呼叫 |
+
+> control-flow 不對外委派其他 skill，每個 phase 都是 Read 同 skill 的 `references/{stage}/{lang}.md` 完成。
+
+---
+
 ## 語言推斷
 
 讀取專案根目錄訊號決定 language：
@@ -130,7 +134,7 @@ C. TypeScript (React / Vitest / MSW)
 
 ## Stage 路由表
 
-決定 (stage, lang) 後，Read 對應 reference：
+決定 (stage, lang) 後，依下表 Read 對應 reference（先 `_stage-flow.md`，再語言檔）：
 
 | Stage | csharp | php | typescript |
 |---|---|---|---|
@@ -169,7 +173,7 @@ control-flow 派發迴圈時，每個 .feature 嚴格依「schema-analysis → s
 ### CR4：Lazy loading
 
 - 主 SKILL.md（本檔）只載入決策骨架，**不**內嵌任何語言特化程式碼。
-- 決定 (stage, lang) 後才 Read 對應 reference。
+- 決定 (stage, lang) 後才 Read 對應 reference（先 `_stage-flow.md` 再 `{lang}.md`）。
 - reference 內若需 handler 程式碼，再進一步路由至 `aibdd-handlers (handler=…, lang=…)`，不在本 skill 重抄。
 
 ### CR5：Handler 路由保留
@@ -183,8 +187,10 @@ control-flow 派發迴圈時，每個 .feature 嚴格依「schema-analysis → s
 1. **辨識 trigger** → 推斷 stage（用戶 prompt 或上游 prompt 含 `stage=…`）。
 2. **推斷 lang**（讀取訊號或詢問用戶）。
 3. **查 Stage 路由表** → 取得 reference 路徑。
-4. **若該格為 N/A stub**：Read stub → 依「替代路徑」轉向（通常指向 step-template 或下一 stage）。
-5. **若為實 reference**：Read → 依該 reference 的「完成條件」執行。
+4. **Read `references/{stage}/_stage-flow.md`**（語言無關流程骨架）。
+5. **Read `references/{stage}/{lang}.md`**（語言特化參數與範例）：
+   - 若該格為 **N/A stub** → 依 stub 中的「替代路徑」轉向（通常指向 step-template 或下一 stage）。
+   - 若為實 reference → 依 reference 的「完成條件」執行。
 6. **跨 stage cross-link**：reference 內若需引用其他 stage，使用 `§stage X 章節 (lang=Y)` 錨點或重新呼叫 `aibdd-auto-tdd (stage=X, lang=Y)`。
 
 ---
@@ -199,7 +205,7 @@ control-flow 派發迴圈時，每個 .feature 嚴格依「schema-analysis → s
 
 ## 完成條件 / Hand-off
 
-- 收到觸發 → 完成 (stage, lang) 雙軸路由 → Read 並執行對應 reference 的完成條件 → 回報結果。
+- 收到觸發 → 完成 (stage, lang) 雙軸路由 → Read `_stage-flow.md` + `{lang}.md` → 執行對應 reference 的完成條件 → 回報結果。
 - 路由失敗（缺訊號且用戶未回覆）→ 暫停並等待 AskUserQuestion 答覆。
 - 跨 stage 串接：每完成一階段，自動展開下一階段 TODO（control-flow 變體會做這件事）。
 
@@ -207,11 +213,9 @@ control-flow 派發迴圈時，每個 .feature 嚴格依「schema-analysis → s
 
 ## Hand-off / Next Agent
 
-- 本 skill 為 **refactor-3 Stage B 交付物**之一，路徑 `skills/aibdd-auto-tdd/SKILL.md`。
-- 同步交付：
-  - `references/pipeline-overview.md`（流程總圖）
-  - 22 個實作 reference（由 3 個語言 reference agent 並行產出）
-  - 5 個 N/A stub references（本 agent 同步產出）
-- 本階段**未刪除**舊 22 個 `aibdd.auto.{lang}.(it.)?{stage}` skill，**未修改**任何下游引用（`aibdd-auto-control-flow` / `aibdd-auto-red` / `agents/test-creator.agent.md` / `README.md`）。
-- **交還 orchestrator**：等待 3 個語言 reference agent 完成各自的 22 個 reference，再進 Stage C（依 `docs/refactor-3-audit.md` 表 2.2 的 10 處跨 skill 引用更新）。
-- Stage D 再處理舊 22 個 SKILL.md 的 stub 化或刪除。
+- 本 skill 為 **refactor-3 Stage C 交付物**，路徑 `skills/aibdd-auto-tdd/SKILL.md`。
+- Stage C 完成項：
+  - 主 SKILL.md 吸收 5 薄皮觸發詞 + 確立「先 `_stage-flow.md` 再 `{lang}.md`」流程
+  - 下游 7 個檔案引用切換為 `/aibdd-auto-tdd（stage=...）`（`aibdd-handlers`、`aibdd-specformula` SKILL + assets + references、`aibdd-kickoff` SKILL + references、`README.md`、本 SKILL 自身）
+- **未刪除** 5 個薄皮 skill 目錄（`aibdd-auto-control-flow` / `aibdd-auto-red` / `aibdd-auto-green` / `aibdd-auto-refactor` / `aibdd-auto-backend-starter`）——留 Stage D 處理。
+- **交還 orchestrator**：請推進 Stage D（刪 5 薄皮目錄）+ acceptance-evaluator 驗收引用切換是否完整。

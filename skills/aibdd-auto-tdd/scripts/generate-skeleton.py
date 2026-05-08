@@ -111,9 +111,14 @@ def main():
         print(f"Error: unsupported variant '{args.variant}'. Supported: nodejs-it.", file=sys.stderr)
         sys.exit(1)
 
-    # Locate templates
+    # Locate templates. Templates live alongside language references at
+    # references/starter/templates/<lang>/. Variant names map to language dirs:
+    #   nodejs-it -> nodejs
+    variant_to_lang = {"nodejs-it": "nodejs"}
+    lang_dir = variant_to_lang.get(args.variant, args.variant)
+
     script_dir = Path(__file__).resolve().parent
-    templates_dir = script_dir.parent / "templates" / args.variant
+    templates_dir = script_dir.parent / "references" / "starter" / "templates" / lang_dir
 
     if not templates_dir.exists():
         print(f"Error: templates directory not found at {templates_dir}", file=sys.stderr)

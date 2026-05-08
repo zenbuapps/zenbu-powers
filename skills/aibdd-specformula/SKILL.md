@@ -113,7 +113,7 @@ uv run .claude/skills/zenbu-powers:aibdd-specformula/scripts/generate-plan.py \
 
 | Phase | 名稱 | Asset 卡片 | 觸發 Skill | 核心產出 |
 |-------|------|-----------|-----------|---------|
-| 05 | Backend TDD | `assets/05-backend-tdd.md` | `/zenbu-powers:aibdd-auto-control-flow` | Step Defs + Models + Endpoints + Migrations |
+| 05 | Backend TDD | `assets/05-backend-tdd.md` | `/zenbu-powers:aibdd-auto-tdd（stage=control-flow）` | Step Defs + Models + Endpoints + Migrations |
 | 06 | Frontend Build | `assets/06-frontend-build.md` | 3 frontend skills | frontend/ 完整可運行 |
 | 07 | Frontend E2E | `assets/07-frontend-e2e.md` | activity-testplan + Chrome | mock 模式全通過 |
 | 08 | Integration Validation | `assets/08-integration.md` | Chrome E2E real mode | real backend 全通過 |

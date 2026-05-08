@@ -147,7 +147,7 @@ NODE_HOOKS_FILE: ${NODE_SUPPORT_DIR}/hooks.ts
 | 技術堆疊 + 測試策略 | Starter Skill |
 |---------------------|---------------|
 | TypeScript + E2E Test | （尚未建立） |
-| Node.js + Integration Test | `/zenbu-powers:aibdd-auto-backend-starter` (variant: `nodejs-it`) |
+| Node.js + Integration Test | `/zenbu-powers:aibdd-auto-tdd（stage=starter, variant=nodejs-it）` |
 
 ### 前端 Starter
 

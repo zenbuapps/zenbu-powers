@@ -79,7 +79,7 @@ specformula 層（Layer 0）— 固定 16 任務（8 Phase + 8 Gate）
 | Phase 02 | `/zenbu-powers:aibdd-form-entity-spec` |
 | Phase 03 | `/zenbu-powers:aibdd-form-bdd-analysis`（內部 lazy load web-backend preset） |
 | Phase 04 | `/zenbu-powers:aibdd-form-api-spec` |
-| Phase 05 | `/zenbu-powers:aibdd-auto-control-flow` → 內部呼叫 `/zenbu-powers:aibdd-auto-red`、`green`、`refactor`（各自 lazy load variant references） |
+| Phase 05 | `/zenbu-powers:aibdd-auto-tdd（stage=control-flow）` → 內部 stage 路由展開 red / green / refactor（各 stage 各自 lazy load `_stage-flow.md` + `{lang}.md`） |
 | Phase 06 | `/zenbu-powers:aibdd-auto-frontend-apifirst-msw-starter` → `msw-api-layer` → `nextjs-pages`（依序載入） |
 | Phase 07 | `/zenbu-powers:aibdd-frontend-e2e-activity-testplan` |
 | Phase 08 | 無新 skill，重用 Phase 07 的 test plan |
