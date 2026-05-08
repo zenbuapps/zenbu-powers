@@ -245,3 +245,19 @@ skills:
 - total_defects 是「全部偵測到的缺陷數」（不只是 items 內的），讓 stop-hook 知道是否需要寫 full_report
 - PASS 時所有 nullable 欄位填 null 或省略
 - 自洽性驗證見 batch-protocol 文件 Section 1（`verdict="FAIL"` 必須 `total_defects ≥ 1` 且 `items` 非空；`verdict="PASS"` 必須 `total_defects=0` 且 `items=[]`；`items.length ≤ batch_size`）
+
+---
+
+## PASS 後 state 重置責任（H2 後新增）
+
+當 verdict = PASS 時，evaluator agent **必須**自行完成以下狀態清理（H2 重構後此責任從 stop hook 轉移到 evaluator——原因：stop hook 改為 command type shell 腳本，沒有 LLM 判斷力解析 verdict）：
+
+1. **重置 session round_count**：讀 `~/.claude/data/zenbu-loop-state.json`（Windows 路徑 `%USERPROFILE%\.claude\data\zenbu-loop-state.json`），把當前 session_id 對應的 round_count 設為 0（或刪除該 key），寫回檔案。
+2. **退出 Manual Loop（若適用）**：若 `.claude/zenbu-loop.local.md`（cwd 相對路徑）存在，刪除該檔——任務完成自動退出 Manual Loop。
+3. **完成後在最終 markdown 報告中明示「state 已重置」一行**，例如：
+   - `> ✅ state 已重置：zenbu-loop-state.json[<session_id>] = 0；.claude/zenbu-loop.local.md 已刪除（Manual Loop 退出）`
+   - 或 Auto Loop 場景：`> ✅ state 已重置：zenbu-loop-state.json[<session_id>] = 0`
+
+**FAIL 時不需做這些動作**——round_count++ 由 stop hook shell 腳本負責；Manual Loop state file 也保留繼續迭代。
+
+**操作工具**：用 Bash 工具的 `jq` 或 Edit 工具完成檔案讀寫；無 jq 時用 `sed` / Python one-liner fallback。session_id 可從 dispatch context（reason 內 `[ZENBU_LOOP_DISPATCH] ... session=<sid> ...`）取得。

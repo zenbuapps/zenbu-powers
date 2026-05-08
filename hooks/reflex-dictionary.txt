@@ -18,4 +18,6 @@
 9. **Skill 優先順序**：流程類先（brainstorming / plan / clarify-loop / systematic-debugging / tdd-workflow / dispatching-parallel-agents）→ 實作類後（領域 / 技術參考）。
 
 10. **批次驗收 fetch**：reason 含 `.claude/zenbu-loop-reports/<...>.md` 路徑時必須立即 Read 取完整缺陷清單；reason 內 top 3 只是降壓 summary，total_defects > 3 時須續修 D4..D<N> 才能 stop，禁止只修前 3 項就停手等下輪 evaluator 重排。
+
+11. **Stop hook dispatch fetch**：reason 含 `[ZENBU_LOOP_DISPATCH]` token 時必須立即派 `@zenbu-powers:acceptance-evaluator` 對齊 reason 內 task 進行驗收。evaluator PASS 時須將 `~/.claude/data/zenbu-loop-state.json` 該 session_id 重置為 0、刪除 `.claude/zenbu-loop.local.md`（若存在）後才 stop。禁止只看 reason 不派 evaluator 就 stop——hook decision 機制依此驅動 zenbu-loop。
 </ZENBU_REFLEX>
