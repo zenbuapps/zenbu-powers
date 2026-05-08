@@ -88,6 +88,7 @@ description: 驗收標準對齊評估方法論。給定用戶原始任務需求 
 | [evaluation-dimensions.md](references/evaluation-dimensions.md) | Reality Check + 4 大評估維度的判斷準則與範例 | Step 2 必讀 |
 | [project-type-verification.md](references/project-type-verification.md) | WEB / 桌面 / CLI / 純文件的驗收手法分流（含反向訊號清單） | Step 3 必讀 |
 | [report-template.md](references/report-template.md) | 標準報告格式範本（含反向訊號掃描結果欄位） | Step 4 必讀 |
+| [output-schema.md](references/output-schema.md) | zenbu-loop batch protocol v2 JSON schema、worked examples、反例 | Step 4 末段輸出 JSON block 時必讀 |
 | [scope-boundary.md](references/scope-boundary.md) | 與 reviewer agents 的職責邊界守則 | 遇到「這該不該管」的灰色地帶時讀 |
 
 ## 黃金原則

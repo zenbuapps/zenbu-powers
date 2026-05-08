@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # UserPromptSubmit hook for zenbu-powers plugin
 # Injects two independent context blocks into every user turn:
-#   1. Reflex dictionary (6+ zenbu rules) — unconditional, always when hooks enabled
+#   1. Reflex dictionary (10 zenbu rules) — unconditional, always when hooks enabled
 #   2. AIBDD mode prompt — conditional, only when prompt contains AIBDD/BDD/TDD trigger
 #
 # Both blocks are merged into a single hookSpecificOutput.additionalContext payload

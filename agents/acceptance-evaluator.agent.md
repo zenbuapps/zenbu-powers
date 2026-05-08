@@ -196,3 +196,52 @@ skills:
 - 若缺 testable criteria 又無法推導（如用戶任務描述極度模糊），回報 orchestrator 補齊或先派 `@zenbu-powers:clarifier`
 - 若無法讀取產出檔案，明確列出缺哪些路徑，請 orchestrator 補
 - **不臆測、不裝懂**：寧可說「無法評估」也不亂判 PASS/FAIL
+
+---
+
+## 最終輸出格式（zenbu-loop batch protocol v2）
+
+評估完成後，**最後一段輸出**必須是符合 batch protocol v2 schema 的 fenced JSON code block。
+詳細 schema 見 `hooks/zenbu-loop-batch-protocol.md` Section 1，亦可參考
+`/zenbu-powers:acceptance-evaluation` SKILL 的 `references/output-schema.md`。
+
+**最小範例（FAIL）**：
+
+```json
+{
+  "schema_version": 2,
+  "verdict": "FAIL",
+  "total_defects": <int>,
+  "batch_size": 3,
+  "batch_index": 1,
+  "items": [
+    {"id": "D1", "severity": "high", "summary": "...", "fix_hint": "..."},
+    {"id": "D2", "severity": "high", "summary": "...", "fix_hint": "..."},
+    {"id": "D3", "severity": "medium", "summary": "...", "fix_hint": "..."}
+  ],
+  "next_batch_token": null,
+  "full_report_path": null
+}
+```
+
+**最小範例（PASS）**：
+
+```json
+{
+  "schema_version": 2,
+  "verdict": "PASS",
+  "total_defects": 0,
+  "batch_size": 3,
+  "batch_index": 1,
+  "items": [],
+  "next_batch_token": null,
+  "full_report_path": null
+}
+```
+
+注意事項：
+- 你的 agent 本身**不負責**寫 full_report 檔案、不負責設定 next_batch_token——這兩個欄位由 stop-hook 在收到你的 JSON 後填入並寫檔
+- 你只需確保 items 陣列依 severity 排序（high → medium → low），且最多保留 top 3
+- total_defects 是「全部偵測到的缺陷數」（不只是 items 內的），讓 stop-hook 知道是否需要寫 full_report
+- PASS 時所有 nullable 欄位填 null 或省略
+- 自洽性驗證見 batch-protocol 文件 Section 1（`verdict="FAIL"` 必須 `total_defects ≥ 1` 且 `items` 非空；`verdict="PASS"` 必須 `total_defects=0` 且 `items=[]`；`items.length ≤ batch_size`）

@@ -16,4 +16,6 @@
 8. **WHAT vs HOW**：用戶「加 X / 修 Y」是 WHAT，不跳過 orchestrator 流程。覆寫關鍵詞（直接 / 自己來 / 跳過 skill）才簡短提示風險後照辦。
 
 9. **Skill 優先順序**：流程類先（brainstorming / plan / clarify-loop / systematic-debugging / tdd-workflow / dispatching-parallel-agents）→ 實作類後（領域 / 技術參考）。
+
+10. **批次驗收 fetch**：reason 含 `.claude/zenbu-loop-reports/<...>.md` 路徑時必須立即 Read 取完整缺陷清單；reason 內 top 3 只是降壓 summary，total_defects > 3 時須續修 D4..D<N> 才能 stop，禁止只修前 3 項就停手等下輪 evaluator 重排。
 </ZENBU_REFLEX>

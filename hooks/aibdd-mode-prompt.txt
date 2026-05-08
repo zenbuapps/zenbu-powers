@@ -25,7 +25,7 @@
 
 ## 與 reflex 的關係
 
-- reflex（ZENBU_REFLEX）：每輪無條件注入的 9 條協調紀律
+- reflex（ZENBU_REFLEX）：每輪無條件注入的 10 條協調紀律
 - AIBDD mode（本段）：條件式注入，僅在觸發詞命中時出現
 - 兩段並列且不衝突——AIBDD mode 是 reflex 第 2 條「能委派就委派」的具體 dispatch 表
 
