@@ -18,8 +18,7 @@ skills:
   # --- 通用測試策略 playbook ---
   - "zenbu-powers:test-creation-playbook"
   # --- WordPress 測試框架 ---
-  - "zenbu-powers:wp-e2e-creator"
-  - "zenbu-powers:wp-integration-testing"
+  - "zenbu-powers:wp-testing"
   # --- AIBDD：規格探索與視圖 ---
   - "zenbu-powers:aibdd-discovery"
   - "zenbu-powers:aibdd-form-activity"
@@ -98,8 +97,7 @@ skills:
 - `/zenbu-powers:test-creation-playbook` — 邊緣案例目錄、測試指令參考、E2E/IT/UT 覆蓋策略（**必載**）
 
 ### WordPress 測試框架
-- `/zenbu-powers:wp-e2e-creator` — WordPress Plugin Playwright E2E 測試生成
-- `/zenbu-powers:wp-integration-testing` — WordPress Plugin PHPUnit 整合測試（WP_UnitTestCase + wp-env）
+- `/zenbu-powers:wp-testing` — WordPress Plugin 測試統一入口；E2E 流程載入 `references/e2e-playwright.md`，Integration 測試載入 `references/integration-phpunit.md`（依 SKILL 主檔的 E2E vs IT 決策樹分流）
 
 ### AIBDD 規格與前端
 - `/zenbu-powers:aibdd-discovery`、`/zenbu-powers:aibdd-form-activity`、`/zenbu-powers:aibdd-form-api-spec`、`/zenbu-powers:aibdd-form-entity-spec`、`/zenbu-powers:aibdd-form-feature-spec`

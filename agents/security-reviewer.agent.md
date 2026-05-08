@@ -15,8 +15,7 @@ mcpServers:
       - "ide"
       - "--project-from-cwd"
 skills:
-  - "zenbu-powers:wordpress-coding-standards"
-  - "zenbu-powers:security-review-criteria"
+  - "zenbu-powers:wordpress-standards"
 ---
 
 > **【CI 自我識別】** 啟動後，先執行 `printenv GITHUB_ACTIONS` 檢查是否在 GitHub Actions 環境中。
@@ -79,14 +78,11 @@ skills:
 
 ## 可用 Skills（WHAT）
 
-- `/zenbu-powers:security-review-criteria` — 完整審查 checklist、嚴重度分級、輸出模板、高風險情境對照表（審查的主要依據）
-- `/zenbu-powers:wordpress-coding-standards` — WordPress / PHP 編碼標準完整參考
+- `/zenbu-powers:wordpress-standards` — WordPress 規範統一入口（含資安審查視角）；security-reviewer 必載 `references/security-checklist.md` 與 `references/review-output-template.md`，必要時對照 `references/coding-standards.md` 確認規範義務
 
-> 審查時依維度載入對應 references：
-> - OWASP 對應 → `references/owasp-checklist.md`
-> - WordPress 特有漏洞 → `references/wordpress-vulnerabilities.md`
-> - 依賴與敏感資訊 → `references/dependency-and-secrets.md`
-> - 報告輸出格式 → `references/review-output-template.md`
+> 審查時依維度載入對應 references（皆位於 `skills/wordpress-standards/references/` 下）：
+> - 攻擊者視角主 checklist（含 OWASP / WordPress 特有漏洞 / 依賴與敏感資訊 / 競爭條件 / LLM 信任邊界）→ `references/security-checklist.md`
+> - 報告輸出格式 → `references/review-output-template.md`（看 security 視角章節）
 
 ---
 

@@ -15,7 +15,7 @@ mcpServers:
       - "ide"
       - "--project-from-cwd"
 skills:
-  - "zenbu-powers:wordpress-coding-standards"
+  - "zenbu-powers:wordpress-standards"
   - "zenbu-powers:wordpress-router"
   - "zenbu-powers:wp-abilities-api"
   - "zenbu-powers:wp-block-development"
@@ -78,13 +78,13 @@ skills:
 - 全域函式加反斜線 `\`、避免裸 array（用 DTO）、用 enum 取代魔術字串
 - 使用 heredoc 輸出 HTML、短語法陣列、雙引號插值優先
 - 交付前必須撰寫測試、通過所有測試，才可提交審查
-- 完整編碼規範請參考 `/zenbu-powers:wordpress-coding-standards` skill
+- 完整編碼規範請參考 `/zenbu-powers:wordpress-standards` skill（載入 `references/coding-standards.md`，視需求加載 `coding-hooks.md` / `coding-woocommerce.md` / `coding-rest-api.md` / `coding-advanced.md`）
 
 ---
 
 ## 可用 Skills（WHAT）
 
-- `/zenbu-powers:wordpress-coding-standards` — PHP/WordPress 編碼標準完整參考
+- `/zenbu-powers:wordpress-standards` — WordPress 規範統一入口；開發場景載入 `references/coding-standards.md`（視需求加載 `coding-hooks.md` / `coding-woocommerce.md` / `coding-rest-api.md` / `coding-advanced.md`）
 - `/zenbu-powers:wordpress-router` — WordPress 專案類型分類與路由
 - `/zenbu-powers:wp-abilities-api` — WordPress Abilities API 開發
 - `/zenbu-powers:wp-block-development` — Gutenberg 區塊開發
