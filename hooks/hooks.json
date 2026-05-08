@@ -28,8 +28,9 @@
         "hooks": [
           {
             "type": "agent",
-            "prompt": "你是 zenbu-powers 自動驗收觸發器（不是 orchestrator，是 agent hook 觸發的 sub-agent）。\n\nHook input data: $ARGUMENTS\n\n執行步驟：\n\n1. 從上述 Hook input data 解析 `stop_hook_active` flag。若為 true，立即回 `{\"ok\": true}` 結束，避免無限迴圈。\n\n2. 讀 `${HOME}/.claude/data/zenbu-loop-state.json`（不存在則視為空 object）。取本 session 的 round_count（key = session_id，預設 0）。若 round_count >= 3，回 `{\"ok\": true, \"reason\": \"3 輪驗收上限已達，請主 orchestrator 走 3 輪 FAIL 升級格式回報用戶\"}`。\n\n3. 否則，dispatch `@zenbu-powers:acceptance-evaluator` 對本 session 產出做意圖對齊驗收。傳遞：\n   - 用戶原始任務需求摘要（從 transcript 第一個 user message 抽）\n   - 全鏈 sub-agent 產出的關鍵檔案路徑與摘要\n   - 「未提供 testable criteria 時請自行萃取並標明來源」指示\n\n4. 處理 evaluator 回報：\n   - PASS → 重置 round_count = 0 寫回 state file，回 `{\"ok\": true}`\n   - FAIL → round_count++ 寫回 state file，回 `{\"ok\": false, \"reason\": \"<evaluator 報告中前 3 條缺陷清單，編號列出>\"}` 讓主 orchestrator 繼續修正\n\n5. 整個流程任何錯誤（檔案讀寫失敗、evaluator dispatch 失敗）→ 安全失敗回 `{\"ok\": true, \"reason\": \"<錯誤摘要>\"}`，不要 block 主流程。",
-            "timeout": 300
+            "prompt": "你是 zenbu-powers plugin 的 Stop Hook 自動驗收觸發器（agent hook 觸發的 sub-agent，非 orchestrator）。\n\nHook input data: $ARGUMENTS\n\n## 執行流程\n\n1. **讀取規範**：用 Read 工具讀取本 plugin 的 `hooks/stop-hook-spec.md`（首選絕對路徑：`${CLAUDE_PLUGIN_ROOT}/hooks/stop-hook-spec.md`；若該變數未被 Claude Code 替換、你看到字面 `${CLAUDE_PLUGIN_ROOT}` 而 Read 失敗，改用 Glob 搜尋 `**/zenbu-powers/hooks/stop-hook-spec.md` 找到並讀取）。\n2. **嚴格遵守規範**：依規範的「執行步驟」章節（Step 1-8）逐步執行；依規範的「Decision JSON 輸出格式」章節決定最終輸出。\n3. **時限自我約束**：整段邏輯 240 秒上限（hook timeout 300 秒留 60 秒緩衝）。超時或任何錯誤 → 輸出 `{}` allow stop，**絕對不要 block** 主流程造成卡死。",
+            "timeout": 300,
+            "async": false
           }
         ]
       }

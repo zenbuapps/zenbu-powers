@@ -65,3 +65,64 @@ evaluator 偵測到此類情況時，FAIL 報告中標明「**自主決策違反
 evaluator 在意圖對齊評估中若發現 reviewer 該抓但漏掉的品質問題，會在「Out-of-Scope 觀察」標示，主窗口可酌情補派 reviewer 二審該局部，不影響本輪 PASS/FAIL 判定。
 
 WEB / 桌面 / CLI / 純文件等不同專案類型的驗收手法分流，由 evaluator 依 `zenbu-powers:acceptance-evaluation` skill 自動處理。
+
+## Loop 模式（Auto vs Manual）
+
+Stop hook 兩種啟用方式，**底層共用同一 evaluator-driven loop 機制**：
+
+- **Auto Loop**——`ZENBU_HOOKS_ENABLED=1` 環境變數開啟 → 每次 session stop 自動跑 evaluator，max=10
+- **Manual Loop**——跑 `/zenbu-loop <task>` 寫 state file → max 由 cli 設定（預設 10）
+
+未啟 env 也未下命令時 hook **不觸發**（與 SessionStart / UserPromptSubmit 一致，預設不啟用）。
+
+### Mode 對照
+
+| 維度 | Auto Loop | Manual Loop（zenbu-loop） |
+|---|---|---|
+| 啟用條件 | `ZENBU_HOOKS_ENABLED=1` | `/zenbu-loop <task>` 寫 state file |
+| State 載體 | `~/.claude/data/zenbu-loop-state.json`（per-session round_count） | 同左 + `.claude/zenbu-loop.local.md`（per-project mode flag） |
+| max_rounds | **10**（hard-coded） | `--max`（alias: `--max-iterations` / `-m`）指定，預設 10，0 = unlimited |
+| 任務來源 | transcript 第一個 user message（不可靠時 fallback 推導） | state file body 的 task 全文（最可靠） |
+| PASS 後 | 重置 round_count | 重置 + 刪除 state file（自動退出 Manual Loop） |
+| 終止路徑 | evaluator PASS / 達 10 輪 FAIL 升級 | evaluator PASS / 達 max FAIL 升級 / `/zenbu-loop-cancel` 手動取消 |
+| 適用 | 一般 session 全程品質把關 | 明確 task 範圍 / 需自訂 max / 長時間重構 |
+
+**啟用優先順序**：state file 存在 → Manual（不檢查 env）；否則檢查 env → Auto；都不滿足 → hook 不觸發。讓沒設 env 的用戶仍能透過 `/zenbu-loop` 用品質 loop。
+
+**設計原則**：終止判定**只信 evaluator**——Claude 主窗口不能靠輸出特定字串提早跳過驗收（避免 LLM 自證式偷懶）。所有退出路徑均經 evaluator 把關或 orchestrator 介入。
+
+### Slash Commands
+
+- `/zenbu-loop <task> [--max <n>]` — 啟動 Manual Loop
+- `/zenbu-loop-cancel` — 取消 Manual Loop（刪除 state file，視 env 回到 Auto Loop 或關閉）
+- `/zenbu-loop-status` — 查看當前 Auto / Manual 狀態 + round_count
+
+### State File Schema（Manual Loop 才有）
+
+`.claude/zenbu-loop.local.md`（YAML frontmatter + body）：
+
+```yaml
+---
+active: true
+mode: loop
+round_count: 0          # Stop hook 維護
+max_iterations: 10      # cli 設定，0 = unlimited
+started_at: "2026-05-08T12:34:56Z"
+---
+
+<原始 task prompt 全文>
+```
+
+Stop hook agent 在每次觸發時：
+1. 啟用判定：state file 存在 → Manual；否則讀 `ZENBU_HOOKS_ENABLED` env → Auto；都無 → allow stop 結束
+2. dispatch `@zenbu-powers:acceptance-evaluator` 跑驗收
+3. PASS → Manual 刪 state file / Auto 重置 round_count；FAIL → round_count++ 同步寫回，未達 max 繼續餵回缺陷清單
+
+實作位置：`hooks/hooks.json` Stop section、`hooks/stop-hook-spec.md`、`commands/zenbu-loop*.md`、`scripts/zenbu-loop-*.mjs`。
+
+### 注意事項
+
+- **state file 不入 git**：`.claude/zenbu-loop.local.md` 已加進 plugin 根 `.gitignore`（命名含 `.local.` 為本機獨有約定）；用戶專案若 fork 此 plugin 邏輯到自家專案，須自行同步 ignore。
+- **與 ralph-wiggum 不相容**：兩 plugin 都註冊 Stop hook，同時啟用會雙觸發、decision 互相覆蓋（任一 block 都會 block）。請擇一啟用，或在 `~/.claude/settings.json` 暫時 disable 另一個 plugin。本 plugin 與 ralph-wiggum 的關鍵差異：max-iterations 動態配置、整合 acceptance-evaluator 智能驗收、**刻意不提供 `<promise>` 自喊完成機制**（避免 LLM 在 evaluator 之外開後門）；ralph 適合機械重塞 prompt 場景，本 plugin 適合品質驅動 loop。
+- **per-project 綁 cwd**：state file 寫於當前工作目錄的 `.claude/`。若在 monorepo 子目錄起 session 而 `.claude/` 在上層，Manual Loop 觸發判定會失敗。請於 project root 啟動 session 後再 `/zenbu-loop`。
+- **ZENBU_HOOKS_ENABLED guard 與其他 hook 一致**：Stop hook 跟 SessionStart / UserPromptSubmit 一樣，預設不啟用 Auto 行為；用戶顯式設 env 才開 Auto Loop，或下 `/zenbu-loop` 顯式調用 Manual Loop。
