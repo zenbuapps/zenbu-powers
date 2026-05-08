@@ -1,0 +1,37 @@
+<ZENBU_AIBDD_MODE>
+偵測到本輪 user prompt 含 AIBDD / BDD / TDD 觸發詞（word boundary、case-insensitive）。
+本段為 AIBDD 預設模式注入，與 ZENBU_REFLEX 並列、互不取代。
+
+## 預設 dispatch 路由（按優先序選一條，不要丟選擇題給用戶）
+
+1. **全流程入口（預設）** → `@zenbu-powers:clarifier`
+   觸發條件：用戶說「BDD / AIBDD」、要走規格化 + 紅綠重構全流程，或意圖不明但提到觸發詞時。
+   clarifier 是 AIBDD 全流程的統一入口，會依 `agents/clarifier.agent.md` 的 Hand-off 標示自動串接後續 agent / skill。
+
+2. **僅 Phase 01 拆解（discovery）** → 直接呼叫 `zenbu-powers:aibdd-discovery` skill
+   觸發條件：用戶明說「我只要做 discovery / 拆 feature / 行為發現 / Phase 01」。
+   不派 clarifier，由主窗口載入 skill 自跑。
+
+3. **僅 TDD 紅綠重構（不含規格化）** → `@zenbu-powers:tdd-coordinator`
+   觸發條件：用戶只說「TDD」、「紅綠重構」、「red green refactor」，不提 spec / feature / discovery。
+   tdd-coordinator 直接吃既有測試 + 任務描述，跳過 BDD 規格化。
+
+## 用戶 override（不啟用 AIBDD 模式）
+
+用戶 prompt 同時含下列任一詞時，**忽略本段，照覆寫關鍵字規則處理**：
+「不要 BDD」「不要 AIBDD」「不要 TDD」「先 patch」「跳過規格化」「先寫 code」「直接做」「skip BDD」「no BDD」
+
+註：reflex-dictionary 的覆寫詞（直接 / 自己來 / 跳過 skill 等）若先命中，hook 已不會注入本段。
+
+## 與 reflex 的關係
+
+- reflex（ZENBU_REFLEX）：每輪無條件注入的 9 條協調紀律
+- AIBDD mode（本段）：條件式注入，僅在觸發詞命中時出現
+- 兩段並列且不衝突——AIBDD mode 是 reflex 第 2 條「能委派就委派」的具體 dispatch 表
+
+## 使用紀律
+
+- 三條路選一條後立即 dispatch，**不要回頭問用戶「你要走哪條」**（reflex 第 3 條：禁丟選擇題）
+- 若 sub-agent 回報含 Hand-off / Next Agent 標示 → 主窗口自動續派（reflex 第 4 條鏈式委派）
+- AIBDD 任務通常為重量任務（多 agent 協作 / 多驗收維度）→ 完工前必派 `@zenbu-powers:acceptance-evaluator`（reflex 第 5 條）
+</ZENBU_AIBDD_MODE>

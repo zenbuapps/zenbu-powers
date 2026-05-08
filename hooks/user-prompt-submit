@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 # UserPromptSubmit hook for zenbu-powers plugin
-# Injects the reflex dictionary (6 zenbu rules) into every user turn,
-# unless the user's prompt contains an override keyword indicating they
-# want Claude to skip orchestration / agent dispatch / reflex injection.
+# Injects two independent context blocks into every user turn:
+#   1. Reflex dictionary (6+ zenbu rules) — unconditional, always when hooks enabled
+#   2. AIBDD mode prompt — conditional, only when prompt contains AIBDD/BDD/TDD trigger
+#
+# Both blocks are merged into a single hookSpecificOutput.additionalContext payload
+# (Claude Code spec: each hook must output exactly one JSON object on stdout).
+#
+# Skips both blocks when user prompt contains an override keyword (e.g. 直接 / 自己來
+# / 跳過 skill) indicating the user wants to bypass orchestration.
 #
 # Safe-fail policy: any error -> exit 0 (no JSON output, no block).
 # Hook framework treats empty stdout as "no additionalContext", main flow
-# proceeds normally without the reflex injection.
+# proceeds normally without any injection.
 
 set -uo pipefail
 
@@ -16,8 +22,10 @@ set -uo pipefail
 # Determine plugin root directory
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" || exit 0
 DICT_FILE="${SCRIPT_DIR}/reflex-dictionary.txt"
+AIBDD_FILE="${SCRIPT_DIR}/aibdd-mode-prompt.txt"
 
-# If dictionary file missing, silently skip
+# If reflex dictionary file missing, silently skip (reflex is the baseline; without
+# it the AIBDD-only injection would be confusing and out-of-context).
 [ -f "$DICT_FILE" ] || exit 0
 
 # Read stdin (Claude Code hook standard interface)
@@ -35,7 +43,7 @@ else
 fi
 
 # Override keyword detection — if any of these substrings appear in the user prompt,
-# the user has explicitly opted out of orchestration; do NOT inject reflex.
+# the user has explicitly opted out of orchestration; do NOT inject reflex OR aibdd-mode.
 # Pattern is OR-joined (grep -E alternation). All 11 keywords are literal substrings;
 # Chinese has no word boundary issue.
 override_pattern='直接|跳過 skill|不用派|不要派|自己來|就你處理|不用 sub-agent|不要 sub-agent|你做就好|不用查 skill|不用走流程'
@@ -45,18 +53,52 @@ if printf '%s' "$user_prompt" | grep -Eq "$override_pattern"; then
     exit 0
 fi
 
-# Read reflex dictionary content
+# AIBDD trigger detection — AIBDD / BDD / TDD with strict word boundary, case-insensitive.
+# Why word boundary: BDD/TDD are 3-letter tokens; substring matching would falsely fire on
+#   xBDDy, subBDD, fooTDD, etc. \b ensures the token stands alone.
+# Pattern explanation:
+#   \b           = word boundary (left side: non-word|start)
+#   (AIBDD|BDD|TDD) = the three trigger tokens
+#   \b           = word boundary (right side: non-word|end)
+# grep -i = case-insensitive (covers aibdd, Bdd, tdd, etc.)
+# grep -E = extended regex (for | alternation and \b)
+aibdd_trigger_pattern='\b(AIBDD|BDD|TDD)\b'
+
+aibdd_active=0
+if printf '%s' "$user_prompt" | grep -Eiq "$aibdd_trigger_pattern"; then
+    # Trigger word matched. Confirm aibdd-mode-prompt.txt exists before activating;
+    # missing file -> silent skip (reflex still injected on its own).
+    [ -f "$AIBDD_FILE" ] && aibdd_active=1
+fi
+
+# Read reflex dictionary content (always required when we reach this point)
 dict_content=$(cat "$DICT_FILE" 2>/dev/null) || exit 0
 
-# Build additionalContext payload with proper JSON escaping
+# Build the merged context payload.
+# Spec: a single hook may only emit ONE JSON object on stdout, so reflex and
+# aibdd-mode must coexist within one additionalContext string. We separate them
+# with a blank line so both <ZENBU_REFLEX>...</ZENBU_REFLEX> and
+# <ZENBU_AIBDD_MODE>...</ZENBU_AIBDD_MODE> remain distinct, parseable blocks.
+if [ "$aibdd_active" = "1" ]; then
+    aibdd_content=$(cat "$AIBDD_FILE" 2>/dev/null) || aibdd_content=""
+    if [ -n "$aibdd_content" ]; then
+        merged_content="${dict_content}"$'\n\n'"${aibdd_content}"
+    else
+        merged_content="$dict_content"
+    fi
+else
+    merged_content="$dict_content"
+fi
+
+# Emit the single JSON payload. additionalContext must be a JSON-escaped string.
 if command -v jq >/dev/null 2>&1; then
     # jq path: -Rs reads raw input as a single JSON string with full escaping
-    escaped_dict=$(printf '%s' "$dict_content" | jq -Rs . 2>/dev/null) || exit 0
-    # escaped_dict already includes surrounding quotes, e.g. "<ZENBU_REFLEX>\n..."
-    printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":%s}}\n' "$escaped_dict"
+    escaped=$(printf '%s' "$merged_content" | jq -Rs . 2>/dev/null) || exit 0
+    # escaped already includes surrounding quotes, e.g. "<ZENBU_REFLEX>\n..."
+    printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":%s}}\n' "$escaped"
 else
     # Fallback: pure bash parameter substitution (same pattern as session-start)
-    s="$dict_content"
+    s="$merged_content"
     s="${s//\\/\\\\}"
     s="${s//\"/\\\"}"
     s="${s//$'\n'/\\n}"
