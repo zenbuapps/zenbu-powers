@@ -210,16 +210,16 @@ npx wp-env run tests-cli --env-cwd=wp-content/plugins/{plugin} \
 
 ---
 
-## 與 Java / Python 版差異
+## 與其他 IT 變體差異
 
-| 面向 | PHP IT | Java / Python |
-|------|--------|--------------|
+| 面向 | PHP IT | Node.js IT / TypeScript IT |
+|------|--------|---------------------------|
 | Phase 數量 | **4 phase**（多 test-skeleton） | 3 phase（red / green / refactor） |
-| 骨架來源 | 需額外 test-skeleton 階段產生 PHPUnit 骨架 | BDD 框架（Cucumber / Behave）自動對映 .feature |
+| 骨架來源 | 需額外 test-skeleton 階段產生 PHPUnit 骨架 | BDD 框架（Cucumber.js）或 Vitest 自動對映 .feature |
 | Variant routing | **無** arguments.yml 路由（PHP IT 獨立運作） | 有 IT / API / E2E 分流 |
-| 測試命令 | `vendor/bin/phpunit` | Maven `mvn verify` / `behave` |
-| DB rollback | `WP_UnitTestCase` 自動處理 | Testcontainers 手動管理 / Python fixture |
-| 基類 | `Yoast\WPTestUtils\WPIntegration\TestCase` | JUnit 5 / pytest |
+| 測試命令 | `vendor/bin/phpunit` | `npx cucumber-js` / `npx vitest run` |
+| DB rollback | `WP_UnitTestCase` 自動處理 | Testcontainers 手動管理 |
+| 基類 | `Yoast\WPTestUtils\WPIntegration\TestCase` | Cucumber.js World / Vitest test |
 
 ---
 

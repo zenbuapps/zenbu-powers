@@ -3,7 +3,7 @@ name: aibdd-auto-control-flow
 description: >
   BDD 全自動批次迴圈。掃描 features 目錄，為每個 .feature 展開 3 phase TODO 清單
   （red → green → refactor），逐一執行直到全數完成。
-  透過 arguments.yml 自動決定測試命令和變體。統合 Python E2E / Java E2E / Python UT / Node.js IT 四個版本。
+  透過 arguments.yml 自動決定測試命令和變體。統合 Node.js IT / TypeScript IT 變體。
   當 /aibdd-specformula 的 Phase 02 觸發，或使用者說「control-flow」「批次執行」時觸發。
 ---
 
@@ -17,21 +17,17 @@ description: >
 
 | tech_stack | test_strategy | 測試命令 | 備註 |
 |-----------|---------------|---------|------|
-| python | e2e | `behave ${FEATURES_DIR}/ --tags=~@ignore` | 含 Schema Analysis |
-| java | e2e | `mvn clean test` | 含 Schema Analysis |
-| python | ut | `behave ${FEATURES_DIR}/ --tags=~@ignore` | 無 Schema Analysis |
 | nodejs | it | `npx cucumber-js --tags "not @ignore"` | 含 Schema Analysis |
 | typescript | it | `npx vitest run` | 5 phases；委派 `/zenbu-powers:aibdd-auto-tdd`，路由 stage=control-flow / lang=typescript（具體載入：references/control-flow/typescript.md） |
 
-**E2E 變體在 Red 前多一步 Schema Analysis（由 `/zenbu-powers:aibdd-auto-red` 內部處理）。**
-**UT 變體跳過 Schema Analysis（由 `/zenbu-powers:aibdd-auto-red` 的 variant reference 控制）。**
+**IT 變體在 Red 前多一步 Schema Analysis（由 `/zenbu-powers:aibdd-auto-red` 內部處理）。**
 **TypeScript IT 變體（React 前端）有完整 5 phase 流程（schema-analysis → step-template → red → green → refactor），由 `aibdd-auto-tdd` 主 skill 的 typescript 變體 reference 處理（`references/{stage}/typescript.md`）。**
 
 ---
 
 ## Step 0：環境前置檢查
 
-驗證 backend 骨架是否存在（依變體檢查：Python → `requirements.txt`、Java → `pom.xml`、Node.js → `package.json`）。
+驗證 backend 骨架是否存在（依變體檢查：Node.js → `package.json`、TypeScript → `package.json` + `tsconfig.json`）。
 
 - **不存在** → 詢問使用者「偵測到尚未建立 backend 骨架，是否先執行 `/zenbu-powers:aibdd-auto-backend-starter`？」→ 使用者確認後觸發 `/zenbu-powers:aibdd-auto-backend-starter`，完成後再繼續
 - **存在** → 直接進入 Step 1

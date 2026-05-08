@@ -4,7 +4,7 @@
 # ///
 """Generate backend project skeleton from templates.
 
-Supports variants: python-e2e, python-ut, java-e2e, nodejs-it.
+Supports variants: nodejs-it.
 
 Usage:
     uv run generate-skeleton.py --project-dir <path> --project-name <name> --variant <variant>
@@ -48,27 +48,6 @@ def resolve_args_variables(args_data: dict) -> dict:
     return resolved
 
 
-def build_variables(args_data: dict, project_name: str, project_dir: Path) -> dict:
-    """Build the full variable dict for template substitution (Python variants)."""
-    resolved = resolve_args_variables(args_data)
-    slug = slugify(project_name)
-    py_app_dir = resolved.get("PY_APP_DIR", "app")
-    py_app_module = py_app_dir.replace("/", ".")
-    py_test_features_dir = resolved.get("PY_TEST_FEATURES_DIR", "tests/features")
-    py_test_module = py_test_features_dir.replace("/", ".")
-
-    variables = {
-        **resolved,
-        "PROJECT_NAME": project_name,
-        "PROJECT_SLUG": slug,
-        "PROJECT_DESCRIPTION": f"{project_name} — BDD Workshop Python E2E",
-        "PY_APP_MODULE": py_app_module,
-        "PY_TEST_MODULE": py_test_module,
-        "DB_NAME": slug.replace("-", "_") + "_dev",
-    }
-    return variables
-
-
 def build_variables_nodejs(args_data: dict, project_name: str, project_dir: Path) -> dict:
     """Build the full variable dict for Node.js IT template substitution."""
     resolved = resolve_args_variables(args_data)
@@ -107,27 +86,11 @@ def template_name_to_path(name: str) -> str:
     return path
 
 
-def create_empty_inits(project_dir: Path, variables: dict) -> None:
-    """Create empty __init__.py files for packages that don't have templates."""
-    py_app_dir = variables.get("PY_APP_DIR", "app")
-    dirs_needing_init = [
-        f"{py_app_dir}/repositories",
-        f"{py_app_dir}/services",
-        f"{py_app_dir}/schemas",
-    ]
-    for d in dirs_needing_init:
-        init_path = project_dir / d / "__init__.py"
-        if not init_path.exists():
-            init_path.parent.mkdir(parents=True, exist_ok=True)
-            init_path.write_text("", encoding="utf-8")
-            print(f"  {d}/__init__.py (empty)")
-
-
 def main():
     parser = argparse.ArgumentParser(description="Generate backend project skeleton")
     parser.add_argument("--project-dir", required=True, help="Backend project root directory")
     parser.add_argument("--project-name", required=True, help="Project display name")
-    parser.add_argument("--variant", default="python-e2e", help="Template variant (python-e2e / python-ut / java-e2e / nodejs-it)")
+    parser.add_argument("--variant", default="nodejs-it", help="Template variant (nodejs-it)")
     parser.add_argument("--arguments", required=True, help="Path to arguments.yml")
     args = parser.parse_args()
 
@@ -145,7 +108,8 @@ def main():
     if args.variant == "nodejs-it":
         variables = build_variables_nodejs(args_data, args.project_name, project_dir)
     else:
-        variables = build_variables(args_data, args.project_name, project_dir)
+        print(f"Error: unsupported variant '{args.variant}'. Supported: nodejs-it.", file=sys.stderr)
+        sys.exit(1)
 
     # Locate templates
     script_dir = Path(__file__).resolve().parent
@@ -175,12 +139,6 @@ def main():
         migrations_dir = project_dir / variables.get("NODE_DRIZZLE_MIGRATIONS", "src/db/migrations")
         migrations_dir.mkdir(parents=True, exist_ok=True)
         print(f"  {migrations_dir.relative_to(project_dir)}/ (empty)")
-    else:
-        # Python variants: create empty __init__.py files
-        create_empty_inits(project_dir, variables)
-        # Create alembic/versions/ directory
-        versions_dir = project_dir / variables.get("ALEMBIC_VERSIONS_DIR", "alembic/versions")
-        versions_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"\nSkeleton generated: {count} files written")
 

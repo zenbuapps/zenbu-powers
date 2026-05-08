@@ -2,7 +2,7 @@
 name: aibdd-auto-green
 description: >
   BDD 綠燈實作者。以 Red 階段產出的失敗測試為驅動，用最小增量迭代實作後端，
-  直到所有測試通過。透過 arguments.yml 自動路由語言變體（Python E2E / Java E2E / Python UT）。
+  直到所有測試通過。透過 arguments.yml 自動路由語言變體（Node.js IT / TypeScript IT）。
   當 /aibdd-auto-control-flow 呼叫綠燈階段，或使用者說「綠燈」「green」時觸發。
 ---
 
@@ -14,9 +14,6 @@ description: >
 
 | tech_stack | test_strategy | 載入 | 實作目標 |
 |-----------|---------------|------|---------|
-| python | e2e | `references/variants/python-e2e.md` | FastAPI Schemas → Services → Controllers → Route 註冊 |
-| java | e2e | `references/variants/java-e2e.md` | DTO → Service → Controller → Route 註冊 |
-| python | ut | `references/variants/python-ut.md` | FakeRepository 方法體 → Service 業務邏輯 |
 | nodejs | it | `references/variants/nodejs-it.md` | Zod Schemas → Services → Express Routes → Route 註冊 |
 | typescript | it | `references/variants/ts-it.md` | React Component rendering → hooks → event handlers → API client |
 
@@ -47,7 +44,6 @@ while 測試未全部通過:
 | HTTP 400 | 驗證失敗 | 補齊 Schema/DTO 驗證 |
 | HTTP 401 | 未授權 | 補齊 Auth middleware |
 | Assertion Error | 回傳值不符預期 | 修正 Service 邏輯 |
-| NotImplementedError | UT 方法體未實作 | 實作 FakeRepo/Service 方法體 |
 
 ### 最小增量原則
 
@@ -57,7 +53,7 @@ while 測試未全部通過:
 
 ---
 
-## Docker 環境檢查（E2E only）
+## Docker 環境檢查（IT only）
 
 與 Red 階段相同：確認 Docker daemon + PostgreSQL image。
 

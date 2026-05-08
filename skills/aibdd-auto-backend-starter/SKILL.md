@@ -3,7 +3,7 @@ name: aibdd-auto-backend-starter
 description: >
   後端專案環境初始化（script-driven）。用 AskUserQuestion 詢問後端專案目錄，
   再執行 generate-skeleton.py 從 templates/ 一次性建立骨架。
-  支援 Python E2E / Java E2E / Python UT / Node.js IT 變體。
+  支援 Node.js IT 變體（更多變體陸續加入）。
 user-invocable: true
 ---
 
@@ -14,8 +14,6 @@ Script-driven 骨架產生器。一行指令建出完整後端專案結構。
 ## 變體路由
 
 讀取 `arguments.yml`，從 key prefix 自動偵測技術棧：
-- `PY_` → python-e2e / python-ut（依 test_strategy 決定）
-- `JAVA_` → java-e2e
 - `NODE_` → nodejs-it
 
 偵測不到 → 用 AskUserQuestion 詢問使用者技術棧。
@@ -34,7 +32,7 @@ Script-driven 骨架產生器。一行指令建出完整後端專案結構。
 
 使用 **AskUserQuestion** 詢問：
 
-> 專案名稱？（用於 pyproject.toml / pom.xml 的 name + Docker container 命名）
+> 專案名稱？（用於 package.json 的 name + Docker container 命名）
 
 取得 `PROJECT_NAME` 後繼續。
 

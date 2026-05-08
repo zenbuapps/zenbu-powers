@@ -24,17 +24,12 @@ import yaml
 def detect_tech_stack(args_data: dict) -> tuple[str, str]:
     """Detect LANG and TEST_STRATEGY from arguments.yml keys."""
     keys = set(args_data.keys())
-    if any(k.startswith("PY_") for k in keys):
-        lang = "python"
-        strategy = "e2e"
-        if any(k.startswith("PY_") and "UT" in k for k in keys):
-            strategy = "ut"
-    elif any(k.startswith("JAVA_") for k in keys):
-        lang = "java"
-        strategy = "e2e"
-    elif any(k.startswith("TS_") for k in keys):
+    if any(k.startswith("TS_") for k in keys):
         lang = "typescript"
         strategy = "e2e"
+    elif any(k.startswith("NODE_") for k in keys):
+        lang = "nodejs"
+        strategy = "it"
     elif any(k.startswith("SRC_DIR") for k in keys):
         lang = "frontend"
         strategy = "frontend-only"

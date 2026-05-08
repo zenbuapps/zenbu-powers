@@ -13,8 +13,8 @@
 - `erm.dbml` — Entity 結構定義（Table、Column、FK、enum）
 
 ### 2. 比對現有程式碼
-- 掃描現有 ORM Models / JPA Entities
-- 掃描現有 DB Migrations（Alembic versions / Flyway）
+- 掃描現有 ORM Models / Entities
+- 掃描現有 DB Migrations（drizzle-kit / TypeORM migrations 等）
 - 識別差異：新增欄位、改名、新 Aggregate、enum 變更
 
 ### 3. GO / NO-GO 決策
@@ -44,17 +44,15 @@
 ## 輸出
 
 Schema Analysis 完成後產出：
-- 更新後的 ORM Models / JPA Entities（若有變更）
+- 更新後的 ORM Models / Entities（若有變更）
 - 新的 DB Migrations（若需要）
 - GO / NO-GO 報告
 
 ## 跨語言差異
 
-| 面向 | Python E2E | Java E2E | Python UT | Node.js IT |
-|------|-----------|----------|----------|-----------|
-| ORM | SQLAlchemy | JPA (Hibernate) | 純 Python class | Drizzle ORM |
-| Migration | Alembic | Flyway / Liquibase | N/A（無 DB） | drizzle-kit |
-| Repository | SQLAlchemy Session | Spring Data JPA | FakeRepository (dict) | Drizzle queries |
-| 需要 Schema Analysis? | 是 | 是 | 否（跳過） | 是 |
-
-**Python UT 跳過 Schema Analysis** — 沒有真實 DB，不需要 migration。
+| 面向 | Node.js IT | TypeScript IT |
+|------|-----------|---------------|
+| ORM | Drizzle ORM | TypeORM / Prisma |
+| Migration | drizzle-kit | TypeORM migrations |
+| Repository | Drizzle queries | Repository pattern |
+| 需要 Schema Analysis? | 是 | 是 |

@@ -15,9 +15,6 @@ description: >
 
 | tech_stack | test_strategy | 載入 variant | 載入 code-quality |
 |-----------|---------------|-------------|------------------|
-| python | e2e | `references/variants/python-e2e.md` | `references/code-quality/python.md` |
-| java | e2e | `references/variants/java-e2e.md` | `references/code-quality/java.md` |
-| python | ut | `references/variants/python-ut.md` | `references/code-quality/python.md` |
 | nodejs | it | `references/variants/nodejs-it.md` | `references/code-quality/nodejs.md` |
 | typescript | it | `references/variants/ts-it.md` | `references/code-quality/typescript.md` |
 
@@ -56,9 +53,8 @@ description: >
 
 | 變體 | 指令 |
 |-----|------|
-| python (e2e/ut) | `behave ${PY_TEST_FEATURES_DIR}/ --tags=~@ignore` |
-| java (e2e) | `mvn clean test -Dtest=RunCucumberTest -Dcucumber.filter.tags="not @ignore"` |
 | nodejs (it) | `npx cucumber-js --tags "not @ignore"` |
+| typescript (it) | `npx vitest run` |
 
 ---
 
@@ -87,7 +83,7 @@ description: >
 6. **Meta 清理** — 移除 TODO 註解、保留業務註解
 7. **日誌實踐** — 結構化 key=value、正確日誌等級
 
-語言特有規則（Python logging、Java @Slf4j 等）在 code-quality reference 中。
+語言特有規則在 code-quality reference 中。
 變體特有工作流（兩階段、重構方向等）在 variant reference 中。
 
 ---

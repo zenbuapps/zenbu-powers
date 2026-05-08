@@ -179,15 +179,15 @@ cd ${PROJECT_ROOT} && npx msw init public/ --save
 
 # 與後端 Walking Skeleton 的差異
 
-| 項目 | Backend (Python E2E) | Frontend (API-First MSW) |
+| 項目 | Backend (Node.js IT) | Frontend (API-First MSW) |
 |------|---------------------|--------------------------|
 | DB | PostgreSQL（Testcontainers） | 無（MSW mock） |
-| HTTP | FastAPI TestClient | Playwright + MSW |
-| 測試框架 | Behave | Cucumber.js |
-| 型別 | Pydantic / dataclass | Zod schemas |
-| Mock 策略 | FakeRepository / DB rollback | MSW handlers + fixtures |
+| HTTP | Supertest | Playwright + MSW |
+| 測試框架 | Cucumber.js | Cucumber.js |
+| 型別 | Zod schemas | Zod schemas |
+| Mock 策略 | DB rollback | MSW handlers + fixtures |
 | 瀏覽器 | 無 | Playwright (headless Chromium) |
-| 認證 | JWT（PyJWT） | Cookie-based auth token |
+| 認證 | JWT（jsonwebtoken） | Cookie-based auth token |
 
 ---
 

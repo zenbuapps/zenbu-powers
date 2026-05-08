@@ -180,7 +180,7 @@ description: {一句話說明：這個 SKILL 何時被觸發}
 ```yaml
 project_name: {name}
 tech_stack:
-  backend: {python-e2e / java-e2e / csharp-it / python-ut / nodejs-it / php-it}
+  backend: {csharp-it / nodejs-it / php-it}
   frontend: {nextjs / react-vite / none}
 test_strategy: {E2E / IT / UT}
 paths:

@@ -31,7 +31,7 @@ description: >
 
 2. 技術棧可辨識？
    → 從 arguments.yml 讀取 tech_stack + test_strategy
-   → 決定 Phase 05 使用的 control-flow skill（python/java/typescript）
+   → 決定 Phase 05 使用的 control-flow skill（typescript/csharp/php/nodejs）
 
 3. 計畫目錄路徑？
    → 詢問使用者或使用預設：${PROJECT_ROOT}/plans/{requirement-slug}/
@@ -52,7 +52,7 @@ description: >
 
 | 變數 | 來源 | 範例 |
 |------|------|------|
-| `${LANG}` | arguments.yml → tech_stack | `python` / `java` |
+| `${LANG}` | arguments.yml → tech_stack | `typescript` / `nodejs` |
 | `${TEST_STRATEGY}` | arguments.yml → test_strategy | `e2e` / `ut` |
 | `${SPECS_ROOT_DIR}` | arguments.yml → specs_root | `specs/` |
 | `${PROJECT_ROOT}` | arguments.yml → project_root | `.` |
