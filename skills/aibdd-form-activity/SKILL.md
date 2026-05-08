@@ -1,6 +1,11 @@
 ---
 name: aibdd-form-activity
-description: Activity 視圖的 Spec Skill。從 idea 生成 Activity 骨架（.mmd 或 .activity 格式）並連動生成所有綁定檔案（.feature/.md）骨架，不確定處標記便條紙。可被 /discovery 調用，也可獨立使用。支援兩種格式：.mmd（Mermaid flowchart，預設）與 .activity（自訂 DSL）。
+description: >
+  Activity 視圖的 Spec Skill（Reconciler）。從 idea 推導 Activity Diagram desired state（.mmd 或 .activity 格式）
+  並連動產生所有綁定檔案（.feature/.md）骨架，不確定處標記便條紙。
+  以 desired-state reconciliation 模式運作：讀取現有 .activity 檔（若存在）→ 推導 desired state →
+  計算 diff → 增量更新；Greenfield 時 current = 空，等同於從零建立骨架。
+  可被 /discovery 調用，也可獨立使用。支援兩種格式：.mmd（Mermaid flowchart，預設）與 .activity（自訂 DSL）。
 user-invocable: true
 ---
 
@@ -8,12 +13,22 @@ user-invocable: true
 
 | 方向 | 內容 |
 |------|------|
-| Input | User idea (raw text) &#124; existing .mmd/.activity files (for update) |
+| Input | User idea (raw text) &#124; existing `.mmd`/`.activity` files (current state) &#124; Execution Plan scope |
 | Output | `activities/*.mmd`（或 `*.activity`）, `features/**/*.feature` (skeleton), `specs/**/*.md` (skeleton) |
 
 # 角色
 
-管理 Activity 視圖。將業務流程以 Activity 格式記錄，並連動生成所有綁定檔案的骨架。
+管理 Activity 視圖。以 reconciler 模式從 idea 推導 Activity Diagram，並連動更新所有綁定檔案的骨架。
+
+**Reconciler 合約**：本 skill 採 desired-state reconciliation 模式。啟動時必須 **Read** `aibdd-core/references/reconciler-contract.md` 全文，並按其 Step 1-6 流程執行。本檔僅描述本 skill 的特化邏輯。
+
+## References 導覽
+
+| 檔案 | 何時載入 | 內容 |
+|------|---------|------|
+| `references/syntax-mermaid.md` | Step 1 Derive / Step 5 Apply（`.mmd` 格式） | Mermaid flowchart 語法 |
+| `references/syntax-activity.md` | Step 1 Derive / Step 5 Apply（`.activity` 格式） | 自訂 DSL 語法 |
+| `references/cic-format.md` | Step 1 Derive / Step 5 Apply | 便條紙格式與品質標準 |
 
 ---
 
@@ -21,42 +36,34 @@ user-invocable: true
 
 **獨立調用時**，先詢問：
 - 規格根目錄路徑（預設 `${SPECS_ROOT_DIR}`）
-- 任務類型：**新建**（從 idea 生成）或 **更新**（修改現有檔案）
 - Activity 格式：`.mmd`（預設）或 `.activity`
 
-**被 `/zenbu-powers:aibdd-discovery` 調用時**，由協調器提供以上資訊（含 `${ACTIVITY_EXT}`），不再詢問。
+**被 `/zenbu-powers:aibdd-discovery` 調用時**，由協調器提供以上資訊（含 `${ACTIVITY_EXT}`） + Execution Plan scope，不再詢問。
+
+依當前格式 LOAD 對應的 syntax reference 後再進入 Reconciliation 流程。
 
 ---
 
-# 語法速查
+# Reconciliation 流程
 
-依當前格式讀取對應的語法參考：
+## Step 1: Derive Desired State
 
-| 格式 | 參考文件 |
-|------|---------|
-| `.mmd` | `references/syntax-mermaid.md` |
-| `.activity` | `references/syntax-activity.md` |
+從 idea（與相關 clarify session）推導「Activity Diagram 應該長什麼樣」：完整的 Actor / STEP / DECISION / FORK 清單，以及每個 STEP 應綁定的 .feature / .md 路徑。
 
-**LOAD 對應的 reference 後再開始生成或更新。**
-
----
-
-# 從 Idea 生成骨架
-
-## 1. 識別 Actor
+### 1.1 識別 Actor
 
 從 idea 找出所有參與者。每個 Actor 對應一個 Actor 宣告行，綁定 `specs/actors/<Actor名>.md`。
 
 **Actor 合法性規則依 `/zenbu-powers:aibdd-discovery` 定義。** 摘要：僅允許「外部使用者」和「第三方系統」作為 Actor，禁止內建系統邏輯作為 Actor。
 
-## 2. 推斷 STEP 序列
+### 1.2 推斷 STEP 序列
 
 從 idea 的業務動詞依序抽出主線步驟：
 - 步驟數以「完成業務目標的端到端完整性」為準，不人為壓縮
 - 主線 STEP 純數字遞增（1、2、3 …）
 - 每個 STEP 的 `@Actor`、label、`{binding}` 皆為選用（sf parser 允許省略），但建議盡量提供以維持可讀性
 
-## 3. 識別 DECISION / FORK
+### 1.3 識別 DECISION / FORK
 
 **DECISION**（條件分支）：步驟結果有多種走向時加入。
 - id = 上一個 STEP 數字 + 字母後綴（如 STEP:3 後的第一個分支為 `DECISION:3a`）
@@ -65,7 +72,7 @@ user-invocable: true
 **FORK**（並行）：多個動作可同時進行時加入。
 - id = 同規則（如 STEP:4 後的第一個並行為 `FORK:4a`）
 
-## 4. 綁定規則
+### 1.4 綁定規則
 
 每個 STEP 綁定一個檔案：
 
@@ -78,13 +85,9 @@ user-invocable: true
 `[ACTOR]` 行統一綁定 `specs/actors/<Actor名>.md`。
 同一個 `.feature` 可被多個 STEP 共用（路徑相同即視為同一功能）。
 
----
+### 1.5 標記便條紙
 
-# 便條紙生成原則
-
-**便條紙格式與品質標準見 `references/cic-format.md`。** 本 skill 使用的註解前綴依格式而異（`.activity` 直接行末；`.mmd` 使用 `%%` 前綴）。
-
-在以下情況標記便條紙：
+依 `references/cic-format.md` 定義，於需求存在歧義或缺失處標記：
 
 | 代碼 | 何時標記 |
 |------|---------|
@@ -94,17 +97,70 @@ user-invocable: true
 | `CON` | 同一流程中前後文衝突 |
 | `BDY` | 範圍邊界不明確（含存在其他可行路徑但暫時未建模） |
 
----
+註解前綴依格式而異（`.activity` 直接行末；`.mmd` 使用 `%%` 前綴）。
 
-# 輸出格式
+## Step 2: Read Current State
 
-## Activity 檔案
+讀取 `activities/*.mmd`（或 `*.activity`）。
 
-依當前格式生成。具體結構見 `references/syntax-mermaid.md` 或 `references/syntax-activity.md`。
+- **不存在**（greenfield）→ current = 空集，全部 desired 元素都是 `create`，進入 Step 3
+- **存在** → parse 出：
+  - Actor 清單（含其綁定路徑）
+  - STEP id 列表（含 `@Actor`、label、`{binding}`）
+  - DECISION 分支條件與 id
+  - FORK 並行分支與 id
 
-## .feature 骨架格式
+格式異常（Mermaid 不合法、DSL parse 失敗）時，依 contract Failure Handling 視為 empty current 但 REPORT 警告。
 
-**先有「如果」（Rule），再有「例如」（Example）。** 推理深度嚴格受組成分析的完整度約束：
+## Step 3: Compute Diff
+
+依以下單位比對 desired vs current：
+
+| 類型 | 條件 | 範例 |
+|------|------|------|
+| modify | STEP id 相同但 label / `@Actor` / `{binding}` 不同 | STEP:3 改名 + 換綁 lead.feature |
+| modify | DECISION id 相同但 Guard 條件改變 | DECISION:3a 加第三條分支 |
+| modify | Actor 名稱相同但綁定路徑變更 | `[ACTOR] 銷售 → specs/actors/Sales.md` |
+| create | STEP / DECISION / FORK / Actor 不存在於 current | 全新 STEP:5、新 Actor「客戶」 |
+| create | 新綁定檔案（.feature / .md 骨架不存在） | 全新 features/lead/scoring.feature 骨架 |
+| delete | current 中有但 desired 中無 | 移除廢棄 STEP（永遠需確認） |
+
+**綁定檔案的 diff 與 STEP 連動**：STEP create → 對應 .feature/.md 骨架 create；STEP modify 且綁定路徑變更 → 舊 .feature 視為 delete（需確認），新 .feature create。
+
+## Step 4: Preview
+
+依 contract 通用格式展示 diff，分區列出：
+
+- Activity 檔案層級的 modify / create / delete（STEP / DECISION / FORK / Actor）
+- 連動的 .feature / .md 骨架 modify / create / delete
+
+使用者選 (P) Proceed / (E) Edit scope / (Q) Question。
+
+## Step 5: Apply with Clarify
+
+**先改後增**：modify → create → delete（需確認）。
+
+### Apply 細則
+
+1. **modify**：
+   - 更新 Activity 檔對應行（`.mmd` 格式需同時更新「節點定義」與「邊定義」兩個區段）
+   - 若 STEP 綁定路徑改變，同步更新對應 .feature / .md
+2. **create**：
+   - 寫入新 STEP / DECISION / FORK / Actor
+   - 同步建立綁定的 .feature / .md 骨架（若不存在）
+3. **delete**：
+   - 展示每個待刪除元素及其下游依賴（綁定檔案、引用該 STEP 的其他 Activity）
+   - 使用者逐一確認後才執行；reconciler 不可自動刪除
+
+### 衝突解決（依 contract 優先序）
+
+- 既有 .activity 中已有 `# CiC(...)` 標記的元素 → 強制走 clarify-loop（`AMB` / `GAP` / `ASM` / `CON` / `BDY`）
+- 收到澄清後：解決對應便條紙（每次只刪除「已被澄清的那一張」），其他便條紙不動
+- 衝突未決 → 保留 current 不動，於 Step 6 change_summary 末追加「衝突未決」條目
+
+### 綁定檔案骨架格式
+
+**`.feature` 骨架**：先有「如果」（Rule），再有「例如」（Example）。推理深度嚴格受組成分析的完整度約束：
 
 | 組成分析結果 | .feature 骨架寫法 |
 |-------------|-----------------|
@@ -131,7 +187,7 @@ Feature: <功能名>
   # ⚠ Example 區段：使用者未提供具體案例，暫不生成。待澄清後補充。
 ```
 
-## .md 骨架格式（Actor / UI）
+**`.md` 骨架**（Actor / UI）：
 
 ```markdown
 # <Actor名 / 頁面名>
@@ -145,24 +201,50 @@ CiC(GAP): <不確定的核心特徵>
 - (待澄清)
 ```
 
----
+### 澄清紀錄
 
-# 更新規則
+將問答內容寫入 `clarify/<YYYY-MM-DD-HHMM>.md`。
 
-## 收到澄清後
+## Step 6: Output
 
-1. **解決便條紙**：定位對應便條紙，刪除 CiC 標記
-2. **修改流程**：若澄清導致結構改變，更新對應行（.mmd 格式需同時更新「節點定義」與「邊定義」兩個區段）
-3. **新增便條紙**：若修改後暴露出新歧義，在受影響位置追加新便條紙
-4. **同步綁定檔案**：若 STEP 的綁定路徑改變，同步更新或新建對應的 .feature / .md 骨架
-5. **記錄澄清**：將問答內容寫入 `clarify/<YYYY-MM-DD-HHMM>.md`
+寫入更新後的 Activity 檔（與連動的 .feature / .md 骨架）+ 回傳 change_summary（含 IMPL_IMPACT）。
 
-## 便條紙刪除規則
+### IMPL_IMPACT 產出規則
 
-每次只刪除「已被澄清的那一張」，其他便條紙不動。
+每個 **modify** 操作評估對下游 spec / implementation 的影響（格式見 `aibdd-core/references/impl-impact.md`）：
+
+| Activity Diff | Impact Type | Phase | 影響目標 |
+|---------------|-------------|-------|---------|
+| STEP 綁定路徑變更（換 .feature） | `SENTENCE_PATTERN` | 02-04 | bdd-analysis 須重評該 domain 句型 |
+| STEP label 變更（業務動詞改名） | `SENTENCE_PATTERN` | 02-04 | 連動 .feature 句型 + 下游 Step Def |
+| DECISION 分支增刪 | `NEW_OPERATION` / `SENTENCE_PATTERN` | 02-04, 07 | bdd-analysis 須補/減句型；Test Plan 結構變更 |
+| Actor 改名 | `SENTENCE_PATTERN` | 02-04, 05 | 句型主詞變更；Step Def 可能斷裂 |
+| 新 STEP / DECISION / Actor（create） | `NEW_OPERATION` | 下游所有 Phase | 完整 derive-feature → bdd-analysis → api-spec 流程 |
+
+**關鍵判斷**：Activity 是上游 reconciler，其 IMPL_IMPACT 主要透過下游 reconciler 傳播（activity → bdd-analysis → api-spec），最終才落到 Phase 05+。
+
+### Scope 表達式
+
+```yaml
+scope:
+  unit: "step"
+  items:
+    - "STEP:3"
+    - "DECISION:3a"
+  impl_impact_from: []   # Activity 是上游 reconciler，通常不從更上游接收 IMPL_IMPACT
+```
 
 ---
 
 # 完成條件
 
-所有 Activity 檔案無未解便條紙（Grep `CiC\(` 結果為空），且所有綁定的 .feature / .md 骨架已建立。
+- 所有 Activity 檔案無未解便條紙（Grep `CiC\(` 結果為空，或剩餘便條紙均經使用者明示保留）
+- 所有綁定的 .feature / .md 骨架已建立（或已 modify 至 desired state）
+- change_summary 正確反映實際操作（含 IMPL_IMPACT）
+- 若 Step 5 中斷，`.reconciler-state.json` 已寫入以供下次 resume
+
+---
+
+## Hand-off / Next Agent
+
+完成後交還 orchestrator。所有 form skill 重構（#4）完成後，將與 api-spec / bdd-analysis 一同送入 acceptance-evaluator 驗收 reconciler 一致性與 greenfield 行為等價性。

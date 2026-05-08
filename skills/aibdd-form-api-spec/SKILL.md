@@ -42,15 +42,15 @@ user-invocable: true
 
 ---
 
-# Reconciliation 流程
+## Reconciliation 流程
 
-## Step 1: Derive Desired State
+### Step 1: Derive Desired State
 
 Read `references/openapi-format.md` 取得型別推斷與格式規則。
 
 從所有 scope 內的 .feature 推導「api.yml 應該長什麼樣」：
 
-### Command Feature → 寫入操作
+#### Command Feature → 寫入操作
 
 | When 動詞 | Method |
 |-----------|--------|
@@ -62,21 +62,21 @@ Read `references/openapi-format.md` 取得型別推斷與格式規則。
 - **Path Parameter**：若 When 包含資源 ID → path parameter
 - 呼叫者身份從 auth token 取得，**不放進** request body
 
-### Query Feature → 讀取操作（GET）
+#### Query Feature → 讀取操作（GET）
 
 - **Query Parameters**：從 When 子句的過濾條件提取
 - **Response Schema**：從 Then datatable 的欄位提取
 
-### Shared Schemas
+#### Shared Schemas
 
 `Error` schema：`{ message: string }`。Response envelope 依專案慣例。
 **Shared schemas 只在 create 時產生，modify 時不動。**
 
-## Step 2: Read Current State
+### Step 2: Read Current State
 
 讀取 `${API_SPECS_DIR}/api.yml`。不存在 → current = 空集。
 
-## Step 3: Compute Diff
+### Step 3: Compute Diff
 
 | 類型 | 條件 | 範例 |
 |------|------|------|
@@ -84,21 +84,21 @@ Read `references/openapi-format.md` 取得型別推斷與格式規則。
 | create | endpoint 不存在於 current | POST /scoring-rules 新增 |
 | delete | current 有但 desired 無 | 需使用者確認 |
 
-## Step 4: Preview
+### Step 4: Preview
 
 展示 diff 給使用者。格式見 reconciler-contract.md。
 
-## Step 5: Apply with Clarify
+### Step 5: Apply with Clarify
 
 **先改後增**：modify → create → delete（需確認）。
 
 遇到模稜兩可 → clarify-loop（`AMB` / `GAP` / `ASM`）。
 
-## Step 6: Output
+### Step 6: Output
 
 寫入更新後的 api.yml + 回傳 change_summary（含 IMPL_IMPACT）。
 
-### IMPL_IMPACT 產出規則
+#### IMPL_IMPACT 產出規則
 
 每個 **modify** 操作評估對 implementation 的影響（格式見 `reconciler-contract.md`）：
 
@@ -117,3 +117,9 @@ Read `references/openapi-format.md` 取得型別推斷與格式規則。
 - 無便條紙、無模糊型別
 - api.yml 可被 OpenAPI validator 解析
 - change_summary 正確反映實際操作（含 IMPL_IMPACT）
+
+---
+
+## Hand-off / Next Agent
+
+完成後交還 orchestrator。所有 form skill 重構（#4）的 sub-agent 階段於本檔對齊後告一段落；Stage D 必須 human-in-the-loop 跑回歸驗證（活化 reconciler 一致性、greenfield 行為等價性、IMPL_IMPACT 傳播鏈），交由後續處理。

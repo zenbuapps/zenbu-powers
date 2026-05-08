@@ -15,7 +15,7 @@ description: >
 
 從已確認的 .feature Rule 骨架出發，經三階段推導，產出最小必要句型集的 `.feature` 檔案（含具體 Examples）。
 
-**Reconciler 合約**：啟動時 Read `aibdd-core/references/reconciler-contract.md`，全程遵循。
+**Reconciler 合約**：啟動時 Read `aibdd-core/references/reconciler-contract.md`，全程遵循。本 skill 為**嵌套式 reconciler**，三階段（系統抽象 / 句型模型 / Examples）各自完整走完 contract 6 步流程，前綴採 `Phase N - Step M` 形式。
 
 ## 核心概念：Boundary → Operation → Handler
 
@@ -53,89 +53,60 @@ description: >
 
 ```
 ${FEATURE_SPECS_DIR}/
-├── 系統抽象.md              # 第一階段
+├── 系統抽象.md              # Phase 1
 ├── {domain}/
-│   ├── 句型.md              # 第二階段
-│   └── *.feature            # 第三階段
+│   ├── 句型.md              # Phase 2
+│   └── *.feature            # Phase 3
 └── ...
 ```
 
 ---
 
-## 執行流程（三階段 Reconciliation）
+## 三階段串接概觀
 
-每個階段都是獨立的 reconciler：derive desired → read current → diff → preview → apply。
+每個階段都是獨立的 reconciler：derive desired → read current → diff → preview → apply → output。階段之間以 IMPL_IMPACT 與 scope 繼承串接。
 
 ```
-1. 第一階段：系統抽象 Reconciliation
-   ├── derive desired 系統抽象（從所有 scope 內 features）
-   ├── read current 系統抽象.md（不存在 = greenfield）
-   ├── compute diff → preview → apply
-   └── 展示 → 等待使用者審核
+Phase 1：系統抽象 Reconciliation
+   └── Step 1-6 完整走完 → 展示 → 等待使用者審核
 
-1.5 Boundary 偵測
+1.5 Boundary 偵測（Phase 1 完成後、Phase 2 開始前的橋接）
    ├── 有 erm.dbml → boundary = web-backend
    │   → Read references/web-backend/句型分析方針.md
    │   → 後續句型分類使用 web-backend Handler 決策樹
    └── 其他 → 使用通用推導（4 抽象角色框架，無 preset）
 
-2. 確認目標 domain（從 scope + features/ 子目錄推導）
+   確認目標 domain（從 scope + features/ 子目錄推導）
 
-3. 第二階段：句型模型 Reconciliation（per domain）
-   ├── derive desired 句型集（從該 domain 的 features，直接分析所有句型）
-   ├── read current {domain}/句型.md（不存在 = greenfield）
-   ├── compute diff → preview → apply
-   └── 展示 → 等待使用者審核
+Phase 2：句型模型 Reconciliation（per domain）
+   └── 對每個 scope domain，Step 1-6 完整走完 → 展示 → 等待使用者審核
 
-3.5 共用句型萃取（僅多 domain 時觸發）
+2.5 共用句型萃取（僅多 domain 時觸發，所有 Phase 2 完成後執行）
    ├── 條件：scope 內有 2+ domain
    │   ├── 掃描所有 domain 句型.md，找出句型文字完全相同的句子
    │   ├── 搬至系統抽象.md 共用句型 section
    │   └── 各 domain 句型.md 替換為引用（→ 見系統抽象 G1）
    └── 只有 1 個 domain → 跳過，不萃取共用句型
 
-4. 第三階段：Feature Examples Reconciliation
-   ├── derive desired Examples（從句型.md + QA 五維分析）
-   ├── read current .feature（可能有舊 Examples 或 @ignore）
-   ├── compute diff → preview → apply
-   └── 展示摘要 → 等待使用者審核
+Phase 3：Feature Examples Reconciliation
+   └── Step 1-6 完整走完 → 展示摘要 → 等待使用者審核
 ```
 
-### 三階段的 Diff 邏輯
+### 階段間的 Scope 繼承與 IMPL_IMPACT 傳播
 
-**第一階段（系統抽象）diff**：
-
-| 類型 | 條件 | 範例 |
-|------|------|------|
-| modify | 既有操作分類變更 | Lead scoring 從 Query → Mutation |
-| modify | 共用句型需更新 | 新增共用 Given 句型 |
-| create | 新操作 | scoring-rules 操作 |
-| create | 新共用契約 | 新 violation pattern |
-
-**第二階段（句型模型）diff**：
-
-| 類型 | 條件 | 範例 |
-|------|------|------|
-| modify | 既有句型需新增參數 | Lead 的 Given 加 score 欄位 |
-| modify | 覆蓋矩陣需更新 | 新增 scoring 相關的 Then 句型 |
-| create | 新 domain | journey/ 全新分析 |
-| create | 既有 domain 新句型 | lead/ 加 scoring 句型 |
-
-**第三階段（Examples）diff**：
-
-| 類型 | 條件 | 範例 |
-|------|------|------|
-| modify | 既有 Scenario 的 Examples 需更新 | Lead 建立加 score 欄位 |
-| create | 新 Scenario Outline | Journey 的所有 scenarios |
-| delete | 不再需要的 Example 行 | 需使用者確認 |
+- **Scope 繼承**：Phase 1 確立的「受影響 domain 清單」由 Phase 2 / Phase 3 沿用，下游不可自行擴張或縮減 scope。
+- **IMPL_IMPACT 傳播**：Phase 1 / Phase 2 的 change_summary 中 IMPL_IMPACT 條目，會被 Phase 3 在 Step 1 Derive 時讀取並納入自己的 desired state（例如系統抽象變更 → 連動句型變更 → 連動 Examples 變更）。
+- **中斷恢復**：任一 Phase 的 Step 5 中斷時寫入 `.reconciler-state.json`，下次啟動同 Phase 時讀取續跑，跳過 Step 1-4。
 
 ---
 
-## 第一階段：系統抽象
+## Reconciliation 流程
 
-產出 `features/系統抽象.md`。
+### Phase 1 - Step 1: Derive Desired State（系統抽象）
 
-### 推導步驟（嚴格按順序）
+從所有 scope 內 .feature 推導「`features/系統抽象.md` 應該長什麼樣」。
+
+#### 推導步驟（嚴格按順序）
 
 1. **辨識操作** — 從所有 scope 內 .feature 的 Rule 列舉所有對外操作
 1b. **拆解系統前置狀態** — 從操作的 Rule 反推狀態部件
@@ -144,20 +115,52 @@ ${FEATURE_SPECS_DIR}/
 4. **萃取共用契約** — 跨 domain 重複的 postcondition、violation、I/O 模式
 5. **辨識變異點** — 各 domain 特有行為
 
-> **句型不在此階段萃取。** 句型的 single source of truth 在各 domain 的句型.md（Stage 2）。
-> 只有在 Stage 2.5（所有 domain 分析完成後）才萃取真正跨 domain 共用的句型。
+> **句型不在此階段萃取。** 句型的 single source of truth 在各 domain 的句型.md（Phase 2）。
+> 只有在 Phase 2.5（所有 domain 分析完成後）才萃取真正跨 domain 共用的句型。
 
-### 輸出格式
+#### 輸出格式
 
 Read `assets/system-abstraction.template.md` 取得模板。
 
+### Phase 1 - Step 2: Read Current State（系統抽象.md）
+
+讀取 `${FEATURE_SPECS_DIR}/系統抽象.md`。
+
+- **不存在**（greenfield）→ current = 空集，全部 desired 元素都是 `create`
+- **存在** → parse 出操作清單、實體清單、操作分類、共用契約、變異點
+
+格式異常時，依 contract Failure Handling 視為 empty current 但 REPORT 警告。
+
+### Phase 1 - Step 3: Compute Diff
+
+| 類型 | 條件 | 範例 |
+|------|------|------|
+| modify | 既有操作分類變更 | Lead scoring 從 Query → Mutation |
+| modify | 共用句型需更新 | 新增共用 Given 句型 |
+| create | 新操作 | scoring-rules 操作 |
+| create | 新共用契約 | 新 violation pattern |
+
+### Phase 1 - Step 4: Preview
+
+依 contract 通用格式展示 diff，使用者選 (P) Proceed / (E) Edit scope / (Q) Question。
+
+### Phase 1 - Step 5: Apply with Clarify
+
+**先改後增**：modify → create → delete（需確認）。
+
+衝突解決依 contract 優先序：使用者直接 input > AI 推導；既有 CiC 標記強制走 clarify-loop；delete 永遠需使用者確認。
+
+### Phase 1 - Step 6: Output
+
+寫入更新後的 `系統抽象.md`，回傳 change_summary（含 IMPL_IMPACT），交給 Phase 1.5 Boundary 偵測。
+
 ---
 
-## 第二階段：實體句型模型
+### Phase 2 - Step 1: Derive Desired State（句型模型）
 
-對每個 scope 內的 domain 產出 `features/{domain}/句型.md`。
+對每個 scope 內的 domain，從該 domain 的所有 .feature 推導「`features/{domain}/句型.md` 應該長什麼樣」。
 
-### 推導步驟
+#### 推導步驟
 
 1. **句型分類**：
    - **若 boundary = web-backend**：Read `references/web-backend/句型分析方針.md`，用 Handler 決策樹分類
@@ -171,19 +174,51 @@ Read `assets/system-abstraction.template.md` 取得模板。
 > **句型清單是 single flat list。** 不分「繼承自系統層」與「本 domain 專屬」。
 > 所有該 domain 需要的句型統一列出，避免與系統抽象.md 的資料重複。
 
-### 輸出格式
+#### 輸出格式
 
 Read `assets/sentence-model.template.md` 取得模板。
 
+### Phase 2 - Step 2: Read Current State（{domain}/句型.md）
+
+對每個 scope 內的 domain，讀取 `${FEATURE_SPECS_DIR}/{domain}/句型.md`。
+
+- **不存在**（greenfield）→ current = 空集
+- **存在** → parse 出句型清單、QA 分析、覆蓋矩陣
+
+### Phase 2 - Step 3: Compute Diff
+
+| 類型 | 條件 | 範例 |
+|------|------|------|
+| modify | 既有句型需新增參數 | Lead 的 Given 加 score 欄位 |
+| modify | 覆蓋矩陣需更新 | 新增 scoring 相關的 Then 句型 |
+| create | 新 domain | journey/ 全新分析 |
+| create | 既有 domain 新句型 | lead/ 加 scoring 句型 |
+
+### Phase 2 - Step 4: Preview
+
+依 contract 通用格式展示 diff（per domain），使用者選 (P) / (E) / (Q)。
+
+### Phase 2 - Step 5: Apply with Clarify
+
+**先改後增**：modify → create → delete（需確認）。
+
+每個 domain 完整走完 5 → 6 後，才進入下一個 domain 的 Phase 2。所有 domain 完成 Phase 2 後，觸發 2.5 共用句型萃取（僅多 domain）。
+
+### Phase 2 - Step 6: Output
+
+寫入更新後的 `{domain}/句型.md`，回傳 change_summary（含 IMPL_IMPACT），準備傳給 Phase 3。
+
 ---
 
-## 第三階段：產出 `.feature` 檔案（填入 Examples）
+### Phase 3 - Step 1: Derive Desired State（Feature Examples）
 
-### 撰寫規則
+對每個 scope 內的 .feature 檔案，從句型.md + QA 五維分析推導「.feature 應該長什麼樣」（含具體 Examples）。
+
+#### 撰寫規則
 
 Read `references/feature-writing-rules.md` 取得完整 9 條規則。
 
-### 填入策略
+#### 填入策略
 
 對每個 scope 內的 .feature 檔案：
 1. 保留所有已確認的 Rule（不修改 Rule 文字）
@@ -193,15 +228,42 @@ Read `references/feature-writing-rules.md` 取得完整 9 條規則。
 5. Data Table 欄位名與 Rule 確認的欄位 1:1 對應
 6. Examples 從 QA 五維分析推導，使用具體值（Spec by Example）
 
-### Feature File 結構
+#### Feature File 結構
 
 Read `assets/feature-file.template.gherkin` 取得模板。
+
+### Phase 3 - Step 2: Read Current State（.feature）
+
+讀取每個 scope 內的 `.feature` 檔案。
+
+- **僅有 Rule 骨架（@ignore）** → current 視為「等待填 Examples」
+- **已有舊 Examples** → parse 出既有 Scenario Outline / Scenario / Examples table
+
+### Phase 3 - Step 3: Compute Diff
+
+| 類型 | 條件 | 範例 |
+|------|------|------|
+| modify | 既有 Scenario 的 Examples 需更新 | Lead 建立加 score 欄位 |
+| create | 新 Scenario Outline | Journey 的所有 scenarios |
+| delete | 不再需要的 Example 行 | 需使用者確認 |
+
+### Phase 3 - Step 4: Preview
+
+依 contract 通用格式展示 diff（per .feature），使用者選 (P) / (E) / (Q)。
+
+### Phase 3 - Step 5: Apply with Clarify
+
+**先改後增**：modify → create → delete（需確認）。Example 行的 delete 永遠需使用者確認。
+
+### Phase 3 - Step 6: Output
+
+寫入更新後的 `.feature` 檔案，回傳 change_summary（含 IMPL_IMPACT 表，見下節）。這是整個 BDD 分析最關鍵的 IMPL_IMPACT 來源。
 
 ---
 
 ## IMPL_IMPACT 產出規則
 
-第三階段（Feature Examples）的每個 **modify** 操作評估對 implementation 的影響。這是最關鍵的 IMPL_IMPACT 來源——Gherkin 句型變更直接影響 Step Definitions。
+Phase 3（Feature Examples）的每個 **modify** 操作評估對 implementation 的影響。這是最關鍵的 IMPL_IMPACT 來源——Gherkin 句型變更直接影響 Step Definitions。
 
 | .feature Diff | Impact Type | Phase | 影響目標 |
 |---------------|-------------|-------|---------|
@@ -234,3 +296,9 @@ change_summary 中附帶 IMPL_IMPACT 表，格式見 `aibdd-core/references/reco
 8. **Reconciler 先改後增。** modify 既有 artifacts 先於 create 新 artifacts。
 9. **Scope 限定。** 只處理 Execution Plan 標記的 domain，不動未受影響的 artifacts。
 10. **IMPL_IMPACT 必須評估。** 每個 modify 操作的 change_summary 必須包含 IMPL_IMPACT 標記。
+
+---
+
+## Hand-off / Next Agent
+
+完成後交還 orchestrator。所有 form skill 重構（#4）的 sub-agent 階段於本檔對齊後告一段落；Stage D 必須 human-in-the-loop 跑回歸驗證（活化 reconciler 一致性、greenfield 行為等價性、IMPL_IMPACT 傳播鏈），交由後續處理。
