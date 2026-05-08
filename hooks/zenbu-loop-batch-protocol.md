@@ -1,6 +1,6 @@
-# zenbu-loop FAIL 缺陷分批協定（v2 設計文件）
+# zenbu-loop FAIL 缺陷分批協定（v2）
 
-> **狀態**：設計階段（Stage A 產出），未實作。Stage B 改 evaluator 報告格式、Stage C 改 stop-hook 解析邏輯。
+> **狀態**：已實作（commit 213c34f）。Stage A 設計 / Stage B evaluator schema 對齊（acceptance-evaluator.agent.md + acceptance-evaluation/references/output-schema.md）/ Stage C stop-hook Step 6 + reflex 第 10 條全部完成。
 > **目的**：解決 evaluator FAIL 時把整份缺陷清單塞回主窗口導致 4-5 輪後 context 爆炸、後續輪次模型遺漏缺陷的問題。
 > **核心策略**：每輪 reason 字串只放 top 3 高優先級缺陷當「降壓 summary」，完整報告寫到檔案讓主窗口主動 Read。同一輪不分批（不增加 loop 總輪數），但每輪餵回主窗口的 token 量降到上限。
 
