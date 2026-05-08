@@ -26,7 +26,7 @@ Step 1: Schema Analysis    → 呼叫 /zenbu-powers:aibdd.auto.ts.it.schema-anal
 Step 2: Step Template      → 呼叫 /zenbu-powers:aibdd.auto.ts.it.step-template
 Step 3: Red Implementation → 對每個 TODO step:
                               → 讀 TODO 取得 handler type
-                              → 讀 /zenbu-powers:aibdd.auto.ts.it.handlers.{type}/SKILL.md
+                              → 讀 /zenbu-powers:aibdd-handlers/references/{type}/typescript.md
                               → 實作測試程式碼
                               → 驗證紅燈（條件 b）
 ```
@@ -53,7 +53,7 @@ Step 3: Red Implementation → 對每個 TODO step:
 
 對每個 `it()` 內的 TODO 註解：
 1. 讀取 TODO 標註 → 取得 handler type
-2. Read `/zenbu-powers:aibdd.auto.ts.it.handlers.{type}/SKILL.md`（若尚未載入）
+2. Read `/zenbu-powers:aibdd-handlers/references/{type}/typescript.md`（若尚未載入主 skill，先 Read `/zenbu-powers:aibdd-handlers/SKILL.md`）
 3. 將 `expect.fail('TODO: ...')` 替換為完整測試程式碼
 4. 處理下一個 step / scenario
 

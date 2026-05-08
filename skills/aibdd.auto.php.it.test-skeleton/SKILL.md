@@ -87,16 +87,16 @@ class UpdateVideoProgressTest extends IntegrationTestCase
     public function test_成功增加影片進度(): void
     {
         // Given 用戶 "Alice" 在課程 1 的進度為 50%，狀態為 "進行中"
-        // [Handler: aggregate-given] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.aggregate-given
+        // [Handler: aggregate-given] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
         // When 用戶 "Alice" 更新課程 1 的影片進度為 80%
-        // [Handler: command] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.command
+        // [Handler: command] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
         // Then 操作成功
-        // [Handler: success-failure] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.success-failure
+        // [Handler: success-failure] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
         // And 用戶 "Alice" 在課程 1 的進度應為 80%
-        // [Handler: aggregate-then] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.aggregate-then
+        // [Handler: aggregate-then] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
         $this->markTestIncomplete('尚未實作');
     }
@@ -108,13 +108,13 @@ class UpdateVideoProgressTest extends IntegrationTestCase
     public function test_進度倒退時應拋出例外(): void
     {
         // Given 用戶 "Bob" 在課程 2 的進度為 80%
-        // [Handler: aggregate-given] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.aggregate-given
+        // [Handler: aggregate-given] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
         // When 用戶 "Bob" 更新課程 2 的影片進度為 50%
-        // [Handler: command] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.command
+        // [Handler: command] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
         // Then 操作失敗，錯誤類型為 "InvalidStateException"
-        // [Handler: success-failure] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.success-failure
+        // [Handler: success-failure] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
         $this->markTestIncomplete('尚未實作');
     }
@@ -188,13 +188,13 @@ public function test_各狀態下更新進度(
     string $result
 ): void {
     // Given 用戶 "<user>" 在課程 <course_id> 的進度為 <initial>%
-    // [Handler: aggregate-given] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.aggregate-given
+    // [Handler: aggregate-given] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
     // When 用戶 "<user>" 更新課程 <course_id> 的影片進度為 <target>%
-    // [Handler: command] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.command
+    // [Handler: command] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
     // Then 結果應為 "<result>"
-    // [Handler: success-failure] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.success-failure
+    // [Handler: success-failure] 參考 /zenbu-powers:aibdd-handlers (lang=php)
 
     $this->markTestIncomplete('尚未實作');
 }

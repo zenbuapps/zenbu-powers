@@ -149,16 +149,16 @@ describe('用戶課程進度', () => {
 
 ## Handler 路由對照表
 
-Step Template 在 TODO 中標註 handler 類型，供 Red Implementation 階段載入對應的 handler SKILL.md。
+Step Template 在 TODO 中標註 handler 類型，供 Red Implementation 階段載入 `/zenbu-powers:aibdd-handlers` 並 Read 對應的 `references/{handler}/typescript.md`。
 
-| 事件風暴部位 | 抽象角色 | Handler SKILL |
-|------------|---------|--------------|
-| Aggregate（初始狀態）| States Prepare | `/zenbu-powers:aibdd.auto.ts.it.handlers.aggregate-given` |
-| Command（寫入操作）| Operation Invocation | `/zenbu-powers:aibdd.auto.ts.it.handlers.command` |
-| Query（讀取操作）| Operation Invocation | `/zenbu-powers:aibdd.auto.ts.it.handlers.query` |
-| 操作成功/失敗 | Operation Result Verifier | `/zenbu-powers:aibdd.auto.ts.it.handlers.success-failure` |
-| Aggregate（狀態驗證）| States Verify | `/zenbu-powers:aibdd.auto.ts.it.handlers.aggregate-then` |
-| Read Model（顯示驗證）| Operation Result Verifier | `/zenbu-powers:aibdd.auto.ts.it.handlers.readmodel-then` |
+| 事件風暴部位 | 抽象角色 | Handler | Reference |
+|------------|---------|---------|-----------|
+| Aggregate（初始狀態）| States Prepare | aggregate-given | `references/aggregate-given/typescript.md` |
+| Command（寫入操作）| Operation Invocation | command | `references/command/typescript.md` |
+| Query（讀取操作）| Operation Invocation | query | `references/query/typescript.md` |
+| 操作成功/失敗 | Operation Result Verifier | success-failure | `references/success-failure/typescript.md` |
+| Aggregate（狀態驗證）| States Verify | aggregate-then | `references/aggregate-then/typescript.md` |
+| Read Model（顯示驗證）| Operation Result Verifier | readmodel-then | `references/readmodel-then/typescript.md` |
 
 ## 完成條件
 

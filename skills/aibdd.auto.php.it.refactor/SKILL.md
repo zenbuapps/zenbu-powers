@@ -89,7 +89,7 @@ Stage 4: refactor  ← 本 skill
 ### 任務
 
 1. 刪除所有 `// TODO:` 註解
-2. 刪除所有 `// [Handler: xxx] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.xxx` 標註
+2. 刪除所有 `// [Handler: xxx] 參考 /zenbu-powers:aibdd-handlers (lang=php)` 標註
 3. **保留** `// Given / // When / // Then` 業務語意註解
 4. 改善變數命名（縮寫 → 語意化）
 5. 簡化重複的準備邏輯（謹慎抽取，三次以上才抽）
@@ -103,7 +103,7 @@ Stage 4: refactor  ← 本 skill
 public function test_成功增加影片進度(): void
 {
     // Given 用戶 "Alice" 在課程 1 的進度為 50%
-    // [Handler: aggregate-given] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.aggregate-given
+    // [Handler: aggregate-given] 參考 /zenbu-powers:aibdd-handlers (lang=php)
     // TODO: 實作測試程式碼
     $u = $this->factory()->user->create(['display_name' => 'Alice']);
     $this->ids['Alice'] = $u;
@@ -112,7 +112,7 @@ public function test_成功增加影片進度(): void
     $this->repos->lessonProgress->save($p);
 
     // When 用戶 "Alice" 更新課程 1 的影片進度為 80%
-    // [Handler: command] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.command
+    // [Handler: command] 參考 /zenbu-powers:aibdd-handlers (lang=php)
     try {
         $this->services->lesson->updateVideoProgress($u, 1, 80);
     } catch (\Throwable $e) {
@@ -120,11 +120,11 @@ public function test_成功增加影片進度(): void
     }
 
     // Then 操作成功
-    // [Handler: success-failure] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.success-failure
+    // [Handler: success-failure] 參考 /zenbu-powers:aibdd-handlers (lang=php)
     $this->assert_operation_succeeded();
 
     // And 用戶 "Alice" 在課程 1 的進度應為 80%
-    // [Handler: aggregate-then] 參考 /zenbu-powers:aibdd.auto.php.it.handlers.aggregate-then
+    // [Handler: aggregate-then] 參考 /zenbu-powers:aibdd-handlers (lang=php)
     $r = $this->repos->lessonProgress->find($u, 1);
     $this->assertSame(80, $r->getProgress());
 }

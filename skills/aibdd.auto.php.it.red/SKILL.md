@@ -300,14 +300,16 @@ src/Services/LessonService.php
 
 ### Handler 路由對照表
 
-| Gherkin 句型 | Handler Skill |
-|-------------|---------------|
-| Given 狀態描述（Aggregate 初始狀態） | `/zenbu-powers:aibdd.auto.php.it.handlers.aggregate-given` |
-| Given 已完成動作 / When 寫入操作 | `/zenbu-powers:aibdd.auto.php.it.handlers.command` |
-| When 讀取操作 | `/zenbu-powers:aibdd.auto.php.it.handlers.query` |
-| Then DB 狀態驗證 | `/zenbu-powers:aibdd.auto.php.it.handlers.aggregate-then` |
-| Then Response / ReadModel 驗證 | `/zenbu-powers:aibdd.auto.php.it.handlers.readmodel-then` |
-| Then 操作成功/失敗 | `/zenbu-powers:aibdd.auto.php.it.handlers.success-failure` |
+> 統一引用 `/zenbu-powers:aibdd-handlers`，依下表決定 handler，再 Read `references/{handler}/php.md` 取 PHP 範例。
+
+| Gherkin 句型 | Handler | Reference |
+|-------------|---------|-----------|
+| Given 狀態描述（Aggregate 初始狀態） | aggregate-given | `references/aggregate-given/php.md` |
+| Given 已完成動作 / When 寫入操作 | command | `references/command/php.md` |
+| When 讀取操作 | query | `references/query/php.md` |
+| Then DB 狀態驗證 | aggregate-then | `references/aggregate-then/php.md` |
+| Then Response / ReadModel 驗證 | readmodel-then | `references/readmodel-then/php.md` |
+| Then 操作成功/失敗 | success-failure | `references/success-failure/php.md` |
 
 ### 更新 `configure_dependencies()`
 

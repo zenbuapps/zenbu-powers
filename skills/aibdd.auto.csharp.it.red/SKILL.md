@@ -41,7 +41,7 @@ Step 2: Step Template   → 引用 /zenbu-powers:aibdd.auto.csharp.it.step-templ
 
 Step 3: Red Implementation → 對每個 TODO step：
         - 讀 TODO 取得 handler type
-        - 引用對應 /zenbu-powers:aibdd.auto.csharp.it.handlers.{type}
+        - 引用 /zenbu-powers:aibdd-handlers，Read references/{type}/csharp.md
         - 將 PendingStepException 替換為完整測試程式碼
         - 同時建立基礎設施（Models / Repositories / Services 介面）
         - 執行 dotnet test 驗證紅燈（預期 HTTP 404）
@@ -75,7 +75,7 @@ Step 3: Red Implementation → 對每個 TODO step：
 對每個含 TODO 的 step definition：
 
 1. 讀 TODO 取得 handler type
-2. 引用對應 handler skill（例如 `/zenbu-powers:aibdd.auto.csharp.it.handlers.command`）
+2. 引用 `/zenbu-powers:aibdd-handlers`，Read `references/{handler}/csharp.md`（例如 handler=command → `references/command/csharp.md`）
 3. 將 `PendingStepException` 替換為完整測試代碼
 4. 需要時注入額外依賴（`HttpClient`, `AppDbContext`, `JwtHelper`）
 

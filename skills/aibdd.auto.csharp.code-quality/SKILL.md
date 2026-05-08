@@ -175,7 +175,7 @@ public static class StatusMapper
 ### 刪除
 
 - `// TODO: [事件風暴部位: ...]`
-- `// TODO: 參考 /zenbu-powers:aibdd.auto.csharp.it.handlers.xxx 實作`
+- `// TODO: 參考 /zenbu-powers:aibdd-handlers (lang=csharp) 實作`
 - `/// <summary> TODO: ... </summary>`
 
 ### 保留
@@ -191,7 +191,7 @@ public static class StatusMapper
 public void GivenUserHasProgress(...)
 {
     // TODO: [事件風暴部位: Aggregate - LessonProgress]
-    // TODO: 參考 /zenbu-powers:aibdd.auto.csharp.it.handlers.aggregate-given 實作
+    // TODO: 參考 /zenbu-powers:aibdd-handlers (handler=aggregate-given, lang=csharp) 實作
     var userId = Ids[userName].ToString()!;
     // ...
 }

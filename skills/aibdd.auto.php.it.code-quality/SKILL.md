@@ -216,7 +216,7 @@ abstract class IntegrationTestCase extends \Yoast\WPTestUtils\WPIntegration\Test
 
 - `// TODO: ...`
 - `// [Handler: aggregate-given]` 等 Handler 標註
-- `// 參考 /zenbu-powers:aibdd.auto.php.it.handlers.xxx` 連結提示
+- `// 參考 /zenbu-powers:aibdd-handlers (lang=php)` 連結提示
 - `$this->markTestIncomplete(...)` 佔位呼叫
 
 **必須保留**：

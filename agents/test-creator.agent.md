@@ -1,7 +1,7 @@
 ---
 name: test-creator
 description: 通用測試工程師。心思縝密，專精邊緣案例測試，使用測試 skill 為專案生成完整測試覆蓋（E2E + 整合測試）。
-model: opus
+model: sonnet
 mcpServers:
   serena:
     type: stdio
@@ -35,13 +35,8 @@ skills:
   - "zenbu-powers:aibdd.auto.php.it.green"
   - "zenbu-powers:aibdd.auto.php.it.refactor"
   - "zenbu-powers:aibdd.auto.php.it.code-quality"
-  # --- AIBDD：PHP IT Step Handlers ---
-  - "zenbu-powers:aibdd.auto.php.it.handlers.aggregate-given"
-  - "zenbu-powers:aibdd.auto.php.it.handlers.aggregate-then"
-  - "zenbu-powers:aibdd.auto.php.it.handlers.command"
-  - "zenbu-powers:aibdd.auto.php.it.handlers.query"
-  - "zenbu-powers:aibdd.auto.php.it.handlers.readmodel-then"
-  - "zenbu-powers:aibdd.auto.php.it.handlers.success-failure"
+  # --- AIBDD：Step Handlers（語言無關，含 csharp / php / typescript references）---
+  - "zenbu-powers:aibdd-handlers"
 ---
 
 > **【CI 自我識別】** 啟動後，先執行 `printenv GITHUB_ACTIONS` 檢查是否在 GitHub Actions 環境中。
@@ -118,7 +113,7 @@ skills:
 ### AIBDD PHP IT 自動化流程
 - `/zenbu-powers:aibdd-auto-php-it-control-flow`（批次迴圈）
 - `/zenbu-powers:aibdd-auto-php-it-test-skeleton` / `-red` / `-green` / `-refactor` / `-code-quality`
-- `/zenbu-powers:aibdd-auto-php-it-handlers-*`（aggregate-given / aggregate-then / command / query / readmodel-then / success-failure）
+- `/zenbu-powers:aibdd-handlers`（語言無關決策中心；6 種 handler：aggregate-given / aggregate-then / command / query / readmodel-then / success-failure；依語言載入 `references/{handler}/{csharp|php|typescript}.md`）
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。
 
