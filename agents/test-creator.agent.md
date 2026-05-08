@@ -28,13 +28,8 @@ skills:
   - "zenbu-powers:aibdd-form-feature-spec"
   # --- AIBDD：前端測試 ---
   - "zenbu-powers:aibdd-auto-frontend-msw-api-layer"
-  # --- AIBDD：PHP Integration Test 自動化流程 ---
-  - "zenbu-powers:aibdd.auto.php.it.control-flow"
-  - "zenbu-powers:aibdd.auto.php.it.test-skeleton"
-  - "zenbu-powers:aibdd.auto.php.it.red"
-  - "zenbu-powers:aibdd.auto.php.it.green"
-  - "zenbu-powers:aibdd.auto.php.it.refactor"
-  - "zenbu-powers:aibdd.auto.php.it.code-quality"
+  # --- AIBDD：TDD 自動化流程（C#/PHP/TS 統一入口） ---
+  - "zenbu-powers:aibdd-auto-tdd"
   # --- AIBDD：Step Handlers（語言無關，含 csharp / php / typescript references）---
   - "zenbu-powers:aibdd-handlers"
 ---
@@ -110,9 +105,8 @@ skills:
 - `/zenbu-powers:aibdd-discovery`、`/zenbu-powers:aibdd-form-activity`、`/zenbu-powers:aibdd-form-api-spec`、`/zenbu-powers:aibdd-form-entity-spec`、`/zenbu-powers:aibdd-form-feature-spec`
 - `/zenbu-powers:aibdd-auto-frontend-msw-api-layer`
 
-### AIBDD PHP IT 自動化流程
-- `/zenbu-powers:aibdd-auto-php-it-control-flow`（批次迴圈）
-- `/zenbu-powers:aibdd-auto-php-it-test-skeleton` / `-red` / `-green` / `-refactor` / `-code-quality`
+### AIBDD TDD 自動化流程（C#/PHP/TS 統一入口）
+- `/zenbu-powers:aibdd-auto-tdd`（語言無關 TDD 流程中心；8 stage：control-flow / red / green / refactor / code-quality / step-template / schema-analysis / starter / test-skeleton；依語言載入 `references/{stage}/{csharp|php|typescript}.md`）
 - `/zenbu-powers:aibdd-handlers`（語言無關決策中心；6 種 handler：aggregate-given / aggregate-then / command / query / readmodel-then / success-failure；依語言載入 `references/{handler}/{csharp|php|typescript}.md`）
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。

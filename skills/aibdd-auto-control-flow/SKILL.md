@@ -21,11 +21,11 @@ description: >
 | java | e2e | `mvn clean test` | 含 Schema Analysis |
 | python | ut | `behave ${FEATURES_DIR}/ --tags=~@ignore` | 無 Schema Analysis |
 | nodejs | it | `npx cucumber-js --tags "not @ignore"` | 含 Schema Analysis |
-| typescript | it | `npx vitest run` | 5 phases；委派 standalone `/zenbu-powers:aibdd.auto.ts.it.control-flow` |
+| typescript | it | `npx vitest run` | 5 phases；委派 `/zenbu-powers:aibdd-auto-tdd`，路由 stage=control-flow / lang=typescript（具體載入：references/control-flow/typescript.md） |
 
 **E2E 變體在 Red 前多一步 Schema Analysis（由 `/zenbu-powers:aibdd-auto-red` 內部處理）。**
 **UT 變體跳過 Schema Analysis（由 `/zenbu-powers:aibdd-auto-red` 的 variant reference 控制）。**
-**TypeScript IT 變體（React 前端）有完整 5 phase 流程（schema-analysis → step-template → red → green → refactor），由 standalone skill set `/zenbu-powers:aibdd.auto.ts.it.*` 處理。**
+**TypeScript IT 變體（React 前端）有完整 5 phase 流程（schema-analysis → step-template → red → green → refactor），由 `aibdd-auto-tdd` 主 skill 的 typescript 變體 reference 處理（`references/{stage}/typescript.md`）。**
 
 ---
 

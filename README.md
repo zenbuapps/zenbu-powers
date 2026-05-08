@@ -552,7 +552,7 @@ Claude 的自動流程：
 啟動 AIBDD 儀式後，Claude 依序引導：
 
 1. **`/aibdd-discovery`** → **`/aibdd-form-feature-spec`** → **`/aibdd-form-entity-spec`** → **`/aibdd-form-api-spec`**
-2. **`@tdd-coordinator`** 接管，依序執行 `aibdd.auto.ts.it.red` → `green` → `refactor`
+2. **`@tdd-coordinator`** 接管，依序透過 `/zenbu-powers:aibdd-auto-tdd（lang=typescript）` 執行 red → green → refactor 三階段
 3. 全程由 skill 約束，確保測試先於實作、測試覆蓋各種 Handler 類型（Command / Query / Aggregate / ReadModel）
 
 ### 範例 4：NestJS API 新功能
