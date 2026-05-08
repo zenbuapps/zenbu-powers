@@ -7,17 +7,17 @@ paths:
 
 ## SKILL 優先參考
 
-進行任何 Refine v4 相關開發時，**必須**優先參考 SKILL `/zenbu-powers:refine-v4`：
+進行任何 Refine v4 相關開發時，**必須**優先參考 SKILL `/zenbu-powers:refine`（hub 會依 package.json 自動路由 v4，內容位於 `references/v4/v4/`）：
 
 | SKILL 文件 | 用途 |
 |------------|------|
 | `SKILL.md` | 核心概覽、安裝、Provider 系統 |
-| `references/data-hooks.md` | useList/useOne/useCreate/useUpdate/useDelete/useTable 等 Data Hooks |
-| `references/data-provider.md` | Data Provider 介面與自訂實作 |
-| `references/rest-data-provider.md` | REST Data Provider（KY-based）設定 |
-| `references/auth-provider.md` | Auth Provider 介面與認證 hooks |
-| `references/antd-crud.md` | Ant Design CRUD 整合元件 |
-| `references/app-setup.md` | App 初始化範例 |
+| `references/v4/data-hooks.md` | useList/useOne/useCreate/useUpdate/useDelete/useTable 等 Data Hooks |
+| `references/v4/data-provider.md` | Data Provider 介面與自訂實作 |
+| `references/v4/rest-data-provider.md` | REST Data Provider（KY-based）設定 |
+| `references/v4/auth-provider.md` | Auth Provider 介面與認證 hooks |
+| `references/v4/antd-crud.md` | Ant Design CRUD 整合元件 |
+| `references/v4/app-setup.md` | App 初始化範例 |
 
 ## 版本注意
 

@@ -82,7 +82,7 @@ skills:
 - `/zenbu-powers:nestjs-coding-standards` — 完整開發規則、Module 架構、DI 模式、測試規範、命名慣例、除錯
 - `/zenbu-powers:nestjs-v11` — NestJS 11 API 參考
 
-> 如果專案有定義額外的 Skills（如 `/zenbu-powers:zod-v3`、`/zenbu-powers:drizzle-orm-v0-38`、`/zenbu-powers:better-auth-v1-4` 等），自行查找並善加利用。
+> 如果專案有定義額外的 Skills（如 `/zenbu-powers:zod-v3`、`/zenbu-powers:drizzle-orm-v0.38`、`/zenbu-powers:better-auth-v1.4` 等），自行查找並善加利用。
 
 ---
 

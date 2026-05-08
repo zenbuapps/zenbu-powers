@@ -7,19 +7,19 @@ paths:
 
 ## SKILL 優先參考
 
-進行任何 Refine v5 相關開發時，**必須**優先參考 SKILL `/zenbu-powers:refine-v5`：
+進行任何 Refine v5 相關開發時，**必須**優先參考 SKILL `/zenbu-powers:refine`（hub 會依 package.json 自動路由 v5，內容位於 `references/v5/v5/`）：
 
 | SKILL 文件 | 用途 |
 |------------|------|
 | `SKILL.md` | 核心概覽、v5 vs v4 差異、Hook 速查 |
-| `references/data-hooks.md` | useList/useOne/useCreate/useUpdate/useDelete/useForm/useTable/useShow/useSelect 等 Data Hooks |
-| `references/data-provider.md` | Data Provider 介面與 REST Provider 設定 |
-| `references/auth-provider.md` | Auth Provider 介面與認證 hooks |
-| `references/routing.md` | Router Provider 與路由 hooks（useGo/useParsed/useNavigation） |
-| `references/antd-integration.md` | Ant Design 整合（useTable/useForm/useModalForm/useDrawerForm/useSelect/元件） |
-| `references/providers.md` | Notification/Live/AccessControl/I18n/AuditLog Providers |
-| `references/migration-v4-to-v5.md` | v4 → v5 完整遷移指南 |
-| `references/type-references.md` | 核心 TypeScript 介面參考 |
+| `references/v5/data-hooks.md` | useList/useOne/useCreate/useUpdate/useDelete/useForm/useTable/useShow/useSelect 等 Data Hooks |
+| `references/v5/data-provider.md` | Data Provider 介面與 REST Provider 設定 |
+| `references/v5/auth-provider.md` | Auth Provider 介面與認證 hooks |
+| `references/v5/routing.md` | Router Provider 與路由 hooks（useGo/useParsed/useNavigation） |
+| `references/v5/antd-integration.md` | Ant Design 整合（useTable/useForm/useModalForm/useDrawerForm/useSelect/元件） |
+| `references/v5/providers.md` | Notification/Live/AccessControl/I18n/AuditLog Providers |
+| `references/v5/migration-v4-to-v5.md` | v4 → v5 完整遷移指南 |
+| `references/v5/type-references.md` | 核心 TypeScript 介面參考 |
 
 ## 版本注意
 
