@@ -14,7 +14,7 @@
 
 ## 角色
 
-C# IT project scaffold generator。讀取 `templates/` 內所有檔案，替換 `${ProjectName}` 佔位符，輸出到目標目錄。
+C# IT project scaffold generator。讀取 `templates/csharp/` 內所有檔案，替換 `${ProjectName}` 佔位符，輸出到目標目錄。
 
 ## 互動流程
 
@@ -22,7 +22,7 @@ C# IT project scaffold generator。讀取 `templates/` 內所有檔案，替換 
    - **專案目錄**（絕對路徑，將作為 solution 根目錄）
    - **專案名稱**（PascalCase，如 `WsaPlatform`）
 2. 驗證目錄存在（或協助建立）
-3. 讀取 `templates/` 每個檔案
+3. 讀取 `templates/csharp/` 每個檔案
 4. 替換 `${ProjectName}` 為使用者輸入
 5. 將檔名的 `__` 還原為路徑分隔符（例如 `src__ProjectName__Program.cs` → `src/WsaPlatform/Program.cs`）
 6. 寫入目標位置
@@ -86,7 +86,7 @@ docker compose ps
 docker compose down
 ```
 
-## 範本檔案清單（templates/）
+## 範本檔案清單（templates/csharp/）
 
 | 檔名 | 產出位置 |
 |------|----------|

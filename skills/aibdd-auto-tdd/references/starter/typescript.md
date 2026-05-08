@@ -2,7 +2,7 @@
 
 > 主 SKILL.md 已涵蓋：trigger 辨識、樣板 → 寫入 → 驗證骨架語意。本檔僅提供 React IT 特化內容（Vitest + @testing-library/react + MSW v2 stack）。
 
-從 templates/ 建立 React Integration Test 基礎建設。
+從 templates/typescript/ 建立 React Integration Test 基礎建設。
 
 ## 前置條件
 
@@ -25,12 +25,12 @@ npm install -D vitest @testing-library/react @testing-library/user-event @testin
 
 ### Step 3: 產生模板檔案
 
-讀取 `templates/` 目錄下所有檔案，將檔名中的 `__` 轉換為目錄分隔符 `/`，寫入專案目錄。
+讀取 `templates/typescript/` 目錄下所有檔案，將檔名中的 `__` 轉換為目錄分隔符 `/`，寫入專案目錄。
 
 例如：
 
-- `templates/src__test__setup.ts` → `src/test/setup.ts`
-- `templates/src__test__mocks__server.ts` → `src/test/mocks/server.ts`
+- `templates/typescript/src__test__setup.ts` → `src/test/setup.ts`
+- `templates/typescript/src__test__mocks__server.ts` → `src/test/mocks/server.ts`
 
 ### Step 4: 更新 package.json scripts
 
