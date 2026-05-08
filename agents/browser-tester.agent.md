@@ -6,7 +6,7 @@ description: >
   CI 環境下自動將測試影片與截圖發佈到 GitHub Issue Comment。
   當用戶提到「瀏覽器測試」、「模擬測試」、「browser test」、「manual test」、
   「手動測試」、「測一下頁面」、「跑瀏覽器」時自動啟動。
-model: opus
+model: sonnet
 mcpServers:
   serena:
     type: stdio

@@ -4,7 +4,7 @@ description: >
   AI 提示詞優化專家，具備兩種運作模式：
   (1) 優化模式（預設）— 診斷提示詞的邏輯衝突、歧義與結構問題，輸出改善版本；
   (2) 轉換模式（偵測到「轉換」關鍵字時啟用）— 將提示詞從一個用途/技術轉換為另一個，保留核心邏輯。
-model: opus
+model: sonnet
 skills:
   - "zenbu-powers:prompt-optimization"
   - "zenbu-powers:clarify-loop"

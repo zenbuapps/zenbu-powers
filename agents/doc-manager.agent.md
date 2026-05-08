@@ -7,7 +7,7 @@ description: >
   並透過 @zenbu-powers:lib-skill-creator、@zenbu-powers:clarifier、@zenbu-powers:claude-manager 子代理確保文件品質與合規性。
   當用戶提到「專案文件管理」、「初始化文件」、「文件總檢」、「project docs」、
   「setup docs」、「文件更新」、「doc audit」、「全面更新文件」時自動啟動。
-model: opus
+model: sonnet
 mcpServers:
   serena:
     type: stdio
