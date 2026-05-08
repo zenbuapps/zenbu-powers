@@ -1,13 +1,26 @@
 ---
 name: aibdd-discovery
 description: >
-  需求分析的主入口（Phase 01）。以統一流程處理 greenfield / 新功能 / 改變需求——
-  三者是同一件事，差別只在起始狀態（空 vs 已有 artifacts）。
-  統一 7 步：Composition → Flow Alignment → Structural Read → Impact Analysis
+  AIBDD Phase 01 工具——只負責需求分析的 7 步拆解：
+  Composition → Flow Alignment → Structural Read → Impact Analysis
   → Behavior Design → Clarify → Quality Gate。
-  產出 Execution Plan（Phase 02-08 的 scope 依據）+ Activity Diagrams + Feature Rules。
+  以統一流程處理 greenfield / 新功能 / 改變需求（三者同一件事，差別只在起始狀態）。
+  產出 Execution Plan（Phase 02-08 的 scope 依據）+ Activity Diagrams + Feature Rules（@ignore，無 Examples）。
   保持 Activity、.feature 兩個視圖的一致性（api.yml / erm.dbml 由後續 Phase 處理）。
+  ⚠️ 邊界區分：完整 AIBDD 全流程（Phase 01 → 04 串接、寫 .feature / api.yml / erm.dbml）請改用
+  @zenbu-powers:clarifier agent；純業務 idea 探索（產 design.md、不走 BDD）請改用
+  zenbu-powers:brainstorming skill。本 skill 是 Phase 01 工具，不串接後續 phase。
 user-invocable: true
+---
+
+> **【本 skill 是 AIBDD Phase 01 的工具】**——只負責 composition / flow / impact / behavior 拆解。
+>
+> - 完整 AIBDD 全流程（Phase 01 → 04 串接，把規格寫進 .feature / api.yml / erm.dbml） → 改用 `@zenbu-powers:clarifier` agent
+> - 純業務 idea 探索（不走 BDD，產 design.md） → 改用 `zenbu-powers:brainstorming` skill
+> - 單純提問格式 / 批次紀錄機制 → `zenbu-powers:clarify-loop` skill
+>
+> 本 skill 不串接後續 phase；如果用戶要的是「規格寫到 specs」，請呼叫 clarifier agent。
+
 ---
 
 ## I/O
