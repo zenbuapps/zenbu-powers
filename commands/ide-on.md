@@ -1,6 +1,6 @@
 ---
 description: 開啟 IDE MCP（允許讀取 VS Code selection / diagnostics / 檔案）
-allowed-tools: Bash(node:*)
+allowed-tools: Bash(node *)
 ---
 
 !`node "${CLAUDE_PLUGIN_ROOT}/scripts/ide-toggle.mjs" on`
