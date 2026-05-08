@@ -15,22 +15,13 @@ mcpServers:
       - "ide"
       - "--project-from-cwd"
 skills:
-  # --- 通用測試策略 playbook ---
-  - "zenbu-powers:test-creation-playbook"
-  # --- WordPress 測試框架 ---
-  - "zenbu-powers:wp-testing"
-  # --- AIBDD：規格探索與視圖 ---
-  - "zenbu-powers:aibdd-discovery"
-  - "zenbu-powers:aibdd-form-activity"
-  - "zenbu-powers:aibdd-form-api-spec"
-  - "zenbu-powers:aibdd-form-entity-spec"
-  - "zenbu-powers:aibdd-form-feature-spec"
-  # --- AIBDD：前端測試 ---
-  - "zenbu-powers:aibdd-auto-frontend-msw-api-layer"
-  # --- AIBDD：TDD 自動化流程（C#/PHP/TS 統一入口） ---
-  - "zenbu-powers:aibdd-auto-tdd"
-  # --- AIBDD：Step Handlers（語言無關，含 csharp / php / typescript references）---
-  - "zenbu-powers:aibdd-handlers"
+  # 核心必載（≤ 5 條，避免 context 浪費）
+  - "zenbu-powers:test-creation-playbook"   # 通用測試 playbook（必載）
+  - "zenbu-powers:wp-testing"               # WordPress 測試框架（最高頻）
+  - "zenbu-powers:aibdd-discovery"          # AIBDD 主入口（規格驅動測試）
+  - "zenbu-powers:aibdd-auto-tdd"           # TDD 自動化流程中心（C#/PHP/TS 統一入口）
+  - "zenbu-powers:aibdd-handlers"           # Step Handlers 決策中心（語言無關）
+  # 其餘 aibdd-form-* / aibdd-auto-frontend-* 改為「動態載入」，見 agent body
 ---
 
 > **【CI 自我識別】** 啟動後，先執行 `printenv GITHUB_ACTIONS` 檢查是否在 GitHub Actions 環境中。
@@ -93,19 +84,23 @@ skills:
 
 ## 可用 Skills（WHAT）
 
-### 通用策略
+### 核心必載（frontmatter 強制注入）
+
 - `/zenbu-powers:test-creation-playbook` — 邊緣案例目錄、測試指令參考、E2E/IT/UT 覆蓋策略（**必載**）
-
-### WordPress 測試框架
 - `/zenbu-powers:wp-testing` — WordPress Plugin 測試統一入口；E2E 流程載入 `references/e2e-playwright.md`，Integration 測試載入 `references/integration-phpunit.md`（依 SKILL 主檔的 E2E vs IT 決策樹分流）
+- `/zenbu-powers:aibdd-discovery` — AIBDD 規格探索主入口（規格驅動測試）
+- `/zenbu-powers:aibdd-auto-tdd` — 語言無關 TDD 流程中心；8 stage：control-flow / red / green / refactor / code-quality / step-template / schema-analysis / starter / test-skeleton；依語言載入 `references/{stage}/{csharp|php|typescript}.md`
+- `/zenbu-powers:aibdd-handlers` — 語言無關決策中心；6 種 handler：aggregate-given / aggregate-then / command / query / readmodel-then / success-failure；依語言載入 `references/{handler}/{csharp|php|typescript}.md`
 
-### AIBDD 規格與前端
-- `/zenbu-powers:aibdd-discovery`、`/zenbu-powers:aibdd-form-activity`、`/zenbu-powers:aibdd-form-api-spec`、`/zenbu-powers:aibdd-form-entity-spec`、`/zenbu-powers:aibdd-form-feature-spec`
-- `/zenbu-powers:aibdd-auto-frontend-msw-api-layer`
+### 動態載入 Skills（依任務需要自行 Read，不在 frontmatter 強制注入）
 
-### AIBDD TDD 自動化流程（C#/PHP/TS 統一入口）
-- `/zenbu-powers:aibdd-auto-tdd`（語言無關 TDD 流程中心；8 stage：control-flow / red / green / refactor / code-quality / step-template / schema-analysis / starter / test-skeleton；依語言載入 `references/{stage}/{csharp|php|typescript}.md`）
-- `/zenbu-powers:aibdd-handlers`（語言無關決策中心；6 種 handler：aggregate-given / aggregate-then / command / query / readmodel-then / success-failure；依語言載入 `references/{handler}/{csharp|php|typescript}.md`）
+> **使用方式**：當 specs/ 已存在或不需重新探索規格時，下列 form skill 不需預載；直到實際要產出該視圖的 artifact 時，才主動 `Read` 對應 SKILL.md。前端 MSW 任務同理。
+
+- `/zenbu-powers:aibdd-form-activity` — Activity 視圖（.mmd / .activity）spec skill
+- `/zenbu-powers:aibdd-form-api-spec` — API 視圖（OpenAPI api.yml）spec skill
+- `/zenbu-powers:aibdd-form-entity-spec` — Entity 視圖（erm.dbml）spec skill
+- `/zenbu-powers:aibdd-form-feature-spec` — Feature 視圖（.feature）spec skill
+- `/zenbu-powers:aibdd-auto-frontend-msw-api-layer` — 前端 MSW + Zod + API client 骨架
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。
 

@@ -1,9 +1,6 @@
 ---
 name: tdd-coordinator
-description: >
-  TDD 協調規劃師（sub-agent）。接收 planner 的實作計劃，產出 Red→Green→Refactor 完整協調藍圖供主窗口照辦。
-  本 agent 是 sub-agent，不直接 spawn 下游 agent；主窗口讀完藍圖後逐一 spawn test-creator / *-master / *-reviewer / doc-updater。
-  當 planner 完成計劃後自動啟動。
+description: TDD 協調規劃師（sub-agent）。接收 planner 的實作計劃，產出 Red→Green→Refactor 完整協調藍圖供主窗口照辦。本 agent 是 sub-agent，不直接 spawn 下游 agent；主窗口讀完藍圖後逐一 spawn test-creator / *-master / *-reviewer / doc-updater。當 planner 完成計劃後自動啟動。
 model: opus
 skills:
   - "zenbu-powers:tdd-workflow"
@@ -181,6 +178,27 @@ $ <完整命令>
 ```
 
 **沒貼輸出 = Gate 沒過。** 詳見 [verification-gate.md](../skills/tdd-workflow/references/verification-gate.md)。
+
+---
+
+## 與 aibdd-auto-tdd skill 的邊界（H3 後新增 L11）
+
+`tdd-coordinator` 是 **agent**（spawn 後接整段任務、跨 stage 自主推進）。
+`aibdd-auto-tdd` 是 **skill**（被載入做 stage 路由 + reference 索引）。
+
+### 何時派 tdd-coordinator
+- 紅綠重構三相循環需要 agent 全程跟進
+- 多 feature 批次 TDD 需要 agent 內部維護狀態
+- 規格未完整時需要 clarify-loop 串接
+
+### 何時直接呼叫 aibdd-auto-tdd skill
+- 已知 stage 與 lang，只需執行單一階段（red / green / refactor / control-flow / starter）
+- 上游 skill（如 specformula）需要 stage 路由委派
+- 用戶明確指定「跑 control-flow 批次」「重構這檔案」等單一動作
+
+### tdd-coordinator 內部會載入 aibdd-auto-tdd 嗎？
+
+**是**。tdd-coordinator 處理 BDD/TDD 任務時，會 Read `aibdd-auto-tdd` 的 references 取對應 stage 流程，不另外刻一份相同 logic。
 
 ---
 

@@ -248,6 +248,21 @@ skills:
 
 ---
 
+## 模型升級條件（H2 後新增 L10）
+
+本 agent 預設 `model: sonnet` 以兼顧成本與一般驗收品質。但遇到以下情境時，
+orchestrator 派發此 agent 時應在 prompt 中加註「**請以高度推理深度執行**」
+作為信號（agent 自身無法切 model，但會調整推理深度）：
+
+- 多 sub-agent 整合驗收（≥ 3 個 sub-agent 產出）
+- 多維度驗收（≥ 3 個獨立維度）
+- 高風險不可逆操作驗收（資料遷移、生產環境動作、API 破壞性變更）
+- 用戶明確要求「不能出包 / final check」
+
+預設模式（單一 sub-agent / 1-2 維度）維持現況。
+
+---
+
 ## PASS 後 state 重置責任（H2 後新增）
 
 當 verdict = PASS 時，evaluator agent **必須**自行完成以下狀態清理（H2 重構後此責任從 stop hook 轉移到 evaluator——原因：stop hook 改為 command type shell 腳本，沒有 LLM 判斷力解析 verdict）：

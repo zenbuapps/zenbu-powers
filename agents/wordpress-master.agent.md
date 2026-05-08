@@ -15,22 +15,13 @@ mcpServers:
       - "ide"
       - "--project-from-cwd"
 skills:
-  - "zenbu-powers:wordpress-standards"
-  - "zenbu-powers:wordpress-router"
-  - "zenbu-powers:wp-abilities-api"
-  - "zenbu-powers:wp-block-development"
-  - "zenbu-powers:wp-block-themes"
-  - "zenbu-powers:wp-interactivity-api"
-  - "zenbu-powers:wp-performance"
-  - "zenbu-powers:wp-phpstan"
-  - "zenbu-powers:wp-playground"
-  - "zenbu-powers:wp-plugin-development"
-  - "zenbu-powers:wp-project-triage"
-  - "zenbu-powers:wp-rest-api"
-  - "zenbu-powers:wp-wpcli-and-ops"
-  - "zenbu-powers:wpds"
-  - "zenbu-powers:git-commit"
-  - "zenbu-powers:wordpress-master"
+  # 核心必載（≤ 5 條，避免 context 浪費）
+  - "zenbu-powers:wordpress-master"       # agent 自身 playbook
+  - "zenbu-powers:wordpress-standards"    # 規範必載
+  - "zenbu-powers:wordpress-router"       # 專案類型分流
+  - "zenbu-powers:wp-project-triage"      # 啟動時專案盤點
+  - "zenbu-powers:git-commit"             # 收尾必載
+  # 其餘 wp-* / wpds 技術類 skill 改為「動態載入」，見 agent body
 ---
 
 > **【CI 自我識別】** 啟動後，先執行 `printenv GITHUB_ACTIONS` 檢查是否在 GitHub Actions 環境中。
@@ -84,24 +75,31 @@ skills:
 
 ## 可用 Skills（WHAT）
 
+### 核心必載（frontmatter 強制注入）
+
+- `/zenbu-powers:wordpress-master` — 自身開發工作流程與專案架構（含以下 reference files）
+  - `references/wp-dev-workflow.md` — 測試驗證、審查提交、退回處理、除錯技巧
+  - `references/wp-project-architecture.md` — DDD 架構、專案結構、新增檔案原則
 - `/zenbu-powers:wordpress-standards` — WordPress 規範統一入口；開發場景載入 `references/coding-standards.md`（視需求加載 `coding-hooks.md` / `coding-woocommerce.md` / `coding-rest-api.md` / `coding-advanced.md`）
 - `/zenbu-powers:wordpress-router` — WordPress 專案類型分類與路由
-- `/zenbu-powers:wp-abilities-api` — WordPress Abilities API 開發
+- `/zenbu-powers:wp-project-triage` — 專案類型偵測與報告
+- `/zenbu-powers:git-commit` — Git Commit 流程
+
+### 動態載入 Skills（依任務需要自行 Read，不在 frontmatter 強制注入）
+
+> **使用方式**：判斷任務涉及哪一類技術後，主動 `Read` 該 skill 的 SKILL.md，避免一次燒掉所有 description context。
+
+- `/zenbu-powers:wp-plugin-development` — 外掛架構、生命週期、設定頁
 - `/zenbu-powers:wp-block-development` — Gutenberg 區塊開發
 - `/zenbu-powers:wp-block-themes` — Block Theme 開發
+- `/zenbu-powers:wp-rest-api` — REST API 路由與端點開發
+- `/zenbu-powers:wp-abilities-api` — WordPress Abilities API
 - `/zenbu-powers:wp-interactivity-api` — Interactivity API 互動功能
 - `/zenbu-powers:wp-performance` — 效能分析與優化
 - `/zenbu-powers:wp-phpstan` — PHPStan 靜態分析
 - `/zenbu-powers:wp-playground` — WordPress Playground 快速測試
-- `/zenbu-powers:wp-plugin-development` — 外掛架構、生命週期、設定頁
-- `/zenbu-powers:wp-project-triage` — 專案類型偵測與報告
-- `/zenbu-powers:wp-rest-api` — REST API 路由與端點開發
 - `/zenbu-powers:wp-wpcli-and-ops` — WP-CLI 操作與自動化
 - `/zenbu-powers:wpds` — WordPress Design System
-- `/zenbu-powers:git-commit` — Git Commit 流程
-- `/zenbu-powers:wordpress-master` — 開發工作流程與專案架構（含以下 reference files）
-  - `references/wp-dev-workflow.md` — 測試驗證、審查提交、退回處理、除錯技巧
-  - `references/wp-project-architecture.md` — DDD 架構、專案結構、新增檔案原則
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。
 

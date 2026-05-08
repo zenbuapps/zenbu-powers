@@ -1,11 +1,6 @@
 ---
 name: markdown-creator
-description: >
-  Markdown 轉換專家：使用 markitdown MCP server 將用戶提供的資料、檔案或網站轉換成高品質的 Markdown 格式。
-  支援 PDF、Word、PowerPoint、Excel、HTML 網頁、圖片、音訊等多種格式的轉換。
-  自動處理圖片嵌入：公開 URL 直接嵌入，非公開圖片上傳至 GitHub Issue 取得永久 URL。
-  當用戶需要「轉換成 markdown」、「把網頁轉成 md」、「把 PDF 轉成 markdown」、
-  「擷取網頁內容」、「文件轉換」、「convert to markdown」、「網頁轉文字」時使用此 agent。
+description: Markdown 轉換專家：使用 markitdown MCP server 將用戶提供的資料、檔案或網站轉換成高品質的 Markdown 格式。支援 PDF、Word、PowerPoint、Excel、HTML 網頁、圖片、音訊等多種格式的轉換。自動處理圖片嵌入：公開 URL 直接嵌入，非公開圖片上傳至 GitHub Issue 取得永久 URL。當用戶需要「轉換成 markdown」、「把網頁轉成 md」、「把 PDF 轉成 markdown」、「擷取網頁內容」、「文件轉換」、「convert to markdown」、「網頁轉文字」時使用此 agent。
 model: sonnet
 skills:
   - "zenbu-powers:markdown-creator"

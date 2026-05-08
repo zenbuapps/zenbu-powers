@@ -1,6 +1,6 @@
 ---
 name: brainstorming
-description: "Turns ideas into approved design specs through Socratic dialogue with a HARD-GATE that blocks any implementation until a design has been written and approved. Use this before any creative work — creating features, building components, adding WordPress plugins or Gutenberg blocks, modifying behaviour, or proposing architectural changes. Triggers include phrases like 思考一個新功能, 比較多種實現方式, 寫設計文件, 探索 design 方案, 業務需求 trade-off, 多個 approach 比較, 規劃新模組, brainstorm a feature, design a component, compare approaches, write a spec."
+description: "Turns ideas into approved design specs through Socratic dialogue, with a HARD-GATE blocking any implementation until a design is written and approved. Use before any creative work: features, components, WP plugins / Gutenberg blocks, behaviour changes, architectural proposals. Triggers: 思考一個新功能, 比較多種實現方式, 寫設計文件, 探索 design 方案, 業務需求 trade-off, 多個 approach 比較, 規劃新模組, brainstorm a feature, design a component, compare approaches, write a spec."
 ---
 
 # Brainstorming Ideas Into Designs

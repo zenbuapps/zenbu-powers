@@ -1,6 +1,6 @@
 ---
 name: issue-creator
-description: 從用戶的粗略需求出發，結合專案現有 specs（features、activities、open-issue）自動發想、延伸，生成結構化的 GitHub Issue 需求文件。當用戶提到「建立需求」、「開 issue」、「寫需求」、「新功能需求」、「feature request」、「我想做一個功能」、「幫我想一下這個需求」、「需求文件」時自動啟用。即使用戶只給一句話的 idea，也應使用此 skill 來展開完整需求。預設為 PM 模式（非技術讀者）。當用戶提到「DEV」、「開發」、「工程」、「技術需求」、「dev issue」、「開發者模式」時切換為 Dev 模式。
+description: 從用戶的粗略需求出發，結合專案 specs（features、activities、open-issue）自動延伸，生成結構化 GitHub Issue 需求文件。觸發：「建立需求」、「開 issue」、「寫需求」、「新功能需求」、「feature request」、「我想做一個功能」、「需求文件」。預設 PM 模式；提到「DEV」、「開發」、「工程」、「技術需求」、「dev issue」時切換 Dev 模式。模式詳述見 SKILL.md。
 ---
 
 # Issue Creator — 需求展開與結構化生成器

@@ -1,6 +1,6 @@
 ---
 name: octokit-rest-v21
-description: API reference and production patterns for @octokit/rest v21 — the official GitHub REST client for Node.js. Use this skill whenever the user is writing, reviewing, or debugging code that imports from "@octokit/rest", hits api.github.com, or deals with GitHub primary/secondary rate limits, pagination across endpoints (repos/issues/milestones/pulls), or the throttling/retry plugins. Also use this for any build-time GitHub data-fetching script (CI jobs, static-site generators, dashboards) where hitting rate limits will break the build — the difference between a job that completes in 30 seconds and one that gets 403'd for 10 minutes is usually pagination strategy and concurrency control.
+description: API reference and production patterns for @octokit/rest v21 — the official GitHub REST client for Node.js. Use whenever code imports from "@octokit/rest", hits api.github.com, or deals with GitHub primary/secondary rate limits, pagination (repos/issues/milestones/pulls), or throttling/retry plugins. Also for build-time GitHub data-fetching scripts (CI jobs, static-site generators, dashboards) where rate limits will break the build. Detailed pagination and concurrency patterns in SKILL.md body.
 ---
 
 # @octokit/rest v21

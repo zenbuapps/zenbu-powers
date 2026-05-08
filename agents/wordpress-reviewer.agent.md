@@ -15,21 +15,13 @@ mcpServers:
       - "ide"
       - "--project-from-cwd"
 skills:
-  - "zenbu-powers:wordpress-standards"
-  - "zenbu-powers:wordpress-router"
-  - "zenbu-powers:wp-abilities-api"
-  - "zenbu-powers:wp-block-development"
-  - "zenbu-powers:wp-block-themes"
-  - "zenbu-powers:wp-interactivity-api"
-  - "zenbu-powers:wp-performance"
-  - "zenbu-powers:wp-phpstan"
-  - "zenbu-powers:wp-playground"
-  - "zenbu-powers:wp-plugin-development"
-  - "zenbu-powers:wp-project-triage"
-  - "zenbu-powers:wp-rest-api"
-  - "zenbu-powers:wp-wpcli-and-ops"
-  - "zenbu-powers:wpds"
-  - "zenbu-powers:git-commit"
+  # 核心必載（≤ 5 條，避免 context 浪費）
+  - "zenbu-powers:wordpress-standards"    # review-checklist + output-template 必載
+  - "zenbu-powers:wordpress-router"       # 專案類型分流
+  - "zenbu-powers:wp-project-triage"      # 啟動時專案盤點
+  - "zenbu-powers:wp-phpstan"             # 每次審查必跑靜態分析
+  - "zenbu-powers:git-commit"             # 通過後收尾
+  # 其餘 wp-* / wpds 技術類 skill 改為「動態載入」，見 agent body
 ---
 
 > **【CI 自我識別】** 啟動後，先執行 `printenv GITHUB_ACTIONS` 檢查是否在 GitHub Actions 環境中。
@@ -87,14 +79,28 @@ skills:
 
 ## 可用 Skills（WHAT）
 
+### 核心必載（frontmatter 強制注入）
+
 - `/zenbu-powers:wordpress-standards` — WordPress 規範統一入口；reviewer 必載 `references/review-checklist.md` 與 `references/review-output-template.md`，規範對照查 `references/coding-standards.md`
 - `/zenbu-powers:wordpress-router` — WordPress 專案類型分類與路由
-- `/zenbu-powers:wp-abilities-api` / `/zenbu-powers:wp-rest-api` — REST API 與 Abilities API 審查
-- `/zenbu-powers:wp-block-development` / `/zenbu-powers:wp-block-themes` / `/zenbu-powers:wp-interactivity-api` — 區塊與主題審查
-- `/zenbu-powers:wp-performance` / `/zenbu-powers:wp-phpstan` — 效能與靜態分析
-- `/zenbu-powers:wp-playground` / `/zenbu-powers:wp-plugin-development` / `/zenbu-powers:wp-project-triage` — 開發與盤點
-- `/zenbu-powers:wp-wpcli-and-ops` / `/zenbu-powers:wpds` — WP-CLI 操作與設計系統
+- `/zenbu-powers:wp-project-triage` — 專案類型偵測與報告
+- `/zenbu-powers:wp-phpstan` — PHPStan 靜態分析（審查時必跑）
 - `/zenbu-powers:git-commit` — Git commit 操作
+
+### 動態載入 Skills（依被審查 PR 內容自行 Read，不在 frontmatter 強制注入）
+
+> **使用方式**：先用 `git diff` 確認變更涉及哪一類技術，再 `Read` 對應 skill 的 SKILL.md 取得審查重點，避免一次燒掉所有 description context。
+
+- `/zenbu-powers:wp-rest-api` — REST API 路由與端點審查
+- `/zenbu-powers:wp-abilities-api` — WordPress Abilities API 審查
+- `/zenbu-powers:wp-block-development` — Gutenberg 區塊審查
+- `/zenbu-powers:wp-block-themes` — Block Theme 審查
+- `/zenbu-powers:wp-interactivity-api` — Interactivity API 審查
+- `/zenbu-powers:wp-performance` — 效能審查
+- `/zenbu-powers:wp-playground` — Playground 驗證
+- `/zenbu-powers:wp-plugin-development` — 外掛架構審查
+- `/zenbu-powers:wp-wpcli-and-ops` — WP-CLI 操作審查
+- `/zenbu-powers:wpds` — WordPress Design System
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。
 

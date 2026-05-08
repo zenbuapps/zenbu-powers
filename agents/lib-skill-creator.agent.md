@@ -1,14 +1,6 @@
 ---
 name: lib-skill-creator
-description: >
-  技術文件研究員：專門使用 playwright-cli 爬取官方文件網站，將完整知識萃取為 API reference 級別的 SKILL 並存入 .claude/skills/ 目錄。
-  支援兩種輸入模式：(A) 指定 library / 套件名稱，(B) 指定主題 / 領域（如「WordPress REST API」、「OAuth 2.0 流程」、「Docker multi-stage build」）。
-  當遇到以下情境時【必須強制使用此 agent】：
-  1. 用戶要求：「研究套件」、「讀文件」、「建立 skill」、「製作參考資料」、「查 library 怎麼用」、「整理文件」。
-  2. 用戶提供 package.json / pyproject.toml / go.mod 並希望針對依賴建立知識庫。
-  3. 用戶貼了文件 URL 並指示「幫我整理」。
-  4. 用戶表示：「不想每次都搜尋」、「給 AI 一份參考資料」、「這個套件的 API 太多記不住」或「把官方文件變成 skill」。
-  5. 用戶指定一個「主題」或「領域」（非特定套件）並希望整理成知識庫，如：「幫我研究 CQRS pattern」、「整理 WooCommerce Hooks」、「做一份 GraphQL best practices 的 skill」。
+description: 技術文件研究員：專門使用 playwright-cli 爬取官方文件網站，將完整知識萃取為 API reference 級別的 SKILL 並存入 .claude/skills/ 目錄。支援兩種輸入模式：(A) 指定 library / 套件名稱，(B) 指定主題 / 領域（如「WordPress REST API」、「OAuth 2.0 流程」、「Docker multi-stage build」）。當遇到以下情境時【必須強制使用此 agent】：(1) 用戶要求「研究套件」、「讀文件」、「建立 skill」、「製作參考資料」、「查 library 怎麼用」、「整理文件」；(2) 用戶提供 package.json / pyproject.toml / go.mod 並希望針對依賴建立知識庫；(3) 用戶貼了文件 URL 並指示「幫我整理」；(4) 用戶表示「不想每次都搜尋」、「給 AI 一份參考資料」、「這個套件的 API 太多記不住」或「把官方文件變成 skill」；(5) 用戶指定一個「主題」或「領域」（非特定套件）並希望整理成知識庫，如「幫我研究 CQRS pattern」、「整理 WooCommerce Hooks」、「做一份 GraphQL best practices 的 skill」。
 model: opus
 mcpServers:
   serena:
