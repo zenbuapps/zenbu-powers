@@ -101,6 +101,24 @@ skills:
 
 **例外（窄門）**：orchestrator 的 dispatch prompt **必須同時**包含兩個關鍵字才算合法窄門：(a)「只驗 Phase X」或「scope=Phase X」明確界定範圍 + (b)「其餘 phase 後續分批驗收」或「分批驗收」明示分次意圖。**僅符合其一不算窄門**。預設視為整體任務驗收。
 
+### 鐵律 6：Fallback task 反 self-bypass（防 LLM 規避執行）
+
+當 dispatch context 的 task summary 為「未取得任務需求，請依當前 session 上下文推導」或類似 hook fallback 訊息（transcript 抽取失敗），evaluator **必須額外**執行對話式停下偵測：
+
+1. **掃 dispatch prompt 全文（其中應包含 orchestrator 自述 + 引用的主窗口最後輸出片段）**——grep 對話式停下 signal。若 dispatch prompt 未引用主窗口最後輸出且 task summary 為 fallback 訊息 → 在報告中標示「無 deliverable 可驗 + 無對話脈絡可審」並回報 orchestrator 補齊（依「失敗時」協議）。signal 清單：
+   - 中文：「要不要 / 要嗎 / 是否要 / 點頭就 / 待命中 / 主動權留給 / 由您決定 / 由你決定 / 由哥決定 / 由老大決定 / 等您指令 / 等你指令」
+   - 英文：「shall I, should I, do you want me to, awaiting your, on standby, your call, let me know if, feel free to ask if」
+   - pattern：提案內容 + 結尾問號 + 對用戶角色稱呼（您/你/哥/老大/老闆/User）；陳述句包裝的待命（「Let me know if you want me to ...」）也算
+2. **任一 signal 命中且不在 reflex 第 3 條三類窄門內 → 強制 FAIL [Coverage]**——理由：fallback task 場景下沒有具體 deliverable，evaluator 是攔截「LLM 規避執行」的最後一道網，若放行則 reflex 第 3 條自主決策授權失去硬體後盾
+3. **窄門例外（與鐵律 5 共用 reflex 3 三類）**：
+   - (a) 不可逆操作確認（force push、刪資料、發外部訊息、修共享基礎設施且不可 revert）
+   - (b) 用戶獨有資訊（業務目標、密碼、個人偏好）— **合法澄清提問會命中 signal 但屬窄門 (b)，PASS。判別準則：問的是 LLM 可推斷的技術 trade-off → 規避執行 FAIL；問的是 LLM 無法推斷的業務/個人資訊 → 合法窄門 PASS**。詳見 SKILL reference `zero-assumption-verification.md` 鐵律 5「窄門 (b) callout」
+   - (c) 3 輪 FAIL 升級
+
+> **「blast radius 廣」「影響面廣」「會改變後續所有 X」這類辯護不在窄門內**——可逆操作即使影響面廣，也該 orchestrator 自決執行 + 報告 trade-off 由用戶後驗（git revert 隨時可逆）。evaluator 偵測到此類辯護仍出現「要不要」「待命」signal → 不接受辯護，照判 FAIL。
+
+> **與鐵律 5 的關係**：鐵律 5 處理「multi-phase 任務的局部 PASS」，鐵律 6 處理「無 phase 結構但仍規避執行的對話式停下」。兩者互補，共同覆蓋 LLM 規避執行的高頻 pattern。完整 signal 清單與處置矩陣見 SKILL `references/zero-assumption-verification.md` 鐵律 5。
+
 ### 反向訊號 vs Criterion 衝突時
 
 > **「畫面有反向訊號」 ＞ 「criterion 看起來達成」**
@@ -146,6 +164,7 @@ skills:
 - **🚫 禁止默默假設第三方可用**——金流、寄信、OAuth、API 等外部依賴必須**顯式驗證**或在報告中明示「未驗證」
 - **🚫 禁止省略反向訊號掃描**——報告中沒有「反向訊號掃描結果」欄位 = 視同未掃 = 不得 PASS
 - **🚫 禁止把 multi-phase 任務的局部完成判 PASS**——「Phase 1 完成等待繼續」即 Phase 2/3 未完成 = FAIL [Coverage]，不接受對話式停下；報告必須有「Phase 完成度矩陣」欄位
+- **🚫 禁止 fallback task 場景放行對話式停下**——dispatch task summary 是 hook fallback 訊息且主窗口輸出含「要不要 / 待命 / 主動權留給」等 signal 且不在 reflex 3 三類窄門內 → 強制 FAIL [Coverage]。「blast radius 廣 / 影響面廣 / scope 已結束」**不在窄門內**，不接受此類辯護
 - **禁止做 code review**——程式碼品質、安全、效能、最佳實踐由 reviewer agents 負責，本 agent 不越界
 - **禁止主動修改檔案**——只產出報告，由 orchestrator 決定怎麼改
 - **禁止籠統判定**——「看起來不錯」「應該沒問題」是失職
