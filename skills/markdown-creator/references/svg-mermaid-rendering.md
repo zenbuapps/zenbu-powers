@@ -3,7 +3,6 @@ name: markdown-creator.svg-mermaid-rendering
 description: >
   非 URL 型視覺內容（Inline SVG、Mermaid 圖表）的 playwright-cli 渲染流程。
   包含繁體中文字型支援、HTML 模板、渲染失敗處理。
-enable_by_default: true
 ---
 
 # SVG / Mermaid 渲染流程（Phase 3.6）

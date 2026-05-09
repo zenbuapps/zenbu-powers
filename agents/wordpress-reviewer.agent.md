@@ -2,18 +2,7 @@
 name: wordpress-reviewer
 description: WordPress / PHP 程式碼審查專家，專精於 WordPress 安全性、Hook 系統、REST API、HPOS 相容、效能與 PHP 8.1+ 最佳實踐。發現問題後提供具體改善建議，不主動重寫程式碼。審查不通過時使用 @zenbu-powers:wordpress-master 退回修改，形成審查迴圈。Use for all WordPress plugin/theme PHP code reviews.
 model: opus
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
+tools: Read, Grep, Glob, Bash, WebFetch, Skill
 skills:
   # 核心必載（≤ 5 條，避免 context 浪費）
   - "zenbu-powers:wordpress-standards"    # review-checklist + output-template 必載

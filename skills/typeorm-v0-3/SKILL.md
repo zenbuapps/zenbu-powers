@@ -1,5 +1,5 @@
 ---
-name: typeorm-v0.3
+name: typeorm-v0-3
 description: >
   TypeORM v0.3 技術參考，對應 typeorm ^0.3.x，需 TypeScript 4.5+、Node.js 16+，
   experimentalDecorators 與 emitDecoratorMetadata 開啟。預設對 PostgreSQL 但 API DB-agnostic。

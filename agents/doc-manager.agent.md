@@ -2,18 +2,6 @@
 name: doc-manager
 description: AI First 專案文件管理員：協調子代理團隊，全面管理專案的 Claude Code 文件體系。自動判斷專案文件狀態（全新建立 vs 增量更新），使用 serena MCP 深入閱讀每一個原始碼檔案，生成或更新 .claude/CLAUDE.md、.claude/rules/*.rule.md、specs/、project SKILL，並透過 @zenbu-powers:lib-skill-creator、@zenbu-powers:clarifier、@zenbu-powers:claude-manager 子代理確保文件品質與合規性。當用戶提到「專案文件管理」、「初始化文件」、「文件總檢」、「project docs」、「setup docs」、「文件更新」、「doc audit」、「全面更新文件」時自動啟動。
 model: sonnet
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
 skills:
   - "skill-creator:skill-creator"
   - "zenbu-powers:doc-scaffolding-workflow"

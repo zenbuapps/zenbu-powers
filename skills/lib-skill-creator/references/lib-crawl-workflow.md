@@ -5,7 +5,6 @@ description: >
   依賴掃描（Phase 0）、版本定位（Phase 1）、URL 蒐集（Phase 2）、深度閱讀（Phase 3）、
   主題模式定位（Phase T1）、主題蒐集（Phase T2）、交叉驗證（Phase T3）。
   包含使用範例、路徑判斷邏輯、進度追蹤模板。
-enable_by_default: true
 ---
 
 # 文件爬取與閱讀工作流程

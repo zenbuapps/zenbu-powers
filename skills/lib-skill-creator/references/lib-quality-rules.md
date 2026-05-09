@@ -4,7 +4,6 @@ description: >
   Lib Skill Creator 的品質規範與行為準則。涵蓋絕對規則（嚴禁跳過文件、嚴禁捏造、嚴禁版本混淆）、
   品質準則（API reference 級別深度、範例完整可執行、面向 AI Agent 撰寫）、
   韌性準則（失敗處理、大量文件策略）、playwright-cli 使用準則、錯誤處理對照表。
-enable_by_default: true
 ---
 
 # 品質規範與行為準則

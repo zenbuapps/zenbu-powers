@@ -1,7 +1,6 @@
 ---
 name: react-master
 description: React 前端開發工作流程，涵蓋測試撰寫與驗證、除錯技巧、表單進階處理、專案違規處置、場景速查表，以及交付審查流程。供 @zenbu-powers:react-master agent 開發時遵循的完整工作流程規範。
-enable_by_default: true
 ---
 
 # React 開發工作流程

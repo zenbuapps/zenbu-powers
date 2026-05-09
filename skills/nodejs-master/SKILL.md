@@ -1,7 +1,6 @@
 ---
 name: nodejs-master
 description: Node.js 20+ / TypeScript 5+ 後端開發標準與最佳實踐。涵蓋 9 條核心開發規則、分層架構範例、命名規範、測試撰寫規範、除錯技巧。供 nodejs-master agent 開發時嚴格遵守。
-enable_by_default: true
 ---
 
 # Node.js / TypeScript 後端編碼標準

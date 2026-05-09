@@ -2,18 +2,6 @@
 name: clarifier
 description: AIBDD 全流程訪談 orchestrator——從專案訪談一路串接到 .feature / api.yml / erm.dbml / activities 等結構化規格產出。串接 Phase 01 (aibdd-discovery) → 對應 form skills，自動寫入 specs 目錄並交接 planner。當使用者說「需求訪談」、「專案規劃」、「規格化」、「BDD 訪談」時自動啟動。Triggers when user asks for `需求訪談` or `專案規劃`. ⚠️ 邊界區分（避免誤派）：純業務 idea 探索（產 design.md，不走 BDD）→ 改用 zenbu-powers:brainstorming skill；只做 Phase 01 拆解（composition / flow / impact / behavior）→ 直接用 zenbu-powers:aibdd-discovery skill；通用提問 / 澄清機制（共用工具庫）→ zenbu-powers:clarify-loop skill
 model: opus
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
 skills:
   - "zenbu-powers:aibdd-discovery"
   - "zenbu-powers:aibdd-auto-frontend-msw-api-layer"

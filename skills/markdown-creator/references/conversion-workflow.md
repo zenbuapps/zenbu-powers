@@ -3,7 +3,6 @@ name: markdown-creator.conversion-workflow
 description: >
   markitdown MCP server 啟動、輸入辨識、內容轉換、JS-heavy 網站備援的完整流程。
   涵蓋 Phase 1（環境準備）與 Phase 2（內容轉換）。
-enable_by_default: true
 ---
 
 # 轉換工作流程（Phase 1-2）

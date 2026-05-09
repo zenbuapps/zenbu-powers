@@ -2,8 +2,8 @@
 name: tanstack-query
 description: >
   TanStack Query (React Query) 完整 API 參考。**版本路由先**：開工前 Read package.json
-  判斷 @tanstack/react-query pin 的 major 版本——pin ^4.x 載入 references/v4/SKILL.md；
-  pin ^5.x 載入 references/v5/SKILL.md。
+  判斷 @tanstack/react-query pin 的 major 版本——pin ^4.x 載入 references/v4/REFERENCE.md；
+  pin ^5.x 載入 references/v5/REFERENCE.md。
   ⚠️ 共用 hook 名稱（useQuery / useMutation 等）v4/v5 都有但 API 與預設值不同，
   不可單憑 hook 名觸發，必須先確認版本。
   v4 與 v5 重大差異：cacheTime → gcTime、callbacks (onSuccess/onError) 從 useQuery
@@ -20,8 +20,8 @@ description: >
 
 1. **Read package.json**（cwd 最近的優先；monorepo 多 package.json 時，先試 cwd 最近的，再試 git root）。
 2. 比對 `dependencies` / `devDependencies` 中 `@tanstack/react-query` pin 的 major 版本：
-   - **`^4.x`**（或 `~4.x` / `4.x.x`）→ Read `references/v4/SKILL.md`
-   - **`^5.x`**（或 `~5.x` / `5.x.x`）→ Read `references/v5/SKILL.md`
+   - **`^4.x`**（或 `~4.x` / `4.x.x`）→ Read `references/v4/REFERENCE.md`
+   - **`^5.x`**（或 `~5.x` / `5.x.x`）→ Read `references/v5/REFERENCE.md`
 3. **輔助訊號**（pin 不明時參考）：
    - import 路徑為 `react-query`（無 `@tanstack/` 前綴）→ 屬 v3，不在本 skill 範圍，請另尋資源或升版到 v4。
    - 程式碼出現 `cacheTime` / `keepPreviousData: true` / `useQuery` 上有 `onSuccess` callback → v4
@@ -64,14 +64,14 @@ description: >
 | 條件查詢 | `enabled: false` | 同；另推 `skipToken` 解型別問題 |
 | Node baseline | 14+ | 18+；React 18+；TS 4.7+ |
 
-詳細 API 與 v4 ↔ v5 完整對照：見 `references/v4/SKILL.md` 與 `references/v5/SKILL.md`，及各自子目錄的 `api-reference.md` / `examples.md` / `best-practices.md` / `migration-*.md`。
+詳細 API 與 v4 ↔ v5 完整對照：見 `references/v4/REFERENCE.md` 與 `references/v5/REFERENCE.md`，及各自子目錄的 `api-reference.md` / `examples.md` / `best-practices.md` / `migration-*.md`。
 
 ---
 
 ## Hand-off / Next Agent
 
 - 本 skill 為 **Phase 2 第 3 對 hub 合併交付物**之一，路徑 `skills/tanstack-query/`。
-- 同步交付：`references/v4/SKILL.md` + `{api-reference,best-practices,examples,migration-notes}.md`、`references/v5/SKILL.md` + `{api-reference,best-practices,examples,migration-v4-to-v5}.md`。
+- 同步交付：`references/v4/REFERENCE.md` + `{api-reference,best-practices,examples,migration-notes}.md`、`references/v5/REFERENCE.md` + `{api-reference,best-practices,examples,migration-v4-to-v5}.md`。
 - 本階段**未修改**任何下游引用（README.md、`react-master.agent.md`、`react-reviewer.agent.md`、其他 agent / skill 對 `tanstack-query-v4` / `tanstack-query-v5` 的引用）。
 - 舊 `skills/tanstack-query-v4/` 與 `skills/tanstack-query-v5/` 已 stub 化（`deprecated: true`），原 `references/` 目錄保留原樣供舊引用回退。
 - **交還 orchestrator**：等所有 5 對 hub 合併完成後一起進 Stage C（下游引用切換 `tanstack-query-v4|v5` → `tanstack-query`）。

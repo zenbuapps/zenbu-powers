@@ -1,9 +1,9 @@
 ---
 name: claude-manager
 description: >
-  Claude Code 官方最佳實踐審查的完整工作流程與知識來源。涵蓋 7 大審查範圍
-  （CLAUDE.md、Agent、Skill、Settings、Rules、MCP、Hooks）、審查工作流程、
-  知識來源設定。供 claude-manager agent 執行設定審查時載入。
+  Claude Code 官方最佳實踐審查的完整工作流程與知識來源。涵蓋 9 大審查範圍
+  （CLAUDE.md、Agent、Skill、Settings、Rules、MCP、Hooks、Commands、Plugin Manifest）、
+  審查工作流程、知識來源設定。供 claude-manager agent 執行設定審查時載入。
 ---
 
 # Claude Manager
@@ -13,8 +13,8 @@ description: >
 
 ## Reference Files
 
-- `references/knowledge-sources.md` — NotebookLM 筆記本 ID、查詢格式、官方文件備援 URL 清單、錯誤處理
-- `references/audit-scope.md` — 7 大審查範圍（CLAUDE.md / Agent / Skill / Settings / Rules / MCP / Hooks）的審查重點清單與 notebook_query 模板
+- `references/knowledge-sources.md` — 知識來源優先順序（內建 reference 主要 / WebFetch 官方文件補強）、官方文件 URL 清單、錯誤處理
+- `references/audit-scope.md` — 9 大審查範圍（CLAUDE.md / Agent / Skill / Settings / Rules / MCP / Hooks / Commands / Plugin Manifest）的審查重點清單與審查依據
 - `references/audit-workflow.md` — 完整工作流程：模式判定 → 環境掃描 → 逐項審查 → 報告產出 → 修正執行
 
 Read the relevant reference file(s) based on the task at hand.
@@ -23,7 +23,7 @@ Read the relevant reference file(s) based on the task at hand.
 
 ```
 任務是...
-├─ 需要查詢官方規範 / NotebookLM 設定 → references/knowledge-sources.md
+├─ 需要確認知識來源優先順序 / 官方文件 URL → references/knowledge-sources.md
 ├─ 確認某類設定的審查重點 → references/audit-scope.md
 └─ 執行完整審查流程 / 產出報告 → references/audit-workflow.md
 ```

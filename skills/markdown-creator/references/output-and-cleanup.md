@@ -2,7 +2,6 @@
 name: markdown-creator.output-and-cleanup
 description: >
   最終 Markdown 品質處理、檔案儲存、markitdown MCP server 關閉、暫存檔清理、結果回報模板。
-enable_by_default: true
 ---
 
 # 輸出與清理（Phase 4）

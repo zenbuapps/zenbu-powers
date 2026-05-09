@@ -1,6 +1,12 @@
 ---
 name: zenbu-design-system
-description: Zenbu Apps (zenbu-cms, zb-cart, all Zenbu modules) unified design system. Use when building or reviewing admin dashboard UI — pages, components, layout structures, or design tokens (color/typography/spacing/border-radius/shadow). Triggers: admin UI, dashboard, page layout, design tokens, sidebar, batch select, action bar, WCAG, accessibility, QA checklist, Zenbu UI, zenbu-cms, zb-cart. Component / pattern / QA detail in references.
+description: >
+  Zenbu Apps (zenbu-cms, zb-cart, all Zenbu modules) unified design system.
+  Use when building or reviewing admin dashboard UI — pages, components, layout
+  structures, or design tokens (color/typography/spacing/border-radius/shadow).
+  Triggers — admin UI, dashboard, page layout, design tokens, sidebar,
+  batch select, action bar, WCAG, accessibility, QA checklist,
+  Zenbu UI, zenbu-cms, zb-cart. Component / pattern / QA detail in references.
 user-invocable: false
 ---
 

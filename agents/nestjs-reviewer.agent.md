@@ -2,18 +2,7 @@
 name: nestjs-reviewer
 description: NestJS 10+ / TypeScript 程式碼審查專家，專精模組化架構、Dependency Injection、Guards/Interceptors/Pipes/Filters、TypeORM/Prisma Repository、class-validator DTO、JWT/Passport、Jest 測試。發現問題後提供具體改善建議，不主動重寫。審查不通過時透過 SendMessage 退回 @zenbu-powers:nestjs-master，形成審查迴圈。Use for all NestJS code reviews.
 model: opus
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
+tools: Read, Grep, Glob, Bash, WebFetch, Skill
 skills:
   - "zenbu-powers:nestjs-coding-standards"
   - "zenbu-powers:nestjs-review-criteria"

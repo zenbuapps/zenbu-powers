@@ -2,8 +2,8 @@
 name: react-router
 description: >
   React Router 完整 API 參考。**版本路由先**：開工前 Read package.json 判斷——
-  pin `react-router-dom` ^6.x 載入 references/v6/SKILL.md；
-  pin `react-router` ^7.x 載入 references/v7/SKILL.md（注意：v7 套件名變了，
+  pin `react-router-dom` ^6.x 載入 references/v6/REFERENCE.md；
+  pin `react-router` ^7.x 載入 references/v7/REFERENCE.md（注意：v7 套件名變了，
   不是 react-router-dom）。
   涵蓋兩版本所有核心 API：createBrowserRouter / RouterProvider /
   HashRouter / BrowserRouter / Routes / Route / Outlet / useNavigate /
@@ -28,8 +28,8 @@ description: >
 
 1. **Read package.json**（cwd 最近的優先；monorepo 多 package.json 時，先試 cwd 最近的，再試 git root）。
 2. 比對 `dependencies` / `devDependencies`：
-   - 含 **`react-router-dom`** pin `^6.x`（或 `~6.x` / `6.x.x`）→ Read `references/v6/SKILL.md`（單檔含 v6 完整 API + cheatsheet；如需深入遷移細節再 Read `references/v6/v6-to-v7-migration.md`）
-   - 含 **`react-router`** pin `^7.x`（或 `~7.x` / `7.x.x`）→ Read `references/v7/SKILL.md` 主檔；按需要再 Read 5 份子檔（`api-components.md` / `api-hooks.md` / `api-router-config.md` / `examples.md` / `migration-v6-to-v7.md`）
+   - 含 **`react-router-dom`** pin `^6.x`（或 `~6.x` / `6.x.x`）→ Read `references/v6/REFERENCE.md`（單檔含 v6 完整 API + cheatsheet；如需深入遷移細節再 Read `references/v6/v6-to-v7-migration.md`）
+   - 含 **`react-router`** pin `^7.x`（或 `~7.x` / `7.x.x`）→ Read `references/v7/REFERENCE.md` 主檔；按需要再 Read 5 份子檔（`api-components.md` / `api-hooks.md` / `api-router-config.md` / `examples.md` / `migration-v6-to-v7.md`）
    - **注意 v7 套件名變了**：v6 是 `react-router-dom`（含 `-dom` 後綴），v7 改回 `react-router`（無後綴）。光看 `react-router-dom` 必為 v6；光看 `react-router` 多半為 v7。
 3. **輔助訊號**（pin 不明時參考）：
    - 程式碼 `import { ... } from "react-router-dom"` → v6
@@ -67,14 +67,14 @@ description: >
 | Future flags | 多個 `v7_*` 旗標供漸進切換 | 全部已成預設行為，無需旗標 |
 | Node baseline | 18+ | 20+ |
 
-詳細 API 與遷移步驟：見 `references/v6/SKILL.md`、`references/v7/SKILL.md` 與其 `migration-v6-to-v7.md`。
+詳細 API 與遷移步驟：見 `references/v6/REFERENCE.md`、`references/v7/REFERENCE.md` 與其 `migration-v6-to-v7.md`。
 
 ---
 
 ## Hand-off / Next Agent
 
 - 本 skill 為 **Phase 2 第 2 對 hub 合併交付物**之一，路徑 `skills/react-router/`。
-- 同步交付：`references/v6/SKILL.md` + `references/v6/v6-to-v7-migration.md`；`references/v7/SKILL.md` + 5 份子檔（`api-components.md` / `api-hooks.md` / `api-router-config.md` / `examples.md` / `migration-v6-to-v7.md`）。
+- 同步交付：`references/v6/REFERENCE.md` + `references/v6/v6-to-v7-migration.md`；`references/v7/REFERENCE.md` + 5 份子檔（`api-components.md` / `api-hooks.md` / `api-router-config.md` / `examples.md` / `migration-v6-to-v7.md`）。
 - 本階段**未修改**任何下游引用（agent / README / 其他 skill 等）。
 - 舊 `skills/react-router-v6/` 與 `skills/react-router-v7/` 已 stub 化（`deprecated: true`），舊 references/ 目錄保留原樣，不刪除。
 - **交還 orchestrator**：等所有 5 對 hub 合併完成後一起進 Stage C（下游引用切換）。

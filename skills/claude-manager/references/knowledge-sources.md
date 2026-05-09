@@ -1,31 +1,33 @@
 ---
 name: knowledge-sources
 description: >
-  Claude Code 審查員的知識來源設定：NotebookLM 筆記本 ID、查詢格式、
-  官方文件備援 URL 清單。所有審查意見都必須有出處。
-enable_by_default: true
+  Claude Code 審查員的知識來源設定：以本 skill 內建的 reference 為主要依據，
+  WebFetch 官方文件為補強來源。所有審查意見都必須有出處。
 ---
 
 # 知識來源（依優先順序）
 
-## 1. NotebookLM — Claude Code Docs 筆記本（主要來源）
+## 1. 內建 Reference（主要來源）
 
-- **筆記本 ID**：`de80e438-3645-4d94-8977-ce1f3218cd6e`
-- **內容**：65 份 Claude Code 官方文件來源
-- **使用方式**：透過 `/zenbu-powers:notebooklm` SKILL 查詢，將用戶的實際設定內容附在 query 中供比對
-- **工具呼叫格式**：
-  ```bash
-  python scripts/run.py ask_question.py --question "你的查詢內容，附上用戶的設定內容" --notebook-url "https://notebooklm.google.com/notebook/de80e438-3645-4d94-8977-ce1f3218cd6e"
-  ```
+本 skill 的 `references/` 目錄已內建 9 大領域的審查重點清單與官方規範依據：
 
-## 2. Claude 官方文件網站（備援來源）
+| Reference 檔案 | 涵蓋範圍 |
+|---------------|---------|
+| `references/audit-scope.md` | 9 大領域審查重點：CLAUDE.md / Agent / Skill / Settings / Rules / MCP / Hooks / Commands / Plugin Manifest |
+| `references/audit-workflow.md` | 完整審查流程、報告格式、嚴重性分級標準 |
+| `references/knowledge-sources.md` | 本檔——知識來源優先順序與備援機制 |
 
-當 `/zenbu-powers:notebooklm` SKILL 不可用或查詢結果不足以判斷時，使用 WebFetch 直接查閱官方文件：
+**使用方式**：執行 audit 時直接參照 reference 中的審查重點清單，逐項比對用戶設定。
+所有判斷依據都來自 reference 內建規範，不依賴外部即時查詢。
+
+## 2. 官方文件網站（補強來源）
+
+當 reference 未涵蓋某項規範、或需要驗證最新官方說法時，使用 WebFetch 查閱官方文件：
 
 | 主題 | URL |
 |------|-----|
 | 總覽 | `https://docs.anthropic.com/en/docs/claude-code/overview` |
-| CLAUDE.md | `https://docs.anthropic.com/en/docs/claude-code/memory` |
+| CLAUDE.md / Memory | `https://docs.anthropic.com/en/docs/claude-code/memory` |
 | Sub-agents | `https://docs.anthropic.com/en/docs/claude-code/sub-agents` |
 | Custom Skills | `https://docs.anthropic.com/en/docs/claude-code/skills` |
 | Settings | `https://docs.anthropic.com/en/docs/claude-code/settings` |
@@ -33,14 +35,18 @@ enable_by_default: true
 | Hooks | `https://docs.anthropic.com/en/docs/claude-code/hooks` |
 | Security | `https://docs.anthropic.com/en/docs/claude-code/security` |
 
-> **規則**：所有審查意見都必須有出處。引用 NotebookLM 查詢結果或官方文件 URL，絕不憑記憶判斷。
+> **規則**：所有審查意見都必須有出處。優先引用 reference 內建審查重點，必要時補上官方文件 URL，**絕不憑記憶判斷**。
 
 ## 錯誤處理
 
-### NotebookLM 不可用
+### Reference 未涵蓋此規範
 
-如果 `/zenbu-powers:notebooklm` SKILL 執行失敗或查詢超時：
+1. **告知用戶**：「此規範未在內建 reference 中，改用官方文件網站驗證」
+2. **WebFetch 補強**：依上方表格 URL 查閱對應主題
+3. **標注來源**：審查報告中標注「來源：官方網站 {URL}」
 
-1. **告知用戶**：「NotebookLM 目前不可用，改用官方文件網站作為備援」
-2. **切換至備援**：使用 WebFetch 逐一查閱上方「備援來源」表格中的 URL
-3. **標注來源**：審查報告中標注「來源：官方網站 {URL}」而非 NotebookLM
+### WebFetch 也無法驗證
+
+- 標注「🔵 官方未明確規範」
+- 僅給予建議，不列為必須修正項目
+- 在報告中明確告知用戶此項目無法驗證的原因

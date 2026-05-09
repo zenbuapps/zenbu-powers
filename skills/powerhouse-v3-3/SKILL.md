@@ -1,5 +1,5 @@
 ---
-name: powerhouse-v3.3
+name: powerhouse-v3-3
 description: |
   Powerhouse WordPress plugin (v3.3.x) complete technical reference. Core infrastructure plugin
   providing unified REST API, license code management, access control (Limit), subscription

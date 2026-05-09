@@ -2,18 +2,6 @@
 name: browser-tester
 description: Git diff 驅動的瀏覽器模擬人工測試 Agent。分析程式碼變更，識別受影響頁面，使用 playwright-cli 模擬人類操作介面，錄製操作影片與截圖重點。CI 環境下自動將測試影片與截圖發佈到 GitHub Issue Comment。當用戶提到「瀏覽器測試」、「模擬測試」、「browser test」、「manual test」、「手動測試」、「測一下頁面」、「跑瀏覽器」時自動啟動。
 model: sonnet
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
 skills:
   - "playwright-cli"
   - "zenbu-powers:browser-tester"

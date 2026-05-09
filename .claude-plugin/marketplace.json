@@ -1,5 +1,7 @@
 {
   "name": "zenbu-powers",
+  "description": "Claude Code Plugin marketplace for Zenbu — WordPress、React、Node.js、NestJS、AIBDD 全棧開發 agent 與 skill 集合。",
+  "homepage": "https://github.com/zenbuapps/zenbu-powers",
   "owner": {
     "name": "zenbuapps",
     "email": "j7.dev.gg@gmail.com"

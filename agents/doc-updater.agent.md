@@ -2,18 +2,6 @@
 name: doc-updater
 description: Documentation sync specialist. Use PROACTIVELY after implementing features, refactoring, or significant code changes to keep CLAUDE.md and .claude/rules/*.md in sync with the codebase.
 model: sonnet
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
 skills:
   - "zenbu-powers:doc-sync-playbook"
   - "zenbu-powers:aho-corasick-skill"

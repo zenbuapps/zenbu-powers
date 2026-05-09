@@ -2,8 +2,8 @@
 name: nextjs
 description: >
   Next.js 完整 API 參考。**版本路由先**：開工前 Read package.json 判斷
-  next pin 的 major 版本——pin ^15.x 載入 references/v15/SKILL.md；
-  pin ^16.x 載入 references/v16/SKILL.md。
+  next pin 的 major 版本——pin ^15.x 載入 references/v15/REFERENCE.md；
+  pin ^16.x 載入 references/v16/REFERENCE.md。
   涵蓋 App Router file conventions、Server / Client Components、Data Fetching、
   Server Actions、Route Handlers、Middleware（v15）/ proxy.ts（v16）、Caching &
   Revalidation、Cache Components（"use cache"）、Metadata API、Image、ISR、
@@ -24,8 +24,8 @@ description: >
 
 1. **Read package.json**（cwd 最近的優先；monorepo 多 package.json 時，先試 cwd 最近的，再試 git root）。
 2. 比對 `dependencies` / `devDependencies` 中 `next` pin 的 major 版本：
-   - **`^15.x`**（或 `~15.x` / `15.x.x`）→ Read `references/v15/SKILL.md`
-   - **`^16.x`**（或 `~16.x` / `16.x.x`）→ Read `references/v16/SKILL.md`
+   - **`^15.x`**（或 `~15.x` / `15.x.x`）→ Read `references/v15/REFERENCE.md`
+   - **`^16.x`**（或 `~16.x` / `16.x.x`）→ Read `references/v16/REFERENCE.md`
 3. **輔助訊號**（pin 不明時參考）：
    - 存在 `middleware.ts` 且使用 `experimental.ppr` / `experimental.dynamicIO` → 多半 v15
    - 存在 `proxy.ts` 或 `cacheComponents: true` 設定 → v16
@@ -66,14 +66,14 @@ description: >
 | React 版本 | React 19 | React 19.2（含 React Compiler、`<Activity>`） |
 | `next lint` | 內建 | 移除，改用 ESLint CLI |
 
-詳細 API 與 v15 ↔ v16 完整對照：見 `references/v15/SKILL.md` 與 `references/v16/SKILL.md`（v16 另含 `migration-from-v15.md` 與 `cache-components-migration.md`）。
+詳細 API 與 v15 ↔ v16 完整對照：見 `references/v15/REFERENCE.md` 與 `references/v16/REFERENCE.md`（v16 另含 `migration-from-v15.md` 與 `cache-components-migration.md`）。
 
 ---
 
 ## Hand-off / Next Agent
 
 - 本 skill 為 **Phase 2 第 4 對 hub 合併交付物**之一，路徑 `skills/nextjs/`。
-- 同步交付：`references/v15/SKILL.md` + 5 份子 references（`advanced-routing` / `api-functions` / `cache-components` / `image-and-metadata` / `routing-and-config`），`references/v16/SKILL.md` + 7 份子 references（`advanced-routing` / `api-functions` / `cache-components-migration` / `image-and-metadata` / `migration-from-v15` / `proxy-and-config` / `react-and-tooling`）。
+- 同步交付：`references/v15/REFERENCE.md` + 5 份子 references（`advanced-routing` / `api-functions` / `cache-components` / `image-and-metadata` / `routing-and-config`），`references/v16/REFERENCE.md` + 7 份子 references（`advanced-routing` / `api-functions` / `cache-components-migration` / `image-and-metadata` / `migration-from-v15` / `proxy-and-config` / `react-and-tooling`）。
 - 本階段**未修改**任何下游引用（README.md、agent.md 等）。
 - 舊 `skills/nextjs-v15/` 與 `skills/nextjs-v16/` 已 stub 化（`deprecated: true`），references/ 目錄保留原樣供過渡期回查。
 - **交還 orchestrator**：等所有 hub 合併完成後一起進 Stage C（下游引用切換）。

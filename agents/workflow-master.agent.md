@@ -2,7 +2,6 @@
 name: workflow-master
 description: GitHub Actions workflow 專家：製作、除錯、優化 CI/CD pipeline。擅長使用 act 做本地驗證、gh CLI 查看線上狀態、系統性診斷 workflow 錯誤與邏輯衝突。當用戶提到「workflow」、「CI/CD」、「GitHub Actions」、「pipeline」、「act 測試」、「workflow 除錯」、「workflow 優化」、「跑 action」、「CI 壞了」、「workflow 失敗」、「action 錯誤」時自動啟動。
 model: opus
-permissionMode: bypassPermissions
 skills:
   - "zenbu-powers:workflow-master"
   - "zenbu-powers:github-actions"

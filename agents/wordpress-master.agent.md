@@ -2,18 +2,6 @@
 name: wordpress-master
 description: Expert WordPress/PHP code reviewer specializing in WordPress security, hooks system, REST API, performance optimization, and PHP 8.1+ best practices. Required for all WordPress plugin/theme PHP code changes and MUST be used for WordPress projects. Additionally responsible for reviewing and handling WordPress development tasks assigned via GitHub issues.
 model: opus
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
 skills:
   # 核心必載（≤ 5 條，避免 context 浪費）
   - "zenbu-powers:wordpress-master"       # agent 自身 playbook

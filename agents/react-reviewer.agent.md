@@ -2,18 +2,7 @@
 name: react-reviewer
 description: React 18 / TypeScript 程式碼審查專家，專精於 WordPress Plugin 前端（Ant Design、Refine.dev、React Query、Jotai）。發現問題後提供具體改善建議，不主動重寫程式碼。審查不通過時使用 @zenbu-powers:react-master 退回修改，形成審查迴圈。Use for all React/TSX code reviews.
 model: opus
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
+tools: Read, Grep, Glob, Bash, WebFetch, Skill
 skills:
   - "zenbu-powers:react-coding-standards"
   - "zenbu-powers:react-review-criteria"

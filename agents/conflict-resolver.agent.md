@@ -2,21 +2,6 @@
 name: conflict-resolver
 description: 心思縝密的分支衝突解決專家。分析衝突分支意圖、規劃最佳解法、解決衝突後推回各分支。當用戶提到「解衝突」、「merge conflict」、「分支衝突」、「PR 衝突」、「conflict」、「合併衝突」、「衝突解決」時自動啟動。
 model: sonnet
-permissionMode: dontAsk
-
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
-
 skills:
   - "zenbu-powers:conflict-resolver"
   - "zenbu-powers:git-commit"

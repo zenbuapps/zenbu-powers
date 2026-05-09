@@ -2,18 +2,6 @@
 name: react-master
 description: Expert React 18 / TypeScript code reviewer specializing in hooks, performance optimization, accessibility, and modern patterns (Refine.dev, Ant Design, React Query). Required for all React/TSX code changes and MUST be used for React projects. Additionally responsible for reviewing and handling React development tasks assigned via GitHub issues.
 model: opus
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
 skills:
   - "zenbu-powers:react-coding-standards"
   - "zenbu-powers:react-master"

@@ -4,7 +4,6 @@ description: >
   Lib Skill Creator 的 SKILL 產出規範。涵蓋 Phase 4（SKILL 結構設計、SKILL.md 撰寫模板、
   references 檔案規範、frontmatter description 模板）與 Phase 5（自我檢查清單、
   skill-creator 官方規範審查流程、交付報告模板）。
-enable_by_default: true
 ---
 
 # SKILL 產出規範

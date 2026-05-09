@@ -3,7 +3,6 @@ name: markdown-creator.image-processing
 description: >
   圖片處理完整流程：掃描圖片引用、驗證可存取性、下載非公開圖片、
   上傳至 GitHub Issue 取得永久 URL、替換 Markdown 中的圖片引用。
-enable_by_default: true
 ---
 
 # 圖片處理流程（Phase 3）

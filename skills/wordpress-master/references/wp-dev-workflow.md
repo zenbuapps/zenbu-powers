@@ -1,7 +1,6 @@
 ---
 name: wp-dev-workflow
 description: WordPress 開發工作流程：測試撰寫與驗證、審查提交與退回處理迴圈、技術債處理策略、除錯技巧。供 @zenbu-powers:wordpress-master agent 開發完成後的交付流程使用。
-enable_by_default: true
 ---
 
 # WordPress 開發工作流程

@@ -2,18 +2,6 @@
 name: test-creator
 description: 通用測試工程師。心思縝密，專精邊緣案例測試，使用測試 skill 為專案生成完整測試覆蓋（E2E + 整合測試）。
 model: sonnet
-mcpServers:
-  serena:
-    type: stdio
-    command: uvx
-    args:
-      - "--from"
-      - "git+https://github.com/oraios/serena"
-      - "serena"
-      - "start-mcp-server"
-      - "--context"
-      - "ide"
-      - "--project-from-cwd"
 skills:
   # 核心必載（≤ 5 條，避免 context 浪費）
   - "zenbu-powers:test-creation-playbook"   # 通用測試 playbook（必載）
