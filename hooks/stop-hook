@@ -70,7 +70,7 @@ if [ -f "$state_file" ]; then
     if [ -n "${mr:-}" ]; then
         max_rounds="$mr"
     fi
-elif [ "${ZENBU_HOOKS_ENABLED:-1}" != "0" ]; then
+elif [ "${ZENBU_HOOKS_ENABLED:-}" = "1" ]; then
     mode="auto"
     max_rounds=10
 else

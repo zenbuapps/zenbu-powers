@@ -45,14 +45,14 @@
 
 | 維度 | **Auto Loop**（自動） | **Manual Loop**（顯式） |
 |---|---|---|
-| 啟用條件 | **預設啟用**；`ZENBU_HOOKS_ENABLED=0` 顯式關閉 | 跑 `/zenbu-loop <task>` |
+| 啟用條件 | `ZENBU_HOOKS_ENABLED=1` 環境變數設定 | 跑 `/zenbu-loop <task>` |
 | 觸發 source | env 變數 + transcript 第一個 user message 當 task | `.claude/zenbu-loop.local.md` state file 存在 |
 | max_rounds | **10**（hard-coded） | state file `max_iterations`（預設 10，0 = unlimited） |
 | 任務來源 | transcript 第一個 user message | state file body 的 task 全文（更可靠） |
 | PASS 處理 | evaluator 重置 round_count | evaluator 重置 + 刪除 state file（自動退出 Manual Loop） |
 | 終止路徑 | evaluator PASS / 達 10 輪 FAIL 升級 | evaluator PASS / 達 max FAIL 升級 / `/zenbu-loop-cancel` 手動取消 |
 
-**啟用優先順序**：state file 存在時走 Manual Loop（不檢查 env）；否則檢查 env 決定是否走 Auto Loop（預設啟用，`ZENBU_HOOKS_ENABLED=0` 才關閉）；顯式關閉時 hook allow stop（不跑驗收）。
+**啟用優先順序**：state file 存在時走 Manual Loop（不檢查 env）；否則檢查 env 決定是否走 Auto Loop；都不滿足則 hook allow stop（不跑驗收）。
 
 **設計原則**：終止判定**只信 evaluator**——主窗口無法靠輸出特定字串提早跳過驗收（避免 LLM 自證式偷懶）。所有退出路徑均經 evaluator 把關或 orchestrator 介入。
 
@@ -106,11 +106,11 @@ JSON schema：`{<session_id>: <round_count>}`。腳本以 `$HOME/.claude/data/ze
 if [ -f ".claude/zenbu-loop.local.md" ]; then
     mode="manual"
     max_rounds=$(grep ^max_iterations: ... | extract)
-elif [ "${ZENBU_HOOKS_ENABLED:-1}" != "0" ]; then
+elif [ "$ZENBU_HOOKS_ENABLED" = "1" ]; then
     mode="auto"
     max_rounds=10
 else
-    echo '{}'; exit 0   # 顯式關閉，allow stop
+    echo '{}'; exit 0   # plugin 未啟用，allow stop
 fi
 ```
 
@@ -168,7 +168,7 @@ echo "{\"decision\":\"block\",\"reason\":<jq -Rs reason>}"
 
 | 情境 | 處理 |
 |---|---|
-| `ZENBU_HOOKS_ENABLED=0` 顯式關閉且無 state file | Step 0 直接 `echo '{}'` allow stop（顯式關閉時才不跑驗收） |
+| `ZENBU_HOOKS_ENABLED` 未設且無 state file | Step 0 直接 `echo '{}'` allow stop（plugin 預設不啟用） |
 | 無 jq 工具 | 退到 sed/grep + bash 參數替換做 JSON escape（fallback path 已內建） |
 | state file YAML 格式異常（無 max_iterations） | 預設 max_rounds=10 繼續執行（不安全失敗） |
 | transcript 找不到 / 為空 | Step 5 fallback「未取得任務需求，請依當前 session 上下文推導」 |
@@ -193,7 +193,7 @@ echo "{\"decision\":\"block\",\"reason\":<jq -Rs reason>}"
   - `hooks/reflex-dictionary.txt` 第 11 條
 - **batch protocol v2 處理**：reason 含 `.claude/zenbu-loop-reports/<...>.md` 路徑時的 fetch / Read 邏輯由 evaluator 寫入 full_report、主窗口透過 reflex 第 10 條主動 Read。本 hook **不解析** evaluator 輸出，也不寫 batch state 檔——這部分責任在 evaluator 與主窗口（H2 後分工）。
 - **設計決策**：刻意未提供「Claude 自喊完成訊號」——終止只走 evaluator PASS / 上限升級 / 用戶 cancel 三條路，避免 LLM 在 evaluator 之外開後門自證完成。
-- **設計決策**：Auto Loop 預設啟用（`ZENBU_HOOKS_ENABLED=0` 才顯式關閉），與 SessionStart / UserPromptSubmit 心法注入 hook 預設行為**不同**（後者預設關閉）——驗收 loop 是品質底線，預設應開；心法注入是個人偏好，預設應關。Manual Loop（state file 存在）優先於 env guard。
+- **設計決策**：Auto Loop 的 `ZENBU_HOOKS_ENABLED` guard 與 SessionStart / UserPromptSubmit hook 一致；Manual Loop（state file 存在）優先於 env guard，讓未啟 env 的用戶仍能用 `/zenbu-loop` 進入品質 loop。
 - **H2 重構後架構優勢**：
   - command type 比 agent type 啟動成本低、無 sub-agent spawn 固定開銷
   - shell 腳本可單元測試（mock stdin JSON、檢查 stdout）
@@ -211,11 +211,10 @@ echo "{\"decision\":\"block\",\"reason\":<jq -Rs reason>}"
 - Stage D：本檔重寫；`agents/acceptance-evaluator.agent.md` 追加「PASS 後 state 重置責任」段
 
 **Stage E（用戶手動測試）**：
-1. 確認 `ZENBU_HOOKS_ENABLED` 未設或非 `"0"`（Auto Loop 預設啟用）；測「顯式關閉」分支則設 `=0` 應 allow stop
+1. `export ZENBU_HOOKS_ENABLED=1` 開啟 Auto Loop
 2. 跑一個 dummy task（如「請寫個 hello.py」），等主窗口 stop
 3. 觀察主窗口應收到含 `[ZENBU_LOOP_DISPATCH]` 的 user message → 自動派 evaluator
 4. evaluator PASS → 應重置 `~/.claude/data/zenbu-loop-state.json` 該 session_id = 0
 5. Manual Loop 同步測試：`/zenbu-loop <task>` → 走完同流程 + 確認 PASS 時 `.claude/zenbu-loop.local.md` 被刪
-6. 測「顯式關閉」：`export ZENBU_HOOKS_ENABLED=0` 後 Stop 應直接 allow stop（不跑驗收）
 
 **回傳 orchestrator**：本任務由 sub-agent 完成 Stage B+C+D 三段；後續手動測試與 commit 由用戶決定。

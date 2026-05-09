@@ -72,7 +72,7 @@ WEB / 桌面 / CLI / 純文件等不同專案類型的驗收手法分流，由 e
 
 Stop hook 兩種啟用方式，**底層共用同一 evaluator-driven loop 機制**：
 
-- **Auto Loop**——預設啟用；`ZENBU_HOOKS_ENABLED=0` 顯式關閉 → 每次 session stop 自動跑 evaluator，max=10
+- **Auto Loop**——`ZENBU_HOOKS_ENABLED=1` 啟用後每次 session stop 自動跑 evaluator，max=10
 - **Manual Loop**——跑 `/zenbu-loop <task>` 寫 state file → max 由 cli 設定（預設 10）
 
 未啟 env 也未下命令時 hook **不觸發**（與 SessionStart / UserPromptSubmit 一致，預設不啟用）。
@@ -81,7 +81,7 @@ Stop hook 兩種啟用方式，**底層共用同一 evaluator-driven loop 機制
 
 | 維度 | Auto Loop | Manual Loop（zenbu-loop） |
 |---|---|---|
-| 啟用條件 | **預設啟用**；`ZENBU_HOOKS_ENABLED=0` 顯式關閉 | `/zenbu-loop <task>` 寫 state file |
+| 啟用條件 | `ZENBU_HOOKS_ENABLED=1` env | `/zenbu-loop <task>` 寫 state file |
 | State 載體 | `~/.claude/data/zenbu-loop-state.json`（per-session round_count） | 同左 + `.claude/zenbu-loop.local.md`（per-project mode flag） |
 | max_rounds | **10**（hard-coded） | `--max`（alias: `--max-iterations` / `-m`）指定，預設 10，0 = unlimited |
 | 任務來源 | transcript 第一個 user message（不可靠時 fallback 推導） | state file body 的 task 全文（最可靠） |
@@ -89,7 +89,7 @@ Stop hook 兩種啟用方式，**底層共用同一 evaluator-driven loop 機制
 | 終止路徑 | evaluator PASS / 達 10 輪 FAIL 升級 | evaluator PASS / 達 max FAIL 升級 / `/zenbu-loop-cancel` 手動取消 |
 | 適用 | 一般 session 全程品質把關 | 明確 task 範圍 / 需自訂 max / 長時間重構 |
 
-**啟用優先順序**：state file 存在 → Manual（不檢查 env）；否則檢查 env → Auto；都不滿足 → hook 不觸發。未顯式關閉時 Auto Loop 預設啟用。讓沒設 env 的用戶仍能透過 `/zenbu-loop` 用品質 loop。
+**啟用優先順序**：state file 存在 → Manual（不檢查 env）；否則檢查 env → Auto；都不滿足 → hook 不觸發。讓沒設 env 的用戶仍能透過 `/zenbu-loop` 用品質 loop。
 
 **設計原則**：終止判定**只信 evaluator**——Claude 主窗口不能靠輸出特定字串提早跳過驗收（避免 LLM 自證式偷懶）。所有退出路徑均經 evaluator 把關或 orchestrator 介入。
 
@@ -127,4 +127,4 @@ Stop hook agent 在每次觸發時：
 - **state file 不入 git**：`.claude/zenbu-loop.local.md` 已加進 plugin 根 `.gitignore`（命名含 `.local.` 為本機獨有約定）；用戶專案若 fork 此 plugin 邏輯到自家專案，須自行同步 ignore。
 - **與 ralph-wiggum 不相容**：兩 plugin 都註冊 Stop hook，同時啟用會雙觸發、decision 互相覆蓋（任一 block 都會 block）。請擇一啟用，或在 `~/.claude/settings.json` 暫時 disable 另一個 plugin。本 plugin 與 ralph-wiggum 的關鍵差異：max-iterations 動態配置、整合 acceptance-evaluator 智能驗收、**刻意不提供 `<promise>` 自喊完成機制**（避免 LLM 在 evaluator 之外開後門）；ralph 適合機械重塞 prompt 場景，本 plugin 適合品質驅動 loop。
 - **per-project 綁 cwd**：state file 寫於當前工作目錄的 `.claude/`。若在 monorepo 子目錄起 session 而 `.claude/` 在上層，Manual Loop 觸發判定會失敗。請於 project root 啟動 session 後再 `/zenbu-loop`。
-- **ZENBU_HOOKS_ENABLED guard 與其他 hook 不同**：Stop hook **預設啟用** Auto Loop（驗收 loop 是品質底線）；`ZENBU_HOOKS_ENABLED=0` 顯式關閉。SessionStart / UserPromptSubmit 心法注入 hook 維持「預設不啟用，需設 `=1`」（個人偏好）。或下 `/zenbu-loop` 顯式調用 Manual Loop（不論 env 為何都生效）。
+- **ZENBU_HOOKS_ENABLED guard 與其他 hook 一致**：Stop hook 跟 SessionStart / UserPromptSubmit 一樣，預設不啟用 Auto 行為；用戶顯式設 env 才開 Auto Loop，或下 `/zenbu-loop` 顯式調用 Manual Loop。

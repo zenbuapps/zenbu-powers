@@ -3,8 +3,8 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const stateFile = join('.claude', 'zenbu-loop.local.md');
-const envEnabled = process.env.ZENBU_HOOKS_ENABLED !== '0';
-const autoStatus = envEnabled ? 'ON（預設啟用，max=10）' : 'OFF（ZENBU_HOOKS_ENABLED=0 已顯式關閉）';
+const envEnabled = process.env.ZENBU_HOOKS_ENABLED === '1';
+const autoStatus = envEnabled ? 'ON（max=10）' : 'OFF（未設 ZENBU_HOOKS_ENABLED=1）';
 
 if (!existsSync(stateFile)) {
 	console.log(`zenbu-loop 狀態:
@@ -14,7 +14,7 @@ Auto Loop:    ${autoStatus}
 
 ${envEnabled
 	? '  → Stop hook 自動跑 evaluator，max 10 輪 FAIL 升級用戶'
-	: '  → Stop hook 不觸發；要重新啟用品質 loop 請：\n    1. 移除 ZENBU_HOOKS_ENABLED env 或設為任何非 "0" 值（如 "1"，自動 10 輪）\n    2. 或跑 /zenbu-loop <task>（顯式，max 自訂；不受 env 影響）'}
+	: '  → Stop hook 不觸發；要用品質 loop 請：\n    1. 設 ZENBU_HOOKS_ENABLED=1（自動 10 輪）\n    2. 或跑 /zenbu-loop <task>（顯式，max 自訂）'}
 `);
 	process.exit(0);
 }
@@ -50,7 +50,7 @@ State file:         ${stateFile}
 任務:
 ${body.trim()}
 
-注意：Manual Loop 優先於 Auto Loop——只要 state file 存在，hook 走 Manual 設定的 max（Auto Loop 預設啟用後此優先順序仍然成立）。
+注意：Manual Loop 優先於 Auto Loop——只要 state file 存在，hook 走 Manual 設定的 max。
 
 取消: /zenbu-loop-cancel
 `);
