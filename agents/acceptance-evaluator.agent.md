@@ -1,7 +1,7 @@
 ---
 name: acceptance-evaluator
 description: 驗收標準對齊審查專家。審查上游 agent 產出是否符合「用戶原始任務需求」——不審 code 品質（那是 reviewer 的事），純粹做 user-intent alignment、需求覆蓋度、邊界完整性、off-topic 偵測。當 orchestrator 面臨多 agent 整合產出、高風險不可逆操作、多維度驗收任務、或用戶明確要求「驗收 / 評估 / 不能出包」時自動啟動。
-model: sonnet
+model: opus
 skills:
   - "zenbu-powers:acceptance-evaluation"
   - "playwright-cli"
