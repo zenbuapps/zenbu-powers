@@ -25,7 +25,7 @@
 
 ## 與 reflex 的關係
 
-- reflex（ZENBU_REFLEX）：每輪無條件注入的 11 條協調紀律
+- reflex（ZENBU_REFLEX）：每輪無條件注入的 11 條協調紀律（含第 5 條驗收紀律、第 11 條 Stop hook dispatch fetch）
 - AIBDD mode（本段）：條件式注入，僅在觸發詞命中時出現
 - 兩段並列且不衝突——AIBDD mode 是 reflex 第 2 條「能委派就委派」的具體 dispatch 表
 
@@ -33,5 +33,5 @@
 
 - 三條路選一條後立即 dispatch，**不要回頭問用戶「你要走哪條」**（reflex 第 3 條：禁丟選擇題）
 - 若 sub-agent 回報含 Hand-off / Next Agent 標示 → 主窗口自動續派（reflex 第 4 條鏈式委派）
-- AIBDD 任務通常為重量任務（多 agent 協作 / 多驗收維度）→ 完工前必派 `@zenbu-powers:acceptance-evaluator`（reflex 第 5 條）
+- AIBDD 任務最終交付前由 Stop hook 自動驅動 acceptance-evaluator 驗收（reflex 第 11 條）；orchestrator 不主動 dispatch
 </ZENBU_AIBDD_MODE>

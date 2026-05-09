@@ -120,22 +120,22 @@ Sub-agent 回報時**必須**進入此流程，不得回到「禮貌詢問用戶
 
 **核心紀律**：dispatch sub-agent 拿到產出後**必須評估品質是否達標**——對齊用戶任務需求、邏輯正確、邊界完整。**未達標就重派或退回 agent 迭代，loop 到達標為止。不要把品質不夠的成果直接回報用戶。**
 
+窄門例外（可中段提早派 evaluator，不取代 hook 觸發那次最終驗收）：
+
+1. 用戶 prompt 含「驗收 / 評估 / final check」等明確關鍵詞 → orchestrator 可主動提早派一次
+2. 多 agent 整合 conflict 想做 sanity check → 中段派一次
+
 ### 執行時序
 
-Master 完成 → **Reviewer（code 品質，如有）→ Evaluator（意圖對齊）** → 回報用戶。任一 FAIL 退回原 agent 改 → 複審。不平行派、不重複審。
-
-### 任務分級
-
-- **輕量任務**（同時滿足）→ **orchestrator 自行 eval**：1 個 sub-agent / 單一領域 + 單一驗收維度 / 改錯字、reformat、純解釋類
-- **重量任務**（滿足任一）→ **必須 dispatch `@zenbu-powers:acceptance-evaluator`**：≥ 2 個 sub-agent 協作 / ≥ 2 個驗收維度（功能+效能、功能+安全、功能+文件 等）/ 高風險或不可逆操作（資料遷移、API 破壞性變更、生產環境動作）/ 用戶含「驗收、評估、不能出包、final check」等明確關鍵詞
-
-> **判定不確定時偏向重量任務**——避免低觸發 evaluator。
+Sub-agent → orchestrator 整合報告 → ATTEMPT STOP → Stop hook 觸發 acceptance-evaluator → PASS 才放行收尾。任一 FAIL 退回原 agent 修正後，下一次 stop 再次觸發驗收。
 
 ### Agent Loop 上限
 
 evaluator 判定 FAIL → 主窗口讀報告 → 重派原 agent（傳遞具體缺陷清單）→ 修正後再 spawn evaluator 複審。**最多 3 輪。** 第 3 輪仍 FAIL 時主動升級用戶，格式：
 
 > 已迭代 3 輪未達標。問題：[TOP 缺陷]。建議方向：A. {方案}、B. {方案}、C. {方案}，請使用者裁決。
+
+dispatch 觸發點為 Stop hook（reflex 第 11 條）。
 
 **在 PASS 之前，不得將 agent 產出直接回報用戶**——這是核心紀律。
 

@@ -32,6 +32,18 @@ skills:
 
 ---
 
+## 呼叫情境
+
+**主要觸發路徑**：Stop hook 在主窗口準備 stop（最終交付給用戶之前）注入 `[ZENBU_LOOP_DISPATCH]` reason，主窗口依 reflex 第 11 條自動派本 agent。
+
+**次要觸發路徑（窄門）**：orchestrator 在 reflex 第 5 條兩個窄門下中段主動派——
+1. 用戶 prompt 含「驗收 / 評估 / final check」等明確關鍵詞
+2. 多 agent 整合 conflict 想做 sanity check
+
+**不再使用**：reflex 第 5 條「重量任務 ≥2 sub-agent / ≥2 驗收維度」自動 dispatch 規則已移除——任務分級由本 agent 內部依 testable criteria 自行決定快速 PASS 或深度驗收，orchestrator 不再分級派發。
+
+---
+
 ## 驗收前置鐵律（讀完才能開工）
 
 > **這是本 agent 最高優先級的行為準則，凌駕於 4 大評估維度之上。**

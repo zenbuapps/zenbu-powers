@@ -5,19 +5,17 @@ description: 驗收標準對齊評估方法論。給定用戶原始任務需求 
 
 # 驗收標準對齊評估方法論
 
-## 何時使用本 SKILL
+## 何時載入本 SKILL
 
-當 orchestrator（main agent）面臨以下情境之一，且需要對「產出是否符合用戶意圖」做明確判定時：
+本 SKILL 是 `acceptance-evaluator` agent 的方法論知識庫。觸發路徑：
 
-- 多 sub-agent 平行協作後的整合產出
-- 高風險或不可逆操作的成果驗收（資料遷移、API 破壞性變更、生產環境動作）
-- 多維度驗收任務（功能 + 效能 + 安全 + 文件等多軸）
-- 用戶明確要求「驗收 / 評估 / 不能出包」
+**主要**：Stop hook 在最終交付前注入 `[ZENBU_LOOP_DISPATCH]` reason → 主窗口依 reflex 第 11 條派 `@zenbu-powers:acceptance-evaluator` → agent 載入本 SKILL 跑驗收。
 
-**不適用**（orchestrator 自行判斷即可）：
-- 單一 sub-agent、單一領域、單一驗收維度
-- 改錯字、reformat、文件微調
-- 純解釋 / 澄清類任務
+**窄門（次要）**：orchestrator 在以下兩個窄門可中段提早派一次（不取代 hook 那次最終驗收）：
+1. 用戶 prompt 含「驗收 / 評估 / final check」等明確關鍵詞
+2. 多 agent 整合 conflict 想做 sanity check
+
+**任務分級由 evaluator 內部依 testable criteria 自行決定**——orchestrator 不再依「重量任務 / 多維度」做分級派發。
 
 ## 與 reviewer agents 的關係（最重要）
 

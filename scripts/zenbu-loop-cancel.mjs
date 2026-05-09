@@ -3,14 +3,14 @@ import { readFileSync, unlinkSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const stateFile = join('.claude', 'zenbu-loop.local.md');
-const envEnabled = process.env.ZENBU_HOOKS_ENABLED === '1';
+const envEnabled = process.env.ZENBU_HOOKS_ENABLED !== '0';
 
 if (!existsSync(stateFile)) {
 	console.log('zenbu-loop: 未啟動 Manual Loop，無需取消');
 	if (envEnabled) {
-		console.log('Auto Loop（ZENBU_HOOKS_ENABLED=1）仍會自動跑 evaluator max 10 輪');
+		console.log('Auto Loop（預設啟用）仍會自動跑 evaluator max 10 輪');
 	} else {
-		console.log('Auto Loop 也未啟用（ZENBU_HOOKS_ENABLED 未設）');
+		console.log('Auto Loop 已顯式關閉（ZENBU_HOOKS_ENABLED=0）');
 	}
 	process.exit(0);
 }
@@ -25,7 +25,7 @@ unlinkSync(stateFile);
 
 console.log(`zenbu-loop Manual Loop 已取消（曾跑 ${round}/${max} 輪）`);
 if (envEnabled) {
-	console.log('Stop hook 回到 Auto Loop（ZENBU_HOOKS_ENABLED=1，max=10）');
+	console.log('Stop hook 回到 Auto Loop（預設啟用，max=10）');
 } else {
-	console.log('Stop hook 不再觸發（ZENBU_HOOKS_ENABLED 未設）');
+	console.log('Stop hook 不再觸發（ZENBU_HOOKS_ENABLED=0 已顯式關閉）');
 }
