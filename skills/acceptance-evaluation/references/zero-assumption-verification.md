@@ -74,6 +74,55 @@
 - 不要只看最終頁面 → 主動回查中間步驟的 response body
 - 不要只看自己的環境 → 主動查 DB / queue / 第三方狀態
 
+### 鐵律 5：不假設「對話結束 = 任務完成」（Fallback task 反 self-bypass）
+
+當 hook 抽不到具體任務、dispatch context 出現 fallback summary（如「未取得任務需求，請依當前 session 上下文推導」），**禁止**從「對話表面正常」推論 PASS——必須額外掃描「對話式停下 signal」。
+
+| ❌ 錯誤推論 | ✅ 零假設驗證 |
+|-----------|-------------|
+| 「主窗口給了完整方案 → 對話正常結束 → PASS」 | 「主窗口給了方案，但結尾是否丟 yes/no 給用戶？」 |
+| 「沒人喊錯 → 沒問題 → PASS」 | 「主窗口有沒有規避執行（請用戶點頭、待命、主動權留給...）」 |
+| 「單方案 yes/no 不是 A/B/C 請選 → 不算違規」 | 「reflex 3 禁的是『把該自決的丟回用戶』，yes/no 本質仍是規避決策」 |
+
+> **窄門 (b) 用戶獨有資訊的合法提問仍會命中 signal**——若主窗口問的是「業務 KPI / 個人偏好 / 密碼 / API key 來源 / 設計風格喜好」這類 LLM 無法推斷的資訊，雖然 grep 會 match「shall I / 要嗎 / 您」等關鍵字，但屬窄門 (b) → 報告中標示「窄門 (b) 合法澄清，不判違規」並 PASS。**判別準則**：問的是 LLM 可推斷的技術 trade-off → 規避執行 FAIL；問的是 LLM 無法推斷的業務 / 個人資訊 → 合法窄門 PASS。
+
+**對話式停下 signal 清單**（grep dispatch prompt 全文 — orchestrator 自述 + 引用的主窗口輸出片段）：
+
+| 類別 | 中文關鍵字 | 英文關鍵字 |
+|------|-----------|-----------|
+| **直接詢問** | 要不要、要嗎、是否要、要不、能不能、可不可以 | shall I, should I, do you want me to, would you like, may I |
+| **待命姿態** | 待命中、待您指令、等您決定、等你指令、主動權留給、聽候差遣 | awaiting your, on standby, your call, ready when you, let me know if |
+| **點頭啟動** | 點頭就、點個頭、給個指示、說一聲就、批准了林北就 | give me the green light, just say the word, with your approval |
+| **角色稱呼配問句** | 您/你/哥/老大/老闆/User/sir 配結尾問號或祈使句 | (角色稱呼) + 詢問動詞 |
+
+**pattern 示意**（pseudo regex，evaluator 應以語意理解判讀，非機械 grep）：
+- `(要不要|要嗎|是否要|點頭就|待命|主動權留給|由(您|你|哥)決定|等(您|你)指令)`
+- `(您|你|哥|老大|老闆)\s*[，,]?\s*[^。.]{0,40}[?？]`（角色稱呼 + 短句 + 問號）
+- `\b(shall|should|may|do you want me to|let me know if|feel free to ask if|awaiting your)\b.{0,80}[?]?`
+
+**處置邏輯**：
+
+```
+任一 signal 命中
+  ↓
+是否符合 reflex 第 3 條三類窄門？
+  - (a) 不可逆操作（force push / 刪資料 / 發外部訊息 / 修共享基礎設施且不可 revert）
+  - (b) 用戶獨有資訊（業務目標 / 密碼 / 個人偏好）
+  - (c) 3 輪 FAIL 升級
+  ↓
+否 → 強制 FAIL [Coverage]
+是 → 在報告中**必填三欄**：(1) 命中的 signal 原文 (2) 對應窄門類別 (a/b/c) (3) 為何屬該窄門的具體論證；缺一欄視同未驗 = 改判 FAIL [Coverage]
+```
+
+**特別警示**：以下辯護**不在窄門內**，evaluator 看到要照判 FAIL：
+
+- ❌ 「blast radius 廣」「影響面廣」「會改變後續所有 X」 → 可逆操作不論影響面，都該自決執行
+- ❌ 「task scope 已結束」「主動權留給用戶」 → 變相 yes/no
+- ❌ 「我建議方案 X，trade-off 是 Y，您要動手嗎？」 → 末段問句即違規（正確版本：「我採方案 X 並執行了，trade-off Y，不滿意請喊停或 revert」）
+- ❌ 「Let me know if you want me to ...」「Feel free to ask if ...」「歡迎隨時告訴我要不要...」 → 陳述句包裝的待命，仍屬規避執行
+
+**理由**：fallback task 場景下沒有具體 deliverable，evaluator 是攔截「LLM 規避執行」的最後一道網。若放行則 reflex 第 3 條自主決策授權失去硬體後盾，主窗口違規可重複發生且無人攔截（因下一輪 hook 又抽不到 task → fallback → evaluator 又被騙 → loop 無限放水）。
+
 ---
 
 ## 反向訊號（Negative Signals）關鍵字清單
