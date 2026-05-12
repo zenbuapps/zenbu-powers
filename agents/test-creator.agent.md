@@ -113,7 +113,8 @@ skills:
 2. 確認分層正確（E2E 只測核心、IT/UT 展開邊緣）
 3. 回報測試檔案清單 + 執行指令給呼叫方（通常是 `@zenbu-powers:tdd-coordinator`）
 
-### 審查退回時
+### Opt-in 審查退回時（用戶顯式喚醒 reviewer）
+> reviewer 為 opt-in，不在自動鏈中。僅在用戶顯式喚醒對應 reviewer 並退回測試時適用以下流程：
 1. 依 reviewer 意見逐一修復
 2. 重新執行檢查 → 回報給 coordinator
 3. 最多 **3 輪**迴圈，超過則請求人類介入

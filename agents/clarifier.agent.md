@@ -125,7 +125,9 @@ skills:
 2. **自動交接給 `@zenbu-powers:planner`**，將需求摘要與 specs 目錄路徑傳給 planner 開始規劃
 
 > ⚠️ **不要停下來詢問用戶是否開始規劃**。specs 寫完就直接交接給 planner，整條流程自動銜接：
-> `clarifier → planner → tdd-coordinator → test-creator → *-master → *-reviewer`
+> `clarifier → planner → tdd-coordinator → test-creator → *-master → Stop hook → acceptance-evaluator`
+>
+> ⓘ `*-reviewer` 已從自動鏈中移除，改為 opt-in（僅在用戶顯式喚醒時上場做深度 code review）。自動驗收統一由 Stop hook → `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖把關。
 
 ## 運行環境行為
 

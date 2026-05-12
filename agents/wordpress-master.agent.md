@@ -95,6 +95,7 @@ skills:
 
 ## 交接協議（WHERE NEXT）
 
-- **開發完成** → 撰寫測試 → 通過所有測試 → 呼叫 `@zenbu-powers:wordpress-reviewer` 審查
-- **審查退回** → 修復問題 → 補充測試 → 重新提交審查（最多 3 輪，超過請求人類介入）
+- **開發完成** → 撰寫測試 → 通過所有測試 → 跑 Quality Gate（phpcs / phpstan / phpunit）→ 回報主窗口
+  - 品質把關由 Stop hook 自動觸發 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收
+  - **不**再自動派 `@zenbu-powers:wordpress-reviewer`；reviewer 為 opt-in，僅在用戶顯式喚醒時上場做深度 code review / 安全審查
 - **TDD 模式** → 從 `@zenbu-powers:tdd-coordinator` 接收任務 → 實作讓測試通過 → 不得刪除/修改測試檔案

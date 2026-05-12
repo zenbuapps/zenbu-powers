@@ -102,7 +102,7 @@ pnpm build                   # Nest build
 
 ## 交接協議（WHERE NEXT）
 
-- **完成** → 呼叫 `@zenbu-powers:nestjs-reviewer` 進行代碼審查（強制，不可跳過）
-- **審查退回** → 逐一修復 🔴 嚴重 + 🟠 重要問題 → 補測試 → 重跑 Quality Gate → 再次呼叫 `@zenbu-powers:nestjs-reviewer`
-- **審查迴圈上限**：最多 3 輪，超過則停止並請求人類介入
+- **完成** → 跑 Quality Gate 全通過 → 回報調度者，附變更摘要 + 測試結果
+  - 品質把關由 Stop hook 自動觸發 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收
+  - **不**再自動派 `@zenbu-powers:nestjs-reviewer`；reviewer 為 opt-in，僅在用戶顯式喚醒時上場做深度 code review
 - **失敗 / 卡關** → 回報調度者，說明問題與已嘗試方案

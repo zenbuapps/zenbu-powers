@@ -133,13 +133,10 @@ vi.mocked(useQuery).mockReturnValue({
 ### 完成時
 
 1. 執行所有測試確認通過（詳見 `/zenbu-powers:react-master`）
-2. **必須**呼叫 `@zenbu-powers:react-reviewer` 進行代碼審查
-
-### 審查退回時
-
-1. 依照 reviewer 意見逐一修復
-2. 重新執行測試 → 再次呼叫 `@zenbu-powers:react-reviewer`
-3. 最多 **3 輪**審查迴圈，超過則請求人類介入
+2. 跑交付前驗證（`tsc --noEmit` + `eslint` + `prettier --check` + `vitest` / `jest`）
+3. 回報主窗口，附變更摘要與測試結果
+   - 品質把關由 Stop hook 自動觸發 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收
+   - **不**再自動派 `@zenbu-powers:react-reviewer`；reviewer 為 opt-in，僅在用戶顯式喚醒時上場做深度 code review
 
 ### 失敗時
 
