@@ -78,20 +78,22 @@ npx vitest run 2>&1; echo "EXIT_CODE=$?"
 
 ---
 
-## 階段 3：🔵 Refactor — 審查與優化
+## 階段 3：🔵 Refactor — Optional Quality Pass
 
-### Step 6：分派 Reviewer
+### Step 6：Green Gate 通過後直接進入收尾
 
-- Reviewer Teammates 在同一工作目錄中進行審查
-- **審查前必須確認所有測試通過** — 測試失敗的程式碼不進入審查流程
-- 審查不通過時，透過 `SendMessage` 退回給對應的 Developer Teammate 修正
-- 修正後重新通過 Green Gate，再進行審查
+Green Gate 通過後**不再強制派 reviewer**。品質把關統一由 Stop hook → `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收。
 
-**審查團隊組成（根據專案技術棧選擇）：**
+**Optional Manual Quality Pass**（由用戶決定是否啟用）：
 
-- `@zenbu-powers:wordpress-reviewer` — PHP/WordPress 程式碼審查
-- `@zenbu-powers:react-reviewer` — React/TypeScript 程式碼審查
-- `@zenbu-powers:security-reviewer` — 安全性審查（**WordPress Plugin 專案必須包含**，與其他 reviewer 平行執行）
+若用戶要求強化品質深度，可手動喚醒對應 reviewer 做深度 code review / 安全審查：
+
+- `@zenbu-powers:wordpress-reviewer` — PHP/WordPress 程式碼審查（opt-in）
+- `@zenbu-powers:react-reviewer` — React/TypeScript 程式碼審查（opt-in）
+- `@zenbu-powers:nestjs-reviewer` — NestJS 程式碼審查（opt-in）
+- `@zenbu-powers:security-reviewer` — 安全性審查（涉及 auth / payment / external-api 時強烈建議，opt-in）
+
+> **安全敏感任務提示**：涉及 auth / payment / external-api / SQL / nonce 等敏感領域時，acceptance-evaluator 不審 OWASP / CSRF / SQLi 等具體漏洞——應在報告中明示建議用戶補派 `@zenbu-powers:security-reviewer`。
 
 ---
 
@@ -102,9 +104,9 @@ npx vitest run 2>&1; echo "EXIT_CODE=$?"
 | test-creator 無法產生測試（`./specs/` 不存在） | 中止，回報「缺少 `./specs/` 規格，請先用 @zenbu-powers:clarifier 產生」 |
 | Red Gate 不通過（無測試檔案） | 退回 test-creator，最多重試 2 次 |
 | Red Gate 不通過（測試全部通過） | test-creator 的斷言有誤，退回修正 |
-| Green Gate 不通過（測試失敗） | 退回 Developer Teammate，最多重試 3 次 |
+| Green Gate 不通過（測試失敗） | 主窗口重派對應 master 修復，最多重試 3 次 |
 | 重試次數耗盡 | 中止整個流程，保留當前變更（本地保留 worktree / CI commit 現狀），回報失敗清單供人工介入 |
-| Reviewer 退回修改 | 退回 Developer，修正後重過 Green Gate 再審查 |
+| Stop hook acceptance-evaluator FAIL | 主窗口讀缺陷清單後重派對應 agent 修正，最多 3 輪（reflex 第 5 / 11 條） |
 
 ---
 
@@ -117,11 +119,14 @@ npx vitest run 2>&1; echo "EXIT_CODE=$?"
 - `@zenbu-powers:wordpress-master` — WordPress/PHP 實作
 - `@zenbu-powers:react-master` — React/TypeScript 前端實作
 - `@zenbu-powers:nodejs-master` — Node.js 後端實作
+- `@zenbu-powers:nestjs-master` — NestJS 後端實作
 
-**審查團隊（依專案技術棧選擇）：**
-- `@zenbu-powers:wordpress-reviewer` — WordPress/PHP 程式碼審查
-- `@zenbu-powers:react-reviewer` — React/TypeScript 程式碼審查
-- `@zenbu-powers:security-reviewer` — 安全性審查（WordPress Plugin 專案必須）
+**Opt-in 審查團隊**（用戶顯式喚醒才上場，不在自動流程中）：
+- `@zenbu-powers:wordpress-reviewer` — WordPress/PHP 程式碼深度審查
+- `@zenbu-powers:react-reviewer` — React/TypeScript 程式碼深度審查
+- `@zenbu-powers:nestjs-reviewer` — NestJS 程式碼深度審查
+- `@zenbu-powers:security-reviewer` — 安全性審查（涉及敏感領域強烈建議補派）
 
-**收尾：**
+**收尾與驗收：**
 - `@zenbu-powers:doc-updater` — 完成後同步更新專案文件
+- `@zenbu-powers:acceptance-evaluator` — 最終驗收（由 Stop hook 自動觸發，對齊用戶意圖把關）

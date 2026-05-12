@@ -1,6 +1,6 @@
 ---
 name: wp-dev-workflow
-description: WordPress 開發工作流程：測試撰寫與驗證、審查提交與退回處理迴圈、技術債處理策略、除錯技巧。供 @zenbu-powers:wordpress-master agent 開發完成後的交付流程使用。
+description: WordPress 開發工作流程：測試撰寫與驗證、Quality Gate、技術債處理策略、除錯技巧。供 @zenbu-powers:wordpress-master agent 開發完成後的交付流程使用。最終驗收由 Stop hook → @zenbu-powers:acceptance-evaluator 把關，reviewer 為 opt-in。
 ---
 
 # WordPress 開發工作流程
@@ -57,11 +57,11 @@ class ProductServiceTest extends \WP_UnitTestCase {
 }
 ```
 
-> 禁止跳過：沒有測試的代碼不得提交審查。若功能性質確實無法撰寫單元測試（如純 UI Hook 註冊），需在提交審查時說明原因。
+> 禁止跳過：沒有測試的代碼不得進入交接流程。若功能性質確實無法撰寫單元測試（如純 UI Hook 註冊），需在交付摘要中說明原因。
 
 ### 步驟 2：執行所有測試並確認通過
 
-在呼叫 reviewer agent 之前，**必須**執行以下測試並確認全數通過：
+進入交付前，**必須**執行以下 Quality Gate 並確認全數通過：
 
 ```bash
 # 1. 靜態分析（如果專案有配置）
@@ -77,37 +77,36 @@ composer test
 ./vendor/bin/phpunit
 ```
 
-> 只有當所有測試全數通過時，才可以進入下一步呼叫 reviewer agent。若有測試失敗，必須先修復再重新執行測試，直到全部通過。
+> 只有當所有測試全數通過時，才可以進入下一步交付。若有測試失敗，必須先修復再重新執行測試，直到全部通過。
 
 ---
 
-## 二、完成後的動作：提交審查
+## 二、完成後的動作：交付給主窗口
 
-當所有測試通過後，**必須**明確呼叫 reviewer agent 進行代碼審查：
+Quality Gate 全部通過後，回報主窗口，附變更摘要與測試結果。
+
+**自動驗收**：最終把關由 Stop hook 觸發 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收——**不需**自動派 reviewer。
+
+**Opt-in 深度審查**：若用戶要求進一步 code review，再由用戶顯式喚醒對應 reviewer：
 
 ```
-@zenbu-powers:wordpress-reviewer
+@zenbu-powers:wordpress-reviewer   ← 程式品質深度審查（opt-in）
+@zenbu-powers:security-reviewer    ← 安全審查（涉及 auth / payment / nonce 強烈建議，opt-in）
 ```
-
-> 這是強制步驟，不可跳過。請確保 reviewer 完整審查所有修改過的檔案。
 
 ---
 
-## 三、接收審查退回時的處理流程
+## 三、用戶顯式發起 review-fix 迴圈時的處理流程
 
-當 `@zenbu-powers:wordpress-reviewer` 審查不通過並將意見退回時，你必須：
+僅當用戶顯式喚醒 `@zenbu-powers:wordpress-reviewer` 並要求進入「reviewer ↔ master」修復迴圈時：
 
 1. **逐一檢視**：仔細閱讀 reviewer 列出的所有嚴重問題和重要問題
 2. **逐一修復**：按照 reviewer 的建議修改代碼，不可忽略任何阻擋合併的問題
 3. **補充測試**：若 reviewer 指出缺少測試覆蓋的場景，補寫對應測試
 4. **重新執行測試**：修改完成後，重新執行所有測試確認通過
-5. **再次提交審查**：測試通過後，再次呼叫 `@zenbu-powers:wordpress-reviewer` 進行審查
+5. **再次提交審查**：測試通過後，由用戶決定是否再次喚醒 reviewer
 
-```
-修改完成 → 跑測試 → 全部通過 → @zenbu-powers:wordpress-reviewer
-```
-
-> 此迴圈會持續進行，直到 reviewer 回覆「審查通過」為止。最多進行 **3 輪**審查迴圈，若超過 3 輪仍未通過，應停止並請求人類介入。
+> 此 opt-in 迴圈最多進行 **3 輪**，若超過 3 輪仍未通過，應停止並請求人類介入。
 
 ---
 

@@ -25,7 +25,7 @@ specs\list\008-player-ab.spec.md
 
 ### 3. 開發功能 - 根據測試內容來開發功能，使用 @"wordpress-master (agent)" agent 來開發
 
-### 4. 審核功能 - 開發完成後，使用 @"wordpress-reviewer (agent)" agent 來審核功能，確保功能正常，測試通過
+### 4. （Optional）深度 code review - 開發完成後，自動驗收由 Stop hook → @"acceptance-evaluator (agent)" 對齊用戶意圖把關。若需強化品質，可顯式喚醒 @"wordpress-reviewer (agent)" 做深度審查（opt-in）
 
 ### 5. 更新文件 - 功能審核通過後，更新相關文件，確保文件內容完整且符合規範
 

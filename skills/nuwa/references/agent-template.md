@@ -126,12 +126,17 @@ skills:
 
 ### 完成時
 1. {完成條件檢查}
-2. **必須**呼叫 `@zenbu-powers:{downstream-agent}` 進行 {下游動作}
+2. 回報主窗口（或下游 agent，依需求填入）
+   - **自動驗收**由 Stop hook → `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖把關
+   - 若有後續 agent 需自動串接（非 reviewer 類），在此明確標示 `@zenbu-powers:{next-agent}`
 
-### 審查退回時
+### Opt-in 深度審查（用戶顯式喚醒時）
+若用戶要求 reviewer ↔ master 修復迴圈：
 1. 依照 reviewer 意見逐一修復
-2. 重新執行檢查 → 再次呼叫 `@zenbu-powers:{downstream-agent}`
+2. 重新執行檢查 → 由用戶決定是否再次喚醒 reviewer
 3. 最多 **3 輪**迴圈，超過則請求人類介入
+
+> **重要**：`*-reviewer` agents 不在自動鏈中。新建 agent 時**禁止**寫「完成後必須呼叫 reviewer」這類自動派發描述——reviewer 為 opt-in，僅由用戶顯式喚醒。
 
 ### 失敗時
 - 回報錯誤給 coordinator 或使用者，附上錯誤訊息與已嘗試的解決方案

@@ -90,11 +90,11 @@ js/src/components/product/ProductCard.tsx
 - **元件測試**：針對互動元件使用 `@testing-library/react` 撰寫行為測試
 - **測試涵蓋範圍**：至少涵蓋主要流程（happy path）與關鍵的錯誤場景（error path）
 
-> 禁止跳過：沒有測試的代碼不得提交審查。若功能性質確實無法撰寫單元測試（如純樣式調整），需在提交審查時說明原因。
+> 禁止跳過：沒有測試的代碼不得進入交接流程。若功能性質確實無法撰寫單元測試（如純樣式調整），需在交付摘要中說明原因。
 
 ### 執行測試清單
 
-在呼叫 reviewer agent 之前，**必須**執行以下測試並確認全數通過：
+進入交付前，**必須**執行以下 Quality Gate 並確認全數通過：
 
 ```bash
 # 1. 型別檢查
@@ -112,4 +112,4 @@ npm test
 npx vitest run
 ```
 
-> 只有當所有測試全數通過時，才可以進入下一步呼叫 reviewer agent。
+> 只有當所有測試全數通過時，才可以進入下一步交付給主窗口。最終驗收由 Stop hook → `@zenbu-powers:acceptance-evaluator` 把關，reviewer 為 opt-in。

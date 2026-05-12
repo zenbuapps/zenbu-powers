@@ -43,6 +43,8 @@ coordinator (team lead)
 - 需要 A → B → C → B 的回環
 - 典型流程：`implementer → reviewer → implementer（修復）→ reviewer（再審）`
 
+> ⚠️ **zenbu-powers 預設 reviewer 為 opt-in**：此回環模式在 zenbu-powers 內**不**自動觸發。`*-master` 完成後不自動派 `*-reviewer`；最終驗收統一走 Stop hook → `@zenbu-powers:acceptance-evaluator`。本模式僅在用戶顯式喚醒 reviewer 並要求進入修復迴圈時適用。建立新 agent 時請勿照抄此模式做為預設行為。
+
 **Agent 交接協議寫法**：
 ```markdown
 ## 交接協議（WHERE NEXT）
