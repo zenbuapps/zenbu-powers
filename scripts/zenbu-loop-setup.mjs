@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const HELP = `zenbu-loop — 啟動 Manual Loop（顯式調用 Stop hook 驗收，PASS 才停）
@@ -67,10 +67,18 @@ if (!prompt) {
 const stateDir = '.claude';
 const stateFile = join(stateDir, 'zenbu-loop.local.md');
 
+let prevStatus = null;
 if (existsSync(stateFile)) {
-	console.error(`zenbu-loop: 已有 Manual Loop 啟動中（${stateFile}）`);
-	console.error('先取消: /zenbu-loop-cancel');
-	process.exit(1);
+	const existing = readFileSync(stateFile, 'utf8');
+	const statusMatch = existing.match(/^status:\s*([a-z]+)/m);
+	prevStatus = statusMatch ? statusMatch[1] : 'enabled';
+
+	if (prevStatus === 'enabled') {
+		console.error(`zenbu-loop: 已有 Manual Loop 啟動中（${stateFile}, status: enabled）`);
+		console.error('先取消: /zenbu-powers:zenbu-loop-cancel');
+		process.exit(1);
+	}
+	// status: disabled or other → 用戶 explicit 想重啟，覆寫繼續
 }
 
 mkdirSync(stateDir, { recursive: true });
@@ -78,6 +86,7 @@ mkdirSync(stateDir, { recursive: true });
 const startedAt = new Date().toISOString();
 
 const content = `---
+status: enabled
 active: true
 mode: loop
 round_count: 0
@@ -92,11 +101,14 @@ writeFileSync(stateFile, content, 'utf8');
 
 const maxLabel = maxIterations === 0 ? 'unlimited（危險，無上限保護，只能靠 evaluator PASS 或 /zenbu-loop-cancel 終止）' : `${maxIterations}`;
 const envEnabled = process.env.ZENBU_HOOKS_ENABLED === '1';
+const reactivatedNote = prevStatus === 'disabled'
+	? '（從 explicit DISABLED 狀態重新啟用，已覆寫為 status: enabled）'
+	: '';
 const envNote = envEnabled
 	? '（同時 Auto Loop 也啟用，但 Manual Loop 設定優先）'
 	: '（Auto Loop 未啟用，僅 Manual Loop 跑）';
 
-console.log(`zenbu-loop Manual Loop 已啟動 ${envNote}
+console.log(`zenbu-loop Manual Loop 已啟動 ${envNote}${reactivatedNote ? '\n' + reactivatedNote : ''}
 
 任務: ${prompt.length > 100 ? prompt.slice(0, 97) + '...' : prompt}
 Max iterations: ${maxLabel}

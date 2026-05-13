@@ -62,13 +62,39 @@ mode=""
 max_rounds=10
 
 if [ -f "$state_file" ]; then
-    mode="manual"
-    # Pull max_iterations from the YAML frontmatter; default 10 on parse failure.
-    mr=$(grep -E '^max_iterations:' "$state_file" 2>/dev/null \
-            | head -1 \
-            | sed 's/^max_iterations:[[:space:]]*\([0-9]*\).*/\1/')
-    if [ -n "${mr:-}" ]; then
-        max_rounds="$mr"
+    # Tri-state state file:
+    #   status: enabled  → Manual ON
+    #   status: disabled → explicit OFF (overrides env)
+    #   missing/unknown  → treat as enabled (backward compat w/ legacy frontmatter)
+    # Corrupt frontmatter (no leading `---`) → fall back to env detection.
+    first_line=$(head -1 "$state_file" 2>/dev/null)
+    if [ "$first_line" != "---" ]; then
+        if [ "${ZENBU_HOOKS_ENABLED:-}" = "1" ]; then
+            mode="auto"
+            max_rounds=10
+        else
+            printf '{}\n'
+            exit 0
+        fi
+    else
+        # Strict lowercase exact match: only `disabled` triggers OFF; typos like
+        # `Disabled` / `disable` / `OFF` fall through to the missing/unknown
+        # branch (= enabled), avoiding silent surprise.
+        status=$(grep -E '^status:' "$state_file" 2>/dev/null \
+                  | head -1 \
+                  | sed 's/^status:[[:space:]]*\([a-z]*\).*/\1/')
+        if [ "$status" = "disabled" ]; then
+            printf '{}\n'
+            exit 0
+        fi
+        # enabled / missing / unknown → Manual mode
+        mode="manual"
+        mr=$(grep -E '^max_iterations:' "$state_file" 2>/dev/null \
+                | head -1 \
+                | sed 's/^max_iterations:[[:space:]]*\([0-9]*\).*/\1/')
+        if [ -n "${mr:-}" ]; then
+            max_rounds="$mr"
+        fi
     fi
 elif [ "${ZENBU_HOOKS_ENABLED:-}" = "1" ]; then
     mode="auto"
@@ -174,10 +200,26 @@ reason="[ZENBU_LOOP_DISPATCH] mode=${mode} session=${session_id} round=${new_rou
 
 請依 reflex 第 11 條派 @zenbu-powers:acceptance-evaluator 對齊上述 task 進行驗收。evaluator PASS 時自行重置 ~/.claude/data/zenbu-loop-state.json 該 session_id 為 0、刪除 .claude/zenbu-loop.local.md（若存在）後才 stop。"
 
+# Compose user-visible systemMessage (loop progress indicator).
+if [ "$max_rounds" = "0" ]; then
+    sysmsg_rounds="round ${new_round}/∞"
+else
+    sysmsg_rounds="round ${new_round}/${max_rounds}"
+fi
+
+if [ "$task_summary" = "未取得任務需求，請依當前 session 上下文推導" ]; then
+    sysmsg_task="task: (未取得，依 session 上下文)"
+else
+    sysmsg_task="task: $(printf '%s' "$task_summary" | head -c 80)..."
+fi
+
+sysmsg="🔄 zenbu-loop [${mode}] ${sysmsg_rounds}"$'\n'"${sysmsg_task}"$'\n'"→ 派 evaluator 驗收中"
+
 if command -v jq >/dev/null 2>&1; then
     reason_json=$(printf '%s' "$reason" | jq -Rs . 2>/dev/null)
-    if [ -n "${reason_json:-}" ]; then
-        printf '{"decision":"block","reason":%s}\n' "$reason_json"
+    sysmsg_json=$(printf '%s' "$sysmsg" | jq -Rs . 2>/dev/null)
+    if [ -n "${reason_json:-}" ] && [ -n "${sysmsg_json:-}" ]; then
+        printf '{"decision":"block","reason":%s,"systemMessage":%s}\n' "$reason_json" "$sysmsg_json"
         exit 0
     fi
 fi
@@ -189,5 +231,12 @@ esc="${esc//\"/\\\"}"
 esc="${esc//$'\n'/\\n}"
 esc="${esc//$'\r'/\\r}"
 esc="${esc//$'\t'/\\t}"
-printf '{"decision":"block","reason":"%s"}\n' "$esc"
+
+esc_sys="$sysmsg"
+esc_sys="${esc_sys//\\/\\\\}"
+esc_sys="${esc_sys//\"/\\\"}"
+esc_sys="${esc_sys//$'\n'/\\n}"
+esc_sys="${esc_sys//$'\r'/\\r}"
+esc_sys="${esc_sys//$'\t'/\\t}"
+printf '{"decision":"block","reason":"%s","systemMessage":"%s"}\n' "$esc" "$esc_sys"
 exit 0
