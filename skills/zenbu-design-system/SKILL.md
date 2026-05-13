@@ -16,11 +16,11 @@ Implementation-ready design system for all Zenbu admin dashboard modules (zenbu-
 
 ## Reference Files
 
-- **[tokens.md](tokens.md)** — Color palette (CSS custom properties), typography scale, spacing, border-radius, shadows, z-index
-- **[layout.md](layout.md)** — Shell structure, sidebar navigation, page headers, list/detail/settings page grid patterns, responsive breakpoints
-- **[components.md](components.md)** — Buttons (5 variants), cards, tables, tabs, form inputs, badges, toggles, dropdowns, stat cards, iconography
-- **[patterns.md](patterns.md)** — Batch select bar (canonical `/zb-cart/products` standard), fixed bottom action bar, filter bar
-- **[qa-checklist.md](qa-checklist.md)** — Accessibility requirements, anti-patterns (prohibited implementations), implementation QA checklist
+- **[tokens.md](references/tokens.md)** — Color palette (CSS custom properties), typography scale, spacing, border-radius, shadows, z-index
+- **[layout.md](references/layout.md)** — Shell structure, sidebar navigation, page headers, list/detail/settings page grid patterns, responsive breakpoints
+- **[components.md](references/components.md)** — Buttons (5 variants), cards, tables, tabs, form inputs, badges, toggles, dropdowns, stat cards, iconography
+- **[patterns.md](references/patterns.md)** — Batch select bar (canonical `/zb-cart/products` standard), fixed bottom action bar, filter bar
+- **[qa-checklist.md](references/qa-checklist.md)** — Accessibility requirements, anti-patterns (prohibited implementations), implementation QA checklist
 
 ## Core Principles
 
