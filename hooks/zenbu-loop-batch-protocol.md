@@ -1,6 +1,6 @@
-# zenbu-loop FAIL 缺陷分批協定（v2，v3.15.0 封存）
+# zenbu-loop FAIL 缺陷分批協定（v2，已封存）
 
-> **⚠️ v3.15.0 封存**：本協定為 Stop hook driven acceptance loop 設計（解決 evaluator FAIL 時把整份缺陷清單塞回主窗口導致 context 爆炸）。v3.15.0 起 Stop hook 退場、evaluator 改 opt-in markdown 報告，本協定不再運作。檔案保留供未來重新設計時參考。
+> **⚠️ 已封存**：本協定為 Stop hook driven acceptance loop 設計。Stop hook 退場、evaluator 改 opt-in markdown 報告後本協定不再運作。檔案保留供未來重新設計時參考。
 
 > **歷史狀態**：已實作（commit 213c34f）。Stage A 設計 / Stage B evaluator schema 對齊（acceptance-evaluator.agent.md + acceptance-evaluation/references/output-schema.md）/ Stage C stop-hook Step 6 + reflex 第 10 條全部完成。
 > **歷史目的**：解決 evaluator FAIL 時把整份缺陷清單塞回主窗口導致 4-5 輪後 context 爆炸、後續輪次模型遺漏缺陷的問題。

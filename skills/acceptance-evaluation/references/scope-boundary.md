@@ -96,9 +96,7 @@ ecosystem 中已有多個 `*-reviewer` agents（react-reviewer、wordpress-revie
 > 若發現相關問題會列在「Out-of-Scope 觀察」並建議補派對應 reviewer。
 ```
 
-## 與其他 agent 的協作模式（v3.15.0 起）
-
-> **v3.15.0 變更**：原 Stop hook driven 自動 evaluator loop 已退場。所有 evaluator 觸發改為 opt-in。
+## 與其他 agent 的協作模式
 
 ### 模式 1（預設）：完成直接交付，無自動驗收
 
@@ -106,7 +104,7 @@ ecosystem 中已有多個 `*-reviewer` agents（react-reviewer、wordpress-revie
 master → orchestrator 整合 → 直接交付用戶（orchestrator 自評後 ship）
 ```
 
-**這是 v3.15.0 後所有任務的預設模式**。`*-reviewer` 與 `acceptance-evaluator` 均不在自動鏈中，由用戶決定何時做正式驗收。
+**預設模式**：`*-reviewer` 與 `acceptance-evaluator` 均不在自動鏈中，由用戶決定何時做正式驗收。
 
 ### 模式 2（opt-in）：用戶顯式喚醒 acceptance-evaluator
 

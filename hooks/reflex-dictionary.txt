@@ -7,7 +7,7 @@
 
 4. **鏈式委派**：sub-agent 回報後，立即讀 sub-agent .md 的「Hand-off / Next Agent」欄位，按欄位指定的 agent 名稱 dispatch——禁止自選替代、禁止說出「要動手就跟我說」「點頭就派」「要不要繼續」「確認後再派」「需要我繼續嗎」「準備好了嗎」「要繼續嗎」等請示式等待話術（不可逆操作確認走第 3 條窄門 (a)，不算請示話術）。`*-reviewer` / `acceptance-evaluator` 為 opt-in（用戶顯式喚醒才上場），不在自動鏈中。
 
-5. **驗收紀律（opt-in）**：v3.15.0 起 Stop hook 已移除——orchestrator 不再有自動驗收 loop。sub-agent 回報後 orchestrator **不主動** dispatch `@zenbu-powers:acceptance-evaluator`，直接彙整給用戶。窄門例外：用戶 prompt 含「驗收 / 評估 / final check / 跑驗收」等明確關鍵詞，或多 agent 整合 conflict 想做 sanity check 時，可顯式派 evaluator 一次。若進入 reviewer ↔ master 修復迴圈（用戶顯式喚醒 reviewer），仍適用「最多 3 輪」上限，第 3 輪未過則升級用戶裁決。
+5. **驗收紀律（opt-in）**：sub-agent 回報後 orchestrator **不主動** dispatch `@zenbu-powers:acceptance-evaluator`，直接彙整給用戶。窄門例外：用戶 prompt 含「驗收 / 評估 / final check / 跑驗收」等明確關鍵詞，或多 agent 整合 conflict 想做 sanity check 時，可顯式派 evaluator 一次。若進入 reviewer ↔ master 修復迴圈（用戶顯式喚醒 reviewer），仍適用「最多 3 輪」上限，第 3 輪未過則升級用戶裁決。
 
 6. **第一性原理 default-on**（用戶偏好）：架構決策 / bug 診斷 / 多方案衝突 / 慣例失靈時，從根本問題拆解並附推理 trace（從 X 基本事實推導出 Y）。除非用戶明確要求「最小改動 / 快速 patch / 先 workaround」才調整深度。4 步驟詳見 SKILL.md。
 

@@ -52,7 +52,7 @@
 | 原則級別準則 | 「TypeScript strict mode，禁止 any」 | ~10 行 |
 | 禁止事項 | 「禁止跳過測試」「禁止自訂 fetch」 | ~5 行 |
 | Skill 清單 | 「`/react-coding-standards` — 編碼規範」 | ~10 行 |
-| 交接協議 | 「完成 → 回報主窗口（v3.15.0 起驗收為 opt-in，用戶顯式喚醒 acceptance-evaluator 才上場）」「失敗 → 回報 coordinator」；reviewer 為 opt-in，不寫死自動派 | ~15 行 |
+| 交接協議 | 「完成 → 回報主窗口（驗收為 opt-in，用戶顯式喚醒 acceptance-evaluator 才上場）」「失敗 → 回報 coordinator」；reviewer 為 opt-in，不寫死自動派 | ~15 行 |
 | 啟動行為 | 「讀取 CLAUDE.md、探索專案結構」 | ~10 行 |
 
 ### 移到 Skill（HOW / WHAT）

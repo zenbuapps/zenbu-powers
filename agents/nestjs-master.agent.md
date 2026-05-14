@@ -103,6 +103,6 @@ pnpm build                   # Nest build
 ## 交接協議（WHERE NEXT）
 
 - **完成** → 跑 Quality Gate 全通過 → 回報調度者，附變更摘要 + 測試結果
-  - v3.15.0 起 Stop hook 已退場，驗收改為 **opt-in**：用戶完成一輪後可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收
+  - 驗收為 **opt-in**：用戶完成一輪後可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收
   - **不**自動派 `@zenbu-powers:nestjs-reviewer`；reviewer 為 opt-in，僅在用戶顯式喚醒時上場做深度 code review
 - **失敗 / 卡關** → 回報調度者，說明問題與已嘗試方案

@@ -1,18 +1,16 @@
-# Output Schema：zenbu-loop Batch Protocol v2（v3.15.0 封存）
+# Output Schema：zenbu-loop Batch Protocol v2（已封存）
 
-> **v3.15.0 變更**：本 schema 原為 Stop hook + zenbu-loop driven evaluator 設計的「批次 JSON 輸出協定」（讓 hook 機械解析 verdict 並組裝下輪 reason）。v3.15.0 起 Stop hook 已從 `hooks/hooks.json` 移除，evaluator 改為 opt-in 模式直接被用戶 / orchestrator 喚醒並回報 **markdown 報告**，不再強制輸出 JSON block。本檔保留供未來重新設計時參考。
+> **已封存**：本 schema 原為 Stop hook + zenbu-loop driven evaluator 設計的「批次 JSON 輸出協定」。evaluator 改為 opt-in markdown 報告後不再強制輸出 JSON block。本檔保留供未來重新設計時參考。
 
 > 本檔抽自 `hooks/zenbu-loop-batch-protocol.md` Section 1（同樣封存）。
-> 該檔為協定 single source of truth；本檔僅作為 evaluator agent 撰寫報告結尾 JSON block 時的快速查表與 worked examples。
-> 若兩檔語意衝突，**以 `hooks/zenbu-loop-batch-protocol.md` 為準**。
 
 ---
 
 ## 1. 何時需要輸出此 JSON
 
-> **v3.15.0 起非必須**——保留 schema 供未來驗收機制重新設計時參考。
+> **目前非必須**——保留 schema 供未來驗收機制重新設計時參考。
 
-歷史設計（v3.13 - v3.14）：當 acceptance-evaluator 在 zenbu-loop 體系內被 dispatch（無論是否明示 zenbu-loop session），**報告結尾必須輸出**符合本 schema 的 fenced JSON code block。stop-hook 會從 transcript 抽 last fenced JSON 以判定 verdict 並組裝下輪 reason。
+歷史設計：當 acceptance-evaluator 在 zenbu-loop 體系內被 dispatch，**報告結尾必須輸出**符合本 schema 的 fenced JSON code block。stop-hook 會從 transcript 抽 last fenced JSON 以判定 verdict 並組裝下輪 reason。
 
 不在 zenbu-loop 體系內的單次驗收也建議輸出，反正 stop-hook 沒抓到就忽略，無副作用。
 

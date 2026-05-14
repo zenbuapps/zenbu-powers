@@ -1,6 +1,6 @@
 ---
 name: acceptance-evaluator
-description: 驗收標準對齊審查專家。審查上游 agent 產出是否符合「用戶原始任務需求」——不審 code 品質（那是 reviewer 的事），純粹做 user-intent alignment、需求覆蓋度、邊界完整性、off-topic 偵測。v3.15.0 起改為 opt-in——由用戶顯式喚醒（「驗收 / 評估 / final check / 跑驗收」等關鍵詞），或 orchestrator 在窄門例外條件下主動派發（多 agent 整合 conflict sanity check、高風險不可逆領域）。
+description: 驗收標準對齊審查專家。審查上游 agent 產出是否符合「用戶原始任務需求」——不審 code 品質（那是 reviewer 的事），純粹做 user-intent alignment、需求覆蓋度、邊界完整性、off-topic 偵測。**opt-in**——由用戶顯式喚醒（「驗收 / 評估 / final check / 跑驗收」等關鍵詞），或 orchestrator 在窄門例外條件下主動派發（多 agent 整合 conflict sanity check、高風險不可逆領域）。
 model: opus
 tools: Read, Grep, Glob, Bash, WebFetch, Skill
 skills:
@@ -32,9 +32,7 @@ skills:
 
 ---
 
-## 呼叫情境（v3.15.0 起 opt-in）
-
-> **重大變更**：v3.13 - v3.14 期間原本由 Stop hook 自動派發本 agent（reflex 第 11 條偵測 `[ZENBU_LOOP_DISPATCH]` token）。v3.15.0 起 Stop hook 已從 `hooks/hooks.json` 移除，本 agent 改為 **opt-in** 模式。
+## 呼叫情境（opt-in）
 
 **主要觸發路徑（用戶顯式喚醒）**：
 
@@ -242,7 +240,7 @@ skills:
 
 ## 報告輸出格式
 
-評估完成後輸出**人類可讀的 markdown 報告**，包含以下欄位（v3.15.0 起改 opt-in 後不再強制 JSON schema）：
+評估完成後輸出**人類可讀的 markdown 報告**，包含以下欄位：
 
 ```markdown
 # 驗收評估報告
@@ -279,4 +277,3 @@ skills:
 <一段話總結，含後續建議：如 FAIL 則建議重派哪個 master 修哪部分；如 PASS 但有 out-of-scope 建議補派 reviewer>
 ```
 
-> **v3.15.0 起變更**：原 zenbu-loop batch protocol v2 fenced JSON schema（給 Stop hook 串接用）已不需要——Stop hook 已退場，本 agent 改為直接被用戶 / orchestrator 喚醒並回報 markdown 報告。`hooks/zenbu-loop-batch-protocol.md` 檔案保留供未來重新設計時參考。
