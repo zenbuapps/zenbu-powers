@@ -135,7 +135,6 @@ vi.mocked(useQuery).mockReturnValue({
 1. 執行所有測試確認通過（詳見 `/zenbu-powers:react-master`）
 2. 跑交付前驗證（`tsc --noEmit` + `eslint` + `prettier --check` + `vitest` / `jest`）
 3. 回報主窗口，附變更摘要與測試結果
-   - 驗收為 **opt-in**：用戶完成一輪後可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收
    - **不**自動派 `@zenbu-powers:react-reviewer`；reviewer 為 opt-in，僅在用戶顯式喚醒時上場做深度 code review
 
 ### 失敗時

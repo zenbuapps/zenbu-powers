@@ -45,11 +45,6 @@ skills:
 2. 多 agent 整合 conflict 想做 sanity check → 中段派一次
 3. 任務跨多個 sub-agent + 高風險 / 不可逆領域（auth / payment / external-api / 資料遷移）→ orchestrator 可主動派
 
-**不再使用**：
-
-- ❌ Stop hook 自動觸發（已退場）
-- ❌「重量任務 ≥2 sub-agent / ≥2 驗收維度」自動 dispatch 規則（已移除）
-
 ---
 
 ## 驗收前置鐵律（讀完才能開工）
@@ -98,7 +93,7 @@ skills:
 
 ### 鐵律 5：Multi-Phase / Multi-Step 完成度（No Partial PASS）
 
-**禁止**對多階段任務只完成局部就判 PASS——對應 reflex 第 7 條「跨 phase 邊界自動續推」的硬攔截。
+**禁止**對多階段任務只完成局部就判 PASS——對應 reflex 第 6 條「跨 phase 邊界自動續推」的硬攔截。
 
 > **此鐵律是 Coverage 維度範例 A 的序列場景特化版**（見 `/zenbu-powers:acceptance-evaluation` SKILL 的 `references/evaluation-dimensions.md` 範例 A2），FAIL 標籤打 `[Coverage]`，執行時序在 Reality Check 之後、Quality Floor 之前。
 
@@ -115,9 +110,9 @@ skills:
 
 - 任一 phase / step **未完成**或**僅部分完成**且 orchestrator 未明示分次驗收 → **FAIL [Coverage]**
 - 產出含「Phase 1 已完成，等待繼續 Phase 2」「步驟 1/3 完成」「待您確認進入下一階段」這類**局部成功訊號** → **等同於 Phase 2/3 未完成 → FAIL [Coverage]**
-- 產出在 phase 邊界主動詢問用戶下一步 → **判 FAIL** 並在報告寫明「對話式停下違反 reflex 第 7 條，後續 phase 視同未完成」
+- 產出在 phase 邊界主動詢問用戶下一步 → **判 FAIL** 並在報告寫明「對話式停下違反 reflex 第 6 條，後續 phase 視同未完成」
 
-**理由**：multi-phase 任務的對話式停下（「要繼續 Phase 2 嗎？」）是 LLM 規避完整執行的高頻 pattern。evaluator 是這層的最後關卡——若放行局部 PASS，reflex 第 7 條的軟攔截就失去硬體後盾。寧可錯殺 reasonable 的「分階段確認」，也不可放任「未完成 phase」溜過。
+**理由**：multi-phase 任務的對話式停下（「要繼續 Phase 2 嗎？」）是 LLM 規避完整執行的高頻 pattern。evaluator 是這層的最後關卡——若放行局部 PASS，reflex 第 6 條的軟攔截就失去硬體後盾。寧可錯殺 reasonable 的「分階段確認」，也不可放任「未完成 phase」溜過。
 
 **例外（窄門）**：orchestrator 的 dispatch prompt **必須同時**包含兩個關鍵字才算合法窄門：(a)「只驗 Phase X」或「scope=Phase X」明確界定範圍 + (b)「其餘 phase 後續分批驗收」或「分批驗收」明示分次意圖。**僅符合其一不算窄門**。預設視為整體任務驗收。
 

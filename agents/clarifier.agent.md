@@ -127,7 +127,7 @@ skills:
 > ⚠️ **不要停下來詢問用戶是否開始規劃**。specs 寫完就直接交接給 planner，整條流程自動銜接：
 > `clarifier → planner → tdd-coordinator → test-creator → *-master → 完成交付用戶`
 >
-> ⓘ `*-reviewer` 與 `acceptance-evaluator` 均為 opt-in（僅在用戶顯式喚醒時上場）。用戶完成一輪後可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 做對齊驗收，或喚醒 `*-reviewer` 做深度 code review。
+> ⓘ `*-reviewer` 為 opt-in（僅在用戶顯式喚醒時上場）。用戶完成一輪後可顯式喚醒 `*-reviewer` 做深度 code review。
 
 ## 運行環境行為
 
