@@ -85,8 +85,6 @@ composer test
 
 Quality Gate 全部通過後，回報主窗口，附變更摘要與測試結果。
 
-**驗收（opt-in）**：agent 不自動派 evaluator 或 reviewer。用戶完成一輪後可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 做對齊驗收。
-
 **Opt-in 深度審查**：若用戶要求進一步 code review，再由用戶顯式喚醒對應 reviewer：
 
 ```

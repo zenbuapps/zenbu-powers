@@ -127,7 +127,6 @@ skills:
 ### 完成時
 1. {完成條件檢查}
 2. 回報主窗口（或下游 agent，依需求填入）
-   - **驗收為 opt-in**：用戶可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 做對齊驗收；agent 端不自動派
    - 若有後續 agent 需自動串接（非 reviewer 類），在此明確標示 `@zenbu-powers:{next-agent}`
 
 ### Opt-in 深度審查（用戶顯式喚醒時）

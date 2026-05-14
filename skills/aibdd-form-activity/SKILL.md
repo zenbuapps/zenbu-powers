@@ -247,4 +247,4 @@ scope:
 
 ## Hand-off / Next Agent
 
-完成後交還 orchestrator。所有 form skill 重構（#4）完成後，將與 api-spec / bdd-analysis 一同送入 acceptance-evaluator 驗收 reconciler 一致性與 greenfield 行為等價性。
+完成後交還 orchestrator。所有 form skill 重構（#4）完成後，將與 api-spec / bdd-analysis 一同由 orchestrator 自評 reconciler 一致性與 greenfield 行為等價性。

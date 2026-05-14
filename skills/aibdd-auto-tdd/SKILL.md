@@ -218,4 +218,4 @@ control-flow 派發迴圈時，每個 .feature 嚴格依「schema-analysis → s
   - 主 SKILL.md 吸收 5 薄皮觸發詞 + 確立「先 `_stage-flow.md` 再 `{lang}.md`」流程
   - 下游 7 個檔案引用切換為 `/aibdd-auto-tdd（stage=...）`（`aibdd-handlers`、`aibdd-specformula` SKILL + assets + references、`aibdd-kickoff` SKILL + references、`README.md`、本 SKILL 自身）
 - **未刪除** 5 個薄皮 skill 目錄（`aibdd-auto-control-flow` / `aibdd-auto-red` / `aibdd-auto-green` / `aibdd-auto-refactor` / `aibdd-auto-backend-starter`）——留 Stage D 處理。
-- **交還 orchestrator**：請推進 Stage D（刪 5 薄皮目錄）+ acceptance-evaluator 驗收引用切換是否完整。
+- **交還 orchestrator**：請推進 Stage D（刪 5 薄皮目錄）+ 驗證引用切換是否完整。
