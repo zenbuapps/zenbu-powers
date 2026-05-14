@@ -7,15 +7,17 @@ description: 驗收標準對齊評估方法論。給定用戶原始任務需求 
 
 ## 何時載入本 SKILL
 
-本 SKILL 是 `acceptance-evaluator` agent 的方法論知識庫。觸發路徑：
+本 SKILL 是 `acceptance-evaluator` agent 的方法論知識庫。v3.15.0 起 Stop hook 已退場，evaluator 改為 **opt-in** 模式。觸發路徑：
 
-**主要**：Stop hook 在最終交付前注入 `[ZENBU_LOOP_DISPATCH]` reason → 主窗口依 reflex 第 11 條派 `@zenbu-powers:acceptance-evaluator` → agent 載入本 SKILL 跑驗收。
+**主要（用戶顯式喚醒）**：用戶在完成一輪完整開發後輸入 `@zenbu-powers:acceptance-evaluator 驗收本輪交付`，agent 載入本 SKILL 跑驗收。
 
-**窄門（次要）**：orchestrator 在以下兩個窄門可中段提早派一次（不取代 hook 那次最終驗收）：
+**次要（orchestrator 主動派的窄門）**：
+
 1. 用戶 prompt 含「驗收 / 評估 / final check」等明確關鍵詞
 2. 多 agent 整合 conflict 想做 sanity check
+3. 任務跨多個 sub-agent + 高風險 / 不可逆領域（auth / payment / external-api / 資料遷移）
 
-**任務分級由 evaluator 內部依 testable criteria 自行決定**——orchestrator 不再依「重量任務 / 多維度」做分級派發。
+**任務分級由 evaluator 內部依 testable criteria 自行決定**——orchestrator 不依「重量任務 / 多維度」做分級派發。
 
 ## 與 reviewer agents 的關係（最重要）
 
@@ -86,7 +88,7 @@ description: 驗收標準對齊評估方法論。給定用戶原始任務需求 
 | [evaluation-dimensions.md](references/evaluation-dimensions.md) | Reality Check + 4 大評估維度的判斷準則與範例 | Step 2 必讀 |
 | [project-type-verification.md](references/project-type-verification.md) | WEB / 桌面 / CLI / 純文件的驗收手法分流（含反向訊號清單） | Step 3 必讀 |
 | [report-template.md](references/report-template.md) | 標準報告格式範本（含反向訊號掃描結果欄位） | Step 4 必讀 |
-| [output-schema.md](references/output-schema.md) | zenbu-loop batch protocol v2 JSON schema、worked examples、反例 | Step 4 末段輸出 JSON block 時必讀 |
+| [output-schema.md](references/output-schema.md) | （**v3.15.0 封存**）原 zenbu-loop batch protocol v2 JSON schema，現改用 markdown 報告 | 僅供查詢歷史協定 |
 | [scope-boundary.md](references/scope-boundary.md) | 與 reviewer agents 的職責邊界守則 | 遇到「這該不該管」的灰色地帶時讀 |
 
 ## 黃金原則

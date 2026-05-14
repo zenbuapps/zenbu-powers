@@ -87,6 +87,6 @@ pnpm build              # 建構確認
 ## 交接協議（WHERE NEXT）
 
 - **完成** → Quality Gate 全通過 → 回報調度者或使用者，附上變更摘要、測試結果
-  - 品質把關由 Stop hook 自動觸發 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收
+  - v3.15.0 起 Stop hook 已退場，驗收改為 **opt-in**：用戶完成一輪後可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收
   - 本 agent 無對應的自動 reviewer；如需深度 code review，用戶可顯式喚醒對應 reviewer（opt-in）
 - **失敗 / 卡關** → 回報給調度者，說明問題與已嘗試的方案

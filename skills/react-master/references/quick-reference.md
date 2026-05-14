@@ -45,7 +45,7 @@
 
 Quality Gate（`tsc --noEmit` + `eslint` + `prettier --check` + 測試）全部通過後，回報主窗口，附變更摘要與測試結果。
 
-**自動驗收**：最終把關由 Stop hook 觸發 `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收——**不需**自動派 reviewer。
+**驗收（opt-in，v3.15.0 起）**：Stop hook 已退場——agent 不自動派 evaluator 或 reviewer。用戶完成一輪後可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 做對齊驗收。
 
 **Opt-in 深度審查**：若用戶要求進一步 code review，再由用戶顯式喚醒：
 

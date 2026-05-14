@@ -96,34 +96,46 @@ ecosystem 中已有多個 `*-reviewer` agents（react-reviewer、wordpress-revie
 > 若發現相關問題會列在「Out-of-Scope 觀察」並建議補派對應 reviewer。
 ```
 
-## 與其他 agent 的協作模式
+## 與其他 agent 的協作模式（v3.15.0 起）
 
-### 模式 1（預設）：只走 acceptance
+> **v3.15.0 變更**：原 Stop hook driven 自動 evaluator loop 已退場。所有 evaluator 觸發改為 opt-in。
 
-```
-master → Stop hook → acceptance-evaluator → PASS/FAIL
-                                                └─ FAIL → 退回 master（最多 3 輪）
-```
-
-**這是所有任務的預設模式**。`*-reviewer` 不在自動鏈中，由 acceptance-evaluator 對齊用戶意圖把關。
-
-### 模式 2（opt-in）：用戶顯式喚醒 reviewer
+### 模式 1（預設）：完成直接交付，無自動驗收
 
 ```
-master → Stop hook → acceptance-evaluator → PASS
-                                              └→ 用戶顯式喚醒 reviewer 做深度審查（可選）
+master → orchestrator 整合 → 直接交付用戶（orchestrator 自評後 ship）
 ```
 
-**適用**：用戶要求強化品質深度、涉及敏感領域（auth / payment / external-api）需安全審查。
-acceptance-evaluator 的 PASS 報告應主動在「Out-of-Scope 觀察」區塊建議補派的 reviewer。
+**這是 v3.15.0 後所有任務的預設模式**。`*-reviewer` 與 `acceptance-evaluator` 均不在自動鏈中，由用戶決定何時做正式驗收。
 
-### 模式 3（opt-in）：用戶顯式發起 review-fix 迴圈
+### 模式 2（opt-in）：用戶顯式喚醒 acceptance-evaluator
 
 ```
-用戶喚醒 reviewer → reviewer 退回 issue list → master 修正 → 用戶決定是否再審
+master → orchestrator 整合 → 用戶喚醒 @acceptance-evaluator → PASS/FAIL
+                                                                  └─ FAIL → 用戶決定是否派 master 修
 ```
 
-**適用**：用戶明確要走 reviewer ↔ master 修復迴圈（最多 3 輪上限仍適用）。
+**適用**：用戶完成一輪完整開發後，手動觸發一次性對齊驗收。
+
+### 模式 3（opt-in）：用戶顯式喚醒 reviewer 做深度審查
+
+```
+master → orchestrator 整合 → 用戶喚醒 *-reviewer → 退回 issue list → master 修正
+```
+
+**適用**：用戶要求強化品質深度、涉及敏感領域（auth / payment / external-api）需安全審查。reviewer ↔ master 修復迴圈最多 3 輪上限仍適用。
+
+### 模式 4（orchestrator 主動派的窄門）
+
+```
+master → orchestrator 偵測窄門（高風險領域 / 多 agent conflict / 用戶 prompt 含驗收關鍵詞）→ 主動派 @acceptance-evaluator
+```
+
+**適用**：
+
+1. 用戶 prompt 含「驗收 / 評估 / final check」等明確關鍵詞
+2. 多 agent 整合 conflict 想做 sanity check
+3. 任務跨多個 sub-agent + 高風險 / 不可逆領域
 
 ## 何時主動建議補派 reviewer
 

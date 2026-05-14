@@ -82,7 +82,7 @@ npx vitest run 2>&1; echo "EXIT_CODE=$?"
 
 ### Step 6：Green Gate 通過後直接進入收尾
 
-Green Gate 通過後**不再強制派 reviewer**。品質把關統一由 Stop hook → `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖驗收。
+Green Gate 通過後**不再強制派 reviewer**。v3.15.0 起 Stop hook 已退場，驗收為 opt-in——用戶完成一輪後可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 做對齊驗收。
 
 **Optional Manual Quality Pass**（由用戶決定是否啟用）：
 
@@ -106,7 +106,7 @@ Green Gate 通過後**不再強制派 reviewer**。品質把關統一由 Stop ho
 | Red Gate 不通過（測試全部通過） | test-creator 的斷言有誤，退回修正 |
 | Green Gate 不通過（測試失敗） | 主窗口重派對應 master 修復，最多重試 3 次 |
 | 重試次數耗盡 | 中止整個流程，保留當前變更（本地保留 worktree / CI commit 現狀），回報失敗清單供人工介入 |
-| Stop hook acceptance-evaluator FAIL | 主窗口讀缺陷清單後重派對應 agent 修正，最多 3 輪（reflex 第 5 / 11 條） |
+| 用戶顯式喚醒 acceptance-evaluator 後 FAIL | 用戶決定是否派 master 修；若進入 reviewer ↔ master 修復迴圈，最多 3 輪（reflex 第 5 條） |
 
 ---
 
@@ -129,4 +129,4 @@ Green Gate 通過後**不再強制派 reviewer**。品質把關統一由 Stop ho
 
 **收尾與驗收：**
 - `@zenbu-powers:doc-updater` — 完成後同步更新專案文件
-- `@zenbu-powers:acceptance-evaluator` — 最終驗收（由 Stop hook 自動觸發，對齊用戶意圖把關）
+- `@zenbu-powers:acceptance-evaluator` — **opt-in 驗收**（v3.15.0 起 Stop hook 已退場，用戶顯式喚醒才上場做對齊驗收）

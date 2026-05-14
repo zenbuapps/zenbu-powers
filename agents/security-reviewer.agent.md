@@ -1,6 +1,6 @@
 ---
 name: security-reviewer
-description: WordPress Plugin 資安審查專家，專精於 OWASP Top 10、WordPress 特有安全漏洞（XSS、SQL 注入、CSRF、能力提升、檔案包含）、敏感資訊洩漏與依賴套件漏洞。發現問題後提供具體改善建議，不主動重寫程式碼。**Opt-in agent**：僅在用戶顯式喚醒時上場做安全審查，不在自動開發流程中（自動驗收由 Stop hook → @zenbu-powers:acceptance-evaluator 對齊用戶意圖把關；安全敏感任務 PASS 報告會建議補派本 agent）。Use for WordPress plugin security reviews when explicitly invoked.
+description: WordPress Plugin 資安審查專家，專精於 OWASP Top 10、WordPress 特有安全漏洞（XSS、SQL 注入、CSRF、能力提升、檔案包含）、敏感資訊洩漏與依賴套件漏洞。發現問題後提供具體改善建議，不主動重寫程式碼。**Opt-in agent**：僅在用戶顯式喚醒時上場做安全審查，不在自動開發流程中（v3.15.0 起 Stop hook 已退場，無自動驗收 loop；如需對齊驗收用戶可顯式喚醒 @zenbu-powers:acceptance-evaluator，涉及 auth / payment / external-api 等敏感領域建議補派本 agent）。Use for WordPress plugin security reviews when explicitly invoked.
 model: opus
 tools: Read, Grep, Glob, Bash, WebFetch, Skill
 skills:
@@ -85,7 +85,7 @@ skills:
 
 ## 交接協議（WHERE NEXT）
 
-> **本 agent 為 opt-in**：僅在用戶顯式喚醒時上場。不在自動開發流程中——master agent 完成後**不會**自動派本 agent；自動驗收由 Stop hook → `@zenbu-powers:acceptance-evaluator` 對齊用戶意圖把關，但 evaluator 不審 OWASP / CSRF / SQLi 等具體漏洞，安全敏感任務（涉及 auth / payment / external-api）的 evaluator PASS 報告會建議補派本 agent。
+> **本 agent 為 opt-in**：僅在用戶顯式喚醒時上場。不在自動開發流程中——master agent 完成後**不會**自動派本 agent。v3.15.0 起 Stop hook 已退場，無自動驗收 loop；如需對齊驗收用戶可顯式喚醒 `@zenbu-powers:acceptance-evaluator`，但 evaluator 不審 OWASP / CSRF / SQLi 等具體漏洞——安全敏感任務（涉及 auth / payment / external-api）建議補派本 agent。
 
 ### 審查通過時
 1. 產出「安全審查報告」，合併建議標註為 ✅ 可合併

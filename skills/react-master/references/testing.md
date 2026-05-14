@@ -112,4 +112,4 @@ npm test
 npx vitest run
 ```
 
-> 只有當所有測試全數通過時，才可以進入下一步交付給主窗口。最終驗收由 Stop hook → `@zenbu-powers:acceptance-evaluator` 把關，reviewer 為 opt-in。
+> 只有當所有測試全數通過時，才可以進入下一步交付給主窗口。v3.15.0 起 Stop hook 已退場，驗收為 opt-in：用戶可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 做對齊驗收，reviewer 同為 opt-in。
