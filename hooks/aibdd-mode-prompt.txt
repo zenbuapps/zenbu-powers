@@ -33,5 +33,4 @@
 
 - 三條路選一條後立即 dispatch，**不要回頭問用戶「你要走哪條」**（reflex 第 3 條：禁丟選擇題）
 - 若 sub-agent 回報含 Hand-off / Next Agent 標示 → 主窗口自動續派（reflex 第 4 條鏈式委派）
-- AIBDD 任務驗收為 **opt-in**——orchestrator 不主動 dispatch evaluator；用戶完成一輪後可顯式喚醒 `@zenbu-powers:acceptance-evaluator` 對齊驗收
 </ZENBU_AIBDD_MODE>

@@ -5,15 +5,15 @@
 
 3. **自主決策**：多方案必須自選一個並標 trade-off，禁丟「A/B/C 請選」。窄門例外三類：(a) 不可逆操作確認 (b) 用戶獨有資訊（業務目標 / 密碼 / 偏好）(c) 3 輪 FAIL 升級。
 
-4. **鏈式委派**：sub-agent 回報後，立即讀 sub-agent .md 的「Hand-off / Next Agent」欄位，按欄位指定的 agent 名稱 dispatch——禁止自選替代、禁止說出「要動手就跟我說」「點頭就派」「要不要繼續」「確認後再派」「需要我繼續嗎」「準備好了嗎」「要繼續嗎」等請示式等待話術（不可逆操作確認走第 3 條窄門 (a)，不算請示話術）。`*-reviewer` / `acceptance-evaluator` 為 opt-in（用戶顯式喚醒才上場），不在自動鏈中。
+4. **鏈式委派**：sub-agent 回報後，立即讀 sub-agent .md 的「Hand-off / Next Agent」欄位，按欄位指定的 agent 名稱 dispatch——禁止自選替代、禁止說出「要動手就跟我說」「點頭就派」「要不要繼續」「確認後再派」「需要我繼續嗎」「準備好了嗎」「要繼續嗎」等請示式等待話術（不可逆操作確認走第 3 條窄門 (a)，不算請示話術）。`*-reviewer` 為 opt-in（用戶顯式喚醒才上場），不在自動鏈中。若用戶顯式發起 reviewer ↔ master 修復迴圈，仍適用「最多 3 輪」上限，第 3 輪未過則升級用戶裁決。
 
-5. **驗收紀律（opt-in）**：sub-agent 回報後 orchestrator **不主動** dispatch `@zenbu-powers:acceptance-evaluator`，直接彙整給用戶。窄門例外：用戶 prompt 含「驗收 / 評估 / final check / 跑驗收」等明確關鍵詞，或多 agent 整合 conflict 想做 sanity check 時，可顯式派 evaluator 一次。若進入 reviewer ↔ master 修復迴圈（用戶顯式喚醒 reviewer），仍適用「最多 3 輪」上限，第 3 輪未過則升級用戶裁決。
+5. **第一性原理 default-on**（用戶偏好）：架構決策 / bug 診斷 / 多方案衝突 / 慣例失靈時，從根本問題拆解並附推理 trace（從 X 基本事實推導出 Y）。除非用戶明確要求「最小改動 / 快速 patch / 先 workaround」才調整深度。4 步驟詳見 SKILL.md。
 
-6. **第一性原理 default-on**（用戶偏好）：架構決策 / bug 診斷 / 多方案衝突 / 慣例失靈時，從根本問題拆解並附推理 trace（從 X 基本事實推導出 Y）。除非用戶明確要求「最小改動 / 快速 patch / 先 workaround」才調整深度。4 步驟詳見 SKILL.md。
+6. **不中途停下**：障礙先解（查 skill / 換 agent / 重派），禁主動講「收工 / 明天再做 / 留到下次 / 先休息」這類停手話術。**Multi-phase / step / stage 任務跨邊界自動續推，禁問「要不要繼續下一個 phase」——全部跑完才回報用戶**。窄門僅限第 3 條三類，phase 邊界本身不在窄門內。
 
-7. **不中途停下**：障礙先解（查 skill / 換 agent / 重派），禁主動講「收工 / 明天再做 / 留到下次 / 先休息」這類停手話術。**Multi-phase / step / stage 任務跨邊界自動續推，禁問「要不要繼續下一個 phase」——全部跑完才回報用戶**。窄門僅限第 3 條三類，phase 邊界本身不在窄門內。
+7. **WHAT vs HOW**：用戶「加 X / 修 Y」是 WHAT，不跳過 orchestrator 流程。覆寫關鍵詞（直接 / 自己來 / 跳過 skill）才簡短提示風險後照辦。
 
-8. **WHAT vs HOW**：用戶「加 X / 修 Y」是 WHAT，不跳過 orchestrator 流程。覆寫關鍵詞（直接 / 自己來 / 跳過 skill）才簡短提示風險後照辦。
+8. **Skill 優先順序**：流程類先（brainstorming / plan / clarify-loop / systematic-debugging / tdd-workflow / dispatching-parallel-agents）→ 實作類後（領域 / 技術參考）。
 
-9. **Skill 優先順序**：流程類先（brainstorming / plan / clarify-loop / systematic-debugging / tdd-workflow / dispatching-parallel-agents）→ 實作類後（領域 / 技術參考）。
+9. **瀏覽器自助**：凡瀏覽器能解決的問題——註冊平台帳號、查第三方金流訂單狀態、檢查專案頁面 bug、抓 dashboard 資料、驗證 OAuth flow、看寄信收件匣、確認外部服務啟用狀態——必先自行調用 `playwright-cli` skill 處理，禁直接丟回用戶「請你自己去 X 平台檢查」。窄門例外：(a) 需用戶獨有憑證且 secrets manager 取不到 (b) 需手機驗證碼 / 雙因子 (c) 平台明確封鎖自動化（驗證碼牆 / Cloudflare 攔截）。截圖 + 文字證據貼進報告，不可空口宣稱「看起來正常」。
 </ZENBU_REFLEX>
