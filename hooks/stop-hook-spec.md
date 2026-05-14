@@ -1,6 +1,8 @@
-# Stop Hook Shell 邏輯規範（zenbu-powers）
+# Stop Hook Shell 邏輯規範（zenbu-powers，v3.15.0 封存）
 
-由 `hooks/hooks.json` 的 Stop hook 在每次 Claude Code 嘗試結束 session 時觸發 polyglot 腳本 `hooks/stop-hook` 執行。本檔是該 shell 腳本的邏輯說明書，腳本邏輯改動不需重啟 session，下一次 Stop 觸發即生效。
+> **⚠️ v3.15.0 封存**：本 spec 描述的 Stop hook driven acceptance loop 已於 v3.15.0 退場——`hooks/hooks.json` 不再註冊 Stop hook，`hooks/stop-hook` 腳本檔保留但不會被觸發。每對話自動驗收造成的延遲問題促使改採「主窗口完成 → 直接交付用戶 / opt-in evaluator」流程。本檔保留供未來驗收機制重新設計時參考。
+
+歷史說明（v3.13 - v3.14 設計）：由 `hooks/hooks.json` 的 Stop hook 在每次 Claude Code 嘗試結束 session 時觸發 polyglot 腳本 `hooks/stop-hook` 執行。本檔是該 shell 腳本的邏輯說明書，腳本邏輯改動不需重啟 session，下一次 Stop 觸發即生效。
 
 ## 觸發機制
 

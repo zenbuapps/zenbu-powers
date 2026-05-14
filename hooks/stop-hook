@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # Stop hook for zenbu-powers plugin (zenbu-loop driver)
 #
+# ⚠️ v3.15.0 ARCHIVED: This hook is no longer registered in hooks/hooks.json.
+# Every-turn evaluator validation caused excessive dialog latency; the loop
+# was retired in favor of "main window completes → ship to user / opt-in
+# evaluator" flow. The script file is preserved for future redesign reference.
+# See hooks/stop-hook-spec.md (archived) for the historical design rationale.
+#
 # Architecture (post H2):
 #   - This shell script handles the deterministic state-machine portion:
 #     enable detection, infinite-loop guard, max-rounds escalation,
