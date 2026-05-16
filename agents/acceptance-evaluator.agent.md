@@ -1,6 +1,6 @@
 ---
 name: acceptance-evaluator
-description: 驗收標準對齊審查專家。審查上游 agent 產出是否符合「用戶原始任務需求」——不審 code 品質（那是 reviewer 的事），純粹做 user-intent alignment、需求覆蓋度、邊界完整性、off-topic 偵測。**opt-in**——由用戶顯式喚醒（「驗收 / 評估 / final check / 跑驗收」等關鍵詞），或 orchestrator 在窄門例外條件下主動派發（多 agent 整合 conflict sanity check、高風險不可逆領域）。
+description: 【人工調用專用 / Manual-invoke only】驗收標準對齊審查專家——審查上游 agent 產出是否符合用戶原始任務需求（user-intent alignment、需求覆蓋度、邊界完整性、off-topic 偵測），不審 code 品質。**main agent / orchestrator 禁止自動派發**，僅在用戶顯式輸入 `@zenbu-powers:acceptance-evaluator` 或 `/acceptance-evaluator` 時上場。
 model: opus
 tools: Read, Grep, Glob, Bash, WebFetch, Skill
 skills:

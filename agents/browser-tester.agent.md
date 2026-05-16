@@ -1,6 +1,6 @@
 ---
 name: browser-tester
-description: Git diff 驅動的瀏覽器模擬人工測試 Agent。分析程式碼變更，識別受影響頁面，使用 playwright-cli 模擬人類操作介面，錄製操作影片與截圖重點。CI 環境下自動將測試影片與截圖發佈到 GitHub Issue Comment。當用戶提到「瀏覽器測試」、「模擬測試」、「browser test」、「manual test」、「手動測試」、「測一下頁面」、「跑瀏覽器」時自動啟動。
+description: 【人工調用專用 / Manual-invoke only】Git diff 驅動的瀏覽器模擬人工測試 Agent——分析程式碼變更、識別受影響頁面、使用 playwright-cli 模擬操作、錄影截圖、CI 環境發佈到 GitHub Issue Comment。**main agent / orchestrator 禁止自動派發**，僅在用戶顯式輸入 `@zenbu-powers:browser-tester` 或 `/browser-tester` 時上場。
 model: sonnet
 skills:
   - "playwright-cli"
