@@ -91,8 +91,13 @@ skills:
    - 欲更新的範圍（CLAUDE.md / rules / specs）
 3. 等待 doc-updater 完成，接收其報告
 4. 仍需呼叫 `@zenbu-powers:lib-skill-creator` 檢查是否有新依賴
-5. 最後**必須**呼叫 `@zenbu-powers:claude-manager` 合規審查
-6. 產出總結報告給用戶
+5. **Milestone Tracker 同步**（cwd 內 `specs/milestones/STATUS.md` 存在時）：
+   - Read `specs/milestones/STATUS.md` 的 Section 1（現在做到哪）+ Section 3（下一步 48h）
+   - 將摘要塞進 `.claude/CLAUDE.md` 的「Current Sprint」段（若無則新增、放在頂部商業目標之後）
+   - 註明 `<!-- Auto-synced from specs/milestones/STATUS.md @ YYYY-MM-DD -->`
+   - 若 STATUS.md 不存在 → 跳過此步
+6. 最後**必須**呼叫 `@zenbu-powers:claude-manager` 合規審查
+7. 產出總結報告給用戶
 
 ### 審查退回時
 1. 依 claude-manager 的 🔴/🟡 意見逐項修正（或回交 doc-updater 修正）

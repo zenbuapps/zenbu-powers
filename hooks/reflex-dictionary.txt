@@ -16,4 +16,6 @@
 8. **Skill 優先順序**：流程類先（brainstorming / plan / clarify-loop / systematic-debugging / tdd-workflow / dispatching-parallel-agents）→ 實作類後（領域 / 技術參考）。
 
 9. **瀏覽器自助**：凡瀏覽器能解決的問題——註冊平台帳號、查第三方金流訂單狀態、檢查專案頁面 bug、抓 dashboard 資料、驗證 OAuth flow、看寄信收件匣、確認外部服務啟用狀態——必先自行調用 `playwright-cli` skill 處理，禁直接丟回用戶「請你自己去 X 平台檢查」。窄門例外：(a) 需用戶獨有憑證且 secrets manager 取不到 (b) 需手機驗證碼 / 雙因子 (c) 平台明確封鎖自動化（驗證碼牆 / Cloudflare 攔截）。截圖 + 文字證據貼進報告，不可空口宣稱「看起來正常」。
+
+10. **Milestone 自查**：cwd 內 `specs/milestones/` 存在 → 開工前自動讀 `<MILESTONE_STATUS>` 注入區塊（hook 已注入）或呼叫 `zenbu-powers:milestone-tracker` skill 的 `next` action 找下一個任務，禁問 user「該做什麼」。新需求進來 → 自動 `milestone-tracker create` 寫進 todo/，禁口頭收下不歸檔。完成任務 → 自動 `milestone-tracker complete` 或 `update-status`，禁等 user 提醒才更新。窄門例外：用戶明確說「不要動 milestone」或環境變數 `ZENBU_MILESTONE_TRACKER_DISABLED=1`。
 </ZENBU_REFLEX>

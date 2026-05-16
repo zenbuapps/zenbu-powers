@@ -122,10 +122,15 @@ Green Gate 通過後**不再強制派 reviewer**。
 
 ### 第 7 節：收尾藍圖
 
+0. **Milestone 同步**（cwd 內 `specs/milestones/` 存在時）：
+   - 主窗口找到本任務對應 milestone 卡片（grep plan_dir 或從 planner 交接訊息取 milestone id）
+   - Edit 卡片 Slices 段對應 checkbox 改 `[x]`
+   - 呼叫 `zenbu-powers:milestone-tracker` skill 的 `update-status` action
+   - 若所有 slice 都 `[x]` → 提示用戶可 `milestone-tracker complete <slug>`
 1. 主窗口跑最終 Green Gate 確認測試全綠
 2. 主窗口 spawn `@zenbu-powers:doc-updater` 同步專案文件（CLAUDE.md、規格、文件）
 3. CI 環境：commit 並由 Action 建 PR；本地：保留變更等使用者驗收
-4. 主窗口彙整完整摘要回報使用者（測試覆蓋率、關鍵變更、建議補派的 opt-in reviewer）
+4. 主窗口彙整完整摘要回報使用者（測試覆蓋率、關鍵變更、建議補派的 opt-in reviewer、milestone 狀態）
 
 ---
 

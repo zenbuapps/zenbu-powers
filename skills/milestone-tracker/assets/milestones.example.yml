@@ -1,0 +1,50 @@
+# milestones.yml — machine-readable milestone index
+# 由 milestone-tracker skill 自動維護，AI 查任務的入口（卡片才是內容真相）
+#
+# 規則：
+# - 此檔由 create / start / complete action 自動更新，禁手動編輯（手動編輯 → next action 可能失準）
+# - 卡片 frontmatter 改變 → 跑 update-status 同步進此檔
+# - id 不重用：即使 milestone 廢棄也保留 entry（標 status: abandoned）
+#
+# 範例（TenderBeat 90 天 MVP）：
+
+project: TenderBeat
+created_at: 2026-05-01
+last_updated: 2026-05-16
+
+milestones:
+  - id: M00
+    slug: day0-bootstrap
+    title: Day 0 Bootstrap — repo / CI / 三 API 探針
+    status: done
+    depends_on: []
+    window: 2026-05-01 → 2026-05-03
+    completed_at: 2026-05-03
+
+  - id: M01
+    slug: ingestion-hardening
+    title: Ingestion Hardening — Week 1-4
+    status: doing
+    depends_on: [M00]
+    window: 2026-05-01 → 2026-06-15
+    started_at: 2026-05-04
+
+  - id: M02
+    slug: billing-stripe
+    title: Billing Stripe + Reverse Charge — Week 7-8
+    status: todo
+    depends_on: [M01]
+    window: 2026-06-15 → 2026-07-01
+
+  - id: M03
+    slug: customer-acquisition
+    title: Customer Acquisition + First Paid — Week 9-12
+    status: todo
+    depends_on: [M01, M02]
+    window: 2026-07-01 → 2026-08-01
+
+# 不該放在 milestones.yml 的東西：
+# ❌ KPI 詳情（在卡片 frontmatter）
+# ❌ Slice 進度（在卡片內文 checkbox）
+# ❌ engineering_plans list（在卡片 frontmatter）
+# ❌ 任何 markdown 內容（這檔是 yml index）

@@ -113,6 +113,18 @@ skills:
 >
 > 其他所有情況下，**規劃 → 交接 tdd-coordinator**，一氣呵成。
 
+### Milestone Tracker 串接（若 cwd 內 `specs/milestones/` 存在）
+
+交接 tdd-coordinator 前先做：
+
+1. 判斷此 plan 屬於哪個 milestone：
+   - 從 plan 的商業目標反推（與哪張 milestone 卡片的 KPI / Definition of Done 對應）
+   - 若無法判斷 → 詢問用戶或建議 `zenbu-powers:milestone-tracker create` 開新 milestone
+2. 呼叫 `zenbu-powers:milestone-tracker` skill 的 `link-plan <slug> <plan_dir 絕對路徑>` action
+3. 在交接給 tdd-coordinator 的訊息中註明：「已掛接到 milestone {id}-{slug}」
+
+cwd 內無 `specs/milestones/` → 跳過此段，正常交接。
+
 ---
 
 ## 🚩 Red Flags — 發現這些想法立刻停手

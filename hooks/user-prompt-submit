@@ -75,10 +75,10 @@ fi
 dict_content=$(cat "$DICT_FILE" 2>/dev/null) || exit 0
 
 # Build the merged context payload.
-# Spec: a single hook may only emit ONE JSON object on stdout, so reflex and
-# aibdd-mode must coexist within one additionalContext string. We separate them
-# with a blank line so both <ZENBU_REFLEX>...</ZENBU_REFLEX> and
-# <ZENBU_AIBDD_MODE>...</ZENBU_AIBDD_MODE> remain distinct, parseable blocks.
+# Spec: a single hook may only emit ONE JSON object on stdout, so reflex,
+# aibdd-mode, and milestone-status must coexist within one additionalContext
+# string. We separate them with blank lines so all three blocks remain distinct
+# and parseable: <ZENBU_REFLEX>, <ZENBU_AIBDD_MODE>, <MILESTONE_STATUS>.
 if [ "$aibdd_active" = "1" ]; then
     aibdd_content=$(cat "$AIBDD_FILE" 2>/dev/null) || aibdd_content=""
     if [ -n "$aibdd_content" ]; then
@@ -88,6 +88,38 @@ if [ "$aibdd_active" = "1" ]; then
     fi
 else
     merged_content="$dict_content"
+fi
+
+# Milestone status injection
+# Detects whether cwd has specs/milestones/STATUS.md and injects its head -40
+# plus an "Active doing/:" list. Lets AI know current project state without
+# user prompting. Tied to milestone-tracker skill (see references/hook-injection.md).
+#
+# Off-switch: ZENBU_MILESTONE_TRACKER_DISABLED=1
+# Guard: file exists check prevents pollution of non-milestone projects.
+#
+# CWD source: prefer hook stdin .cwd (Claude Code passes it), fallback $PWD.
+if [ "${ZENBU_MILESTONE_TRACKER_DISABLED:-}" != "1" ]; then
+    # Determine cwd: stdin .cwd > $PWD env > error skip
+    if command -v jq >/dev/null 2>&1; then
+        hook_cwd=$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null) || hook_cwd=""
+    else
+        hook_cwd=$(printf '%s' "$input" | sed -n 's/.*"cwd"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)
+    fi
+    [ -z "$hook_cwd" ] && hook_cwd="${PWD:-}"
+
+    if [ -n "$hook_cwd" ] && [ -f "${hook_cwd}/specs/milestones/STATUS.md" ]; then
+        status_head=$(head -40 "${hook_cwd}/specs/milestones/STATUS.md" 2>/dev/null) || status_head=""
+        doing_list=$(ls -1 "${hook_cwd}/specs/milestones/doing/" 2>/dev/null | sed 's/^/  - /')
+        if [ -n "$status_head" ]; then
+            if [ -n "$doing_list" ]; then
+                milestone_block=$'<MILESTONE_STATUS>\n'"$status_head"$'\n\nActive doing/:\n'"$doing_list"$'\n</MILESTONE_STATUS>'
+            else
+                milestone_block=$'<MILESTONE_STATUS>\n'"$status_head"$'\n\nActive doing/: (empty)\n</MILESTONE_STATUS>'
+            fi
+            merged_content="${merged_content}"$'\n\n'"${milestone_block}"
+        fi
+    fi
 fi
 
 # Emit the single JSON payload. additionalContext must be a JSON-escaped string.
