@@ -1,8 +1,8 @@
 # zenbu-powers — Claude Code Plugin
 
-> 為 **zenbu org** 量身打造的 Claude Code Plugin。內建 Orchestrator 心法注入、23 個專業 Agent、99 個 Skill，覆蓋 WordPress 全棧、React / NestJS / Node.js 現代應用、AIBDD 行為驅動開發三大領域，讓 AI 工程師團隊從第一個 session 就知道如何分工。
+> 為 **zenbu org** 量身打造的 Claude Code Plugin。內建 Orchestrator 心法注入、23 個專業 Agent、100 個 Skill，覆蓋 WordPress 全棧、React / NestJS / Node.js 現代應用、AIBDD 行為驅動開發三大領域，讓 AI 工程師團隊從第一個 session 就知道如何分工。
 
-**兩層 Hook 架構**：SessionStart 注心法、UserPromptSubmit 注 reflex（9 條交接規則）、AIBDD 條件式注入。主窗口完成後直接交付用戶。AIBDD 三語言整合測試（TypeScript / PHP / C#）完整覆蓋。
+**兩層 Hook 架構**：SessionStart 注心法、UserPromptSubmit 注 reflex（10 條交接規則）+ AIBDD 條件式 + Milestone Status 條件式注入。主窗口完成後直接交付用戶。AIBDD 三語言整合測試（TypeScript / PHP / C#）完整覆蓋。內建 **Milestone Tracker** 專案級任務追蹤管理，AI 開工前自動知道當前進度與下一步。
 
 ---
 
@@ -25,13 +25,13 @@ Orchestrator（Claude 主窗口）
              ├── /brainstorming     ← 設計精進
              ├── /tdd-workflow      ← Red→Green→Refactor
              ├── /aibdd-*           ← AIBDD 全自動 BDD 套件
-             └── ...（共 99 個）
+             └── ...（共 100 個）
 ```
 
 **兩層 Hook 架構**讓「協調紀律」在第一輪 prompt 之前就到位：
 
 1. **SessionStart hook** — session 啟動 / `/clear` / `/compact` 時注入 `using-zenbu-powers` 的完整 Orchestrator 心法（Agent 索引、Skill 快取、Red Flags、全域一致性守則）
-2. **UserPromptSubmit hook** — 每次送 prompt 注入 reflex-dictionary 9 條反射規則；命中 `BDD/TDD/AIBDD` 觸發詞時加注 AIBDD dispatch 路由
+2. **UserPromptSubmit hook** — 每次送 prompt 注入 reflex-dictionary 10 條反射規則；命中 `BDD/TDD/AIBDD` 觸發詞時加注 AIBDD dispatch 路由；cwd 內 `specs/milestones/STATUS.md` 存在時加注 Milestone Status dashboard
 
 整套機制由 `ZENBU_HOOKS_ENABLED=1` 環境變數**顯式啟用**（opt-in，避免干擾未準備好的 user）。
 
@@ -51,11 +51,14 @@ flowchart TD
     subgraph 每輪Prompt[每輪 User Prompt]
         F[User 送出 prompt] --> G{Hook 啟用?}
         G -- Yes --> H[UserPromptSubmit hook]
-        H --> I[注入 reflex-dictionary<br>9 條反射規則]
+        H --> I[注入 reflex-dictionary<br>10 條反射規則]
         I --> J{prompt 含 BDD/<br>TDD/AIBDD?}
         J -- Yes --> K[加注 AIBDD<br>dispatch 路由表]
-        J -- No --> L[Orchestrator 接手]
-        K --> L
+        J -- No --> M{cwd 有 specs/<br>milestones/STATUS.md?}
+        K --> M
+        M -- Yes --> N[加注 MILESTONE_STATUS<br>head -40 + active doing/]
+        M -- No --> L[Orchestrator 接手]
+        N --> L
         G -- No --> L
     end
 
@@ -185,7 +188,7 @@ zenbu-powers 的核心紀律仰賴 hook 注入，**預設不啟用**。在 `~/.c
 
 ---
 
-## Skills（99 個）
+## Skills（100 個）
 
 ### Orchestrator 流程與驗收（必讀）
 
@@ -200,6 +203,7 @@ zenbu-powers 的核心紀律仰賴 hook 注入，**預設不啟用**。在 `~/.c
 | `/tdd-workflow` | Red → Green → Refactor 執行 playbook，含 Evidence 鐵律 |
 | `/finishing-branch` | Merge / PR / Keep / Discard 決策樹 + worktree 清理 |
 | `/acceptance-evaluation` | 驗收標準對齊評估方法論（零假設驗收前置鐵律、多階段任務驗收規範） |
+| `/milestone-tracker` | **專案級任務追蹤管理**：資料夾狀態機（todo/doing/done）+ ROADMAP/STATUS dashboard。AI 開工前自動讀 STATUS、新需求自動歸檔、完成自動更新；UserPromptSubmit hook 注入當前進度給 AI；與 `aibdd-carry-on-engineering-plan` 互補（前者管 business / Week-by-Week，後者管 feature-level 7-phase plan） |
 
 ### AIBDD — AI 行為驅動開發（全自動 BDD 套件，17 個 skill）
 
@@ -376,9 +380,12 @@ sequenceDiagram
 
     U->>CC: 送出 prompt
     CC->>H2: 觸發 UserPromptSubmit hook
-    H2->>LLM: 注入 reflex-dictionary 9 條
+    H2->>LLM: 注入 reflex-dictionary 10 條
     alt prompt 含 BDD/TDD/AIBDD
         H2->>LLM: 加注 AIBDD dispatch 路由
+    end
+    alt cwd 有 specs/milestones/STATUS.md
+        H2->>LLM: 加注 MILESTONE_STATUS dashboard
     end
     LLM->>LLM: orchestrator 分派任務
     LLM->>LLM: dispatch sub-agents / skills
@@ -404,11 +411,12 @@ sequenceDiagram
 
 **觸發**：每次 user 送 prompt 時。
 
-**動作**：合併輸出兩段 context（同一個 `additionalContext` 字串）：
+**動作**：合併輸出三段 context（同一個 `additionalContext` 字串）：
 
-1. **Reflex Dictionary（無條件）** — `hooks/reflex-dictionary.txt` 的 9 條協調紀律：
-   - ① 命名規範 ② orchestrator 角色 ③ 自主決策 ④ 鏈式委派 ⑤ 第一性原理 default-on ⑥ 不中途停下 ⑦ WHAT vs HOW ⑧ Skill 優先順序 ⑨ 瀏覽器自助
+1. **Reflex Dictionary（無條件）** — `hooks/reflex-dictionary.txt` 的 10 條協調紀律：
+   - ① 命名規範 ② orchestrator 角色 ③ 自主決策 ④ 鏈式委派 ⑤ 第一性原理 default-on ⑥ 不中途停下 ⑦ WHAT vs HOW ⑧ Skill 優先順序 ⑨ 瀏覽器自助 ⑩ Milestone 自查
 2. **AIBDD 模式（條件式）** — `hooks/aibdd-mode-prompt.txt` 的 dispatch 路由表，僅當 prompt 含 `AIBDD` / `BDD` / `TDD` 觸發詞時注入
+3. **Milestone Status（條件式）** — cwd 內 `specs/milestones/STATUS.md` 存在時，注入 `<MILESTONE_STATUS>` 區塊（STATUS.md head -40 + 活躍 milestone 列表）。讓 AI 每輪自動知道「現在做到哪 / 下一步 48h」
 
 **AIBDD 觸發判斷**：
 - **關鍵字**：`AIBDD` / `BDD` / `TDD`
@@ -422,6 +430,12 @@ sequenceDiagram
 | 全流程（預設） | `@zenbu-powers:clarifier` → 規格化 + 紅綠重構鏈 |
 | 僅 Phase 01 拆解 | `zenbu-powers:aibdd-discovery` skill |
 | 僅 TDD 紅綠重構 | `@zenbu-powers:tdd-coordinator` |
+
+**Milestone Status 觸發判斷**：
+- **條件**：cwd 內 `specs/milestones/STATUS.md` 存在（用 hook stdin `.cwd` 或 `$PWD` 偵測）
+- **關閉開關**：環境變數 `ZENBU_MILESTONE_TRACKER_DISABLED=1` 可單獨關閉本段；reflex / AIBDD 仍會注入
+- **token 預算**：head -40 + active doing/ ≤ 500 tokens
+- **無污染**：non-milestone 專案自動跳過注入
 
 ---
 
@@ -442,6 +456,39 @@ Sub-agent 回報後，主窗口讀取「Hand-off / Next Agent」標示自動 dis
 `*-reviewer` agents 預設**不在**自動開發流程中——`*-master` 完成後直接交給主窗口；用戶可在主窗口交付後顯式喚醒 reviewer 做深度審查。
 
 若用戶顯式啟動「reviewer ↔ master」修復迴圈，適用「**最多 3 輪**」上限，第 3 輪未過則升級用戶裁決。涉及 auth / payment / external-api 等敏感領域，建議補派 `@security-reviewer`。
+
+### Milestone 追蹤管理（v3.16）
+
+cwd 內 `specs/milestones/` 存在時，AI 適用 **reflex 第 10 條 Milestone 自查**：
+
+- **開工前**：自動讀 `<MILESTONE_STATUS>` 注入區塊（hook 已注入）或呼叫 `zenbu-powers:milestone-tracker` skill 的 `next` action 找下一個任務，**禁問 user「該做什麼」**
+- **新需求進來**：自動 `milestone-tracker create` 寫進 `todo/`，**禁口頭收下不歸檔**
+- **完成任務**：自動 `milestone-tracker complete` 或 `update-status`，**禁等 user 提醒才更新**
+
+**設計原則**（與 `aibdd-carry-on-engineering-plan` 互補）：
+
+| 層級 | Skill | 管什麼 |
+|------|-------|--------|
+| business / project | `milestone-tracker` | Week 1-12、KPI、商業目標、跨多 feature 的進度 dashboard |
+| feature engineering | `aibdd-carry-on-engineering-plan` | 7-phase AIBDD 規格化 + 紅綠重構 |
+
+一個 milestone 卡片可掛 ≥ 1 個 carry-on `plan_dir`；planner 完成 plan 後自動 `link-plan` 串接。
+
+**資料夾狀態機**（單一真相）：
+
+```
+{repo}/specs/milestones/
+├── ROADMAP.md           # 大計畫一頁總覽（業務目標 + Week 1-12 + KPI）
+├── STATUS.md            # 每週 dashboard（hook head -40 注入給 AI）
+├── milestones.yml       # machine-readable index
+├── todo/                # M0X-{slug}.md 待開
+├── doing/               # 進行中（hook 列表注入）
+└── done/                # 已完成
+```
+
+狀態由卡片所在資料夾決定，不靠 frontmatter `status:` 欄位（folder 是真相，frontmatter 是顯示用）。
+
+**關閉開關**：環境變數 `ZENBU_MILESTONE_TRACKER_DISABLED=1` 可關閉 hook 注入；reflex 第 10 條的行為紀律仍會注入（AI 看到 cwd 有 milestones/ 仍會自查）。完整規範見 `skills/milestone-tracker/SKILL.md`。
 
 ---
 
@@ -467,13 +514,13 @@ zenbu-powers/
 │   ├── run-hook.cmd           # 跨平台 polyglot wrapper
 │   ├── session-start          # SessionStart hook 實作（注入 using-zenbu-powers）
 │   ├── user-prompt-submit     # UserPromptSubmit hook 實作（reflex + AIBDD 條件式）
-│   ├── reflex-dictionary.txt  # 9 條每輪反射規則
+│   ├── reflex-dictionary.txt  # 10 條每輪反射規則（含 milestone 自查）
 │   └── aibdd-mode-prompt.txt  # AIBDD dispatch 路由表
 ├── agents/                    # 23 個 Agent 定義檔
 │   ├── wordpress-master.agent.md
 │   ├── nestjs-master.agent.md
 │   └── ...
-├── skills/                    # 99 個 Skill 定義檔
+├── skills/                    # 100 個 Skill 定義檔
 │   ├── using-zenbu-powers/    # Orchestrator meta-skill（SessionStart 注入）
 │   ├── brainstorming/         # Socratic 設計精進 + HARD-GATE
 │   ├── acceptance-evaluation/ # 零假設驗收前置鐵律
@@ -574,6 +621,41 @@ Claude 自動套用**全域一致性守則**：
 2. 逐一替換
 3. 重新掃描確認零殘留
 
+### 範例 7：Milestone 任務追蹤管理
+
+第一次設置（產出 `specs/milestones/` 結構）：
+
+```
+初始化 milestone tracker，建 3 個 milestone：
+- M00 Day 0 Bootstrap（已完成）
+- M01 Ingestion Hardening (Week 1-4) 進行中
+- M02 Billing Stripe (Week 7-8) 待開
+```
+
+之後每輪 prompt，hook 自動注入 `<MILESTONE_STATUS>` 給 AI——你問「現在做到哪」AI 直接讀 STATUS.md 答，不再失憶。
+
+新需求進來自動歸檔：
+
+```
+我想加一個 milestone：email digest，依賴 M02，預計 Week 9-10
+```
+
+Claude 自動跑 `milestone-tracker create` → 寫卡片進 `todo/` → 更新 ROADMAP.md + milestones.yml，**不需要你手動建檔**。
+
+完成 milestone：
+
+```
+M01 收尾了，KPI 全綠
+```
+
+Claude 自動 `milestone-tracker complete M01-ingestion-hardening` → 簽名 + mv done/ + 更新 STATUS / ROADMAP → 自動 `next` 報「下一個可動：M02-billing-stripe」。
+
+人類進 repo 5 秒看懂大計畫：
+
+- `specs/milestones/ROADMAP.md` — 大計畫一頁
+- `specs/milestones/STATUS.md` — 這週做啥 / 還剩啥 / 下一步 48h
+- `ls specs/milestones/{todo,doing,done}/` — 一目了然狀態分佈
+
 ---
 
 ## 常見問題（FAQ）
@@ -665,7 +747,28 @@ Claude 自動套用**全域一致性守則**：
 - 專案的 `.claude/` 專案設定
 - 聊天紀錄與 memory
 
-### Q10：遇到 bug 或想提需求？
+### Q10：Milestone Tracker 跟 spec-kit / GSD / BMAD 等 spec-driven 工具差在哪？
+
+**答：** 切入點不同：
+
+- **spec-kit / GSD / BMAD** — feature-level 規格 → 拆任務 → 執行（要學新 CLI、新目錄、新概念）
+- **Milestone Tracker** — business / project-level 進度追蹤（資料夾 + markdown，零依賴），讓 AI 開工前知道「現在做到哪」、人類進 repo 5 秒看懂大計畫
+
+兩者**不衝突可並用**：
+- 大計畫（Week 1-12 / KPI / 商業目標）→ `milestone-tracker`
+- 單一 feature 的規格 + 紅綠重構 → `aibdd-carry-on-engineering-plan`（zenbu-powers 內建 spec-driven）
+- 一個 milestone 卡片可掛多個 carry-on `plan_dir`
+
+設計差異：
+| | spec-kit / GSD | Milestone Tracker |
+|--|---|---|
+| 儲存 | `.specify/` / `.gsd/`（含 SQLite） | `specs/milestones/`（純 markdown + yml） |
+| Git diff | 部分 binary | 100% diffable |
+| 學習成本 | 中（新 CLI + schema） | 0（資料夾 + markdown） |
+| Hook 注入 | ✗ | ✓（AI 自動知道進度） |
+| PM 視角 | 弱（技術 spec 為主） | 強（ROADMAP / STATUS dashboard） |
+
+### Q11：遇到 bug 或想提需求？
 
 **答：** 到 [GitHub Issues](https://github.com/zenbuapps/zenbu-powers/issues) 開 issue，或直接發 PR。
 
