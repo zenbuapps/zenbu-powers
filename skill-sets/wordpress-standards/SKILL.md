@@ -50,10 +50,6 @@ description: >
 
 ---
 
-## Hand-off / Next Agent
+## References
 
-- 本 skill 為 **Phase 3 群組 A 交付物**，路徑 `skills/wordpress-standards/`。
-- 同步交付：8 份 references（coding-standards / coding-hooks / coding-woocommerce / coding-rest-api / coding-advanced / review-checklist / review-output-template / security-checklist）。
-- 本階段**未修改**任何下游引用：`agents/wordpress-master.md`、`agents/wordpress-reviewer.md`、`agents/security-reviewer.md`、README、其他引用 `/wordpress-coding-standards`、`/wordpress-review-criteria`、`/security-review-criteria` 的位置一律保留原樣。
-- 已 stub 化 3 個舊 SKILL.md（`wordpress-coding-standards` / `wordpress-review-criteria` / `security-review-criteria`），含 `deprecated: true` frontmatter，舊 references/ 目錄保留原內容供過渡期參考。
-- **交還 orchestrator**：請於最後集中 phase 將下游引用切換到 `zenbu-powers:wordpress-standards`（依角色帶上對應 reference 路徑）。
+- 本 skill 含 8 份 references（coding-standards / coding-hooks / coding-woocommerce / coding-rest-api / coding-advanced / review-checklist / review-output-template / security-checklist）。

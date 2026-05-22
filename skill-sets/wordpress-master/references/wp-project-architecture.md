@@ -1,6 +1,6 @@
 ---
 name: wp-project-architecture
-description: WordPress Plugin 專案架構指南：DDD 領域驅動設計目錄結構、新增檔案原則、WordPress 區塊開發註冊。供 @zenbu-powers:wordpress-master agent 在理解及建構專案架構時參考。
+description: WordPress Plugin 專案架構指南：DDD 領域驅動設計目錄結構、新增檔案原則、WordPress 區塊開發註冊。供 @wordpress-master agent 在理解及建構專案架構時參考。
 ---
 
 # WordPress Plugin 專案架構

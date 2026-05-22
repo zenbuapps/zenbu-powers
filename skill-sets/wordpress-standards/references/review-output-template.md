@@ -68,7 +68,7 @@
 **必須執行的動作**：使用 `@` 將審查報告交回開發者修改：
 
 ```
-@zenbu-powers:wordpress-master
+@wordpress-master
 
 ## 🚫 審查未通過,請修改後重新提交
 

@@ -70,10 +70,6 @@ PHP 端可採函式名繁中（`test_管理員可以新增課程`）或保留英
 
 ---
 
-## Hand-off / Next Agent
+## References
 
-- 本 skill 為 **Phase 3 群組 B 交付物**，路徑 `skills/wp-testing/`。
-- 同步交付：`references/e2e-playwright.md`、`references/integration-phpunit.md`。
-- 舊 skill `wp-e2e-creator` / `wp-integration-testing` 已 stub 化（含 `deprecated: true`），其 `references/` 保留原檔。
-- **未修改下游引用**（agents/test-creator、README、其他 skill 內互引仍指向舊路徑），由最後集中處理階段統一替換為 `zenbu-powers:wp-testing`。
-- **交還 orchestrator**：請推進「下游引用替換」階段。
+- 本 skill 含 `references/e2e-playwright.md`（E2E）與 `references/integration-phpunit.md`（Integration Test）。
