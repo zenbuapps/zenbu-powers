@@ -233,6 +233,8 @@ ${{ steps.sanitized.outputs.text }}
 | 前端（`*.tsx`、`*.ts`、UI 元件、前端狀態管理）                         | `react-master`（或依專案調整）   |
 | 混合（同時涉及前後端）                                                 | **拆成兩個 sub-issue**，分別指派 |
 
+> `wordpress-master` agent 非 plugin 全域常駐，需先在 WordPress 專案執行 `/copy-sets` 複製進 `.claude/`，複製後以無前綴名稱調用。
+
 在 body 最上方加入：
 ```
 ## 執行 Agent

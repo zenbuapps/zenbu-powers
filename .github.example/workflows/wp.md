@@ -37,6 +37,7 @@ steps:
 engine:
   id: copilot
   model: gpt-5.3-codex
+  # wordpress-master 非 plugin 全域常駐——需先在 WordPress 專案執行 /copy-sets 複製進 .claude/，複製後以無前綴名稱調用
   agent: wordpress-master
 tools:
   github:
