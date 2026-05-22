@@ -261,6 +261,26 @@ Extends Input props plus:
 | `onChange` | `(value: string) => void` | - (all fields filled) |
 | `onInput` | `(values: string[]) => void` | - (v5.22.0+) |
 
+### Input.Group（已廢棄 / Deprecated）
+
+`Input.Group` 已廢棄，請改用 `Space.Compact` 替代。
+
+```tsx
+// ❌ 已廢棄
+<Input.Group compact>
+  <Input style={{ width: '50%' }} />
+  <Input style={{ width: '50%' }} />
+</Input.Group>
+
+// ✅ 改用 Space.Compact
+<Space.Compact>
+  <Input style={{ width: '50%' }} />
+  <Input style={{ width: '50%' }} />
+</Space.Compact>
+```
+
+詳見 `general-layout.md` 的 Space.Compact 段落。
+
 ---
 
 ## Select

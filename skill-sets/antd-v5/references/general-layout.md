@@ -153,7 +153,8 @@ import { Space } from 'antd';
 
 ### Space.Compact Props
 
-Groups related components (Button, Input, Select, DatePicker):
+Groups related components (Button, Input, Select, DatePicker)。
+**取代已廢棄的 `Input.Group`** —— `Input.Group` 已 deprecated，一律改用 `Space.Compact`。
 
 | Prop | Type | Default |
 |------|------|---------|
