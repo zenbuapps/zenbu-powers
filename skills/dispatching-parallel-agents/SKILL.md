@@ -78,12 +78,12 @@ Each agent gets:
 Use a single message with multiple Agent tool calls (the CC harness runs them concurrently):
 
 ```
-Agent(subagent_type: "zenbu-powers:wordpress-reviewer", ...)   // review PHP files
+Agent(subagent_type: "wordpress-reviewer", ...)                // review PHP files
 Agent(subagent_type: "zenbu-powers:react-reviewer", ...)       // review TSX files
 Agent(subagent_type: "zenbu-powers:security-reviewer", ...)    // security pass
 ```
 
-All three run concurrently.
+All three run concurrently. (`wordpress-reviewer` 非 plugin 全域常駐，需先在 WordPress 專案執行 `/copy-sets` 複製進 `.claude/`，複製後以無前綴名稱調用。)
 
 ### 4. Review and Integrate
 

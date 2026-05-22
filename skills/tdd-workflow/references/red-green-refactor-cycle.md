@@ -88,7 +88,7 @@ Green Gate 通過後**不再強制派 reviewer**。
 
 若用戶要求強化品質深度，可手動喚醒對應 reviewer 做深度 code review / 安全審查：
 
-- `@zenbu-powers:wordpress-reviewer` — PHP/WordPress 程式碼審查（opt-in）
+- `@wordpress-reviewer` — PHP/WordPress 程式碼審查（opt-in；非全域常駐，WordPress 專案需先 `/copy-sets`，複製後無前綴調用）
 - `@zenbu-powers:react-reviewer` — React/TypeScript 程式碼審查（opt-in）
 - `@zenbu-powers:nestjs-reviewer` — NestJS 程式碼審查（opt-in）
 - `@zenbu-powers:security-reviewer` — 安全性審查（涉及 auth / payment / external-api 時強烈建議，opt-in）
@@ -116,13 +116,13 @@ Green Gate 通過後**不再強制派 reviewer**。
 - `@zenbu-powers:test-creator` — 第一棒，強制呼叫，負責在實作前產生所有測試骨架；如果沒有產生測試，必須交代原因
 
 **開發團隊（依專案技術棧選擇）：**
-- `@zenbu-powers:wordpress-master` — WordPress/PHP 實作
+- `@wordpress-master` — WordPress/PHP 實作（非全域常駐，WordPress 專案需先 `/copy-sets`，複製後無前綴調用）
 - `@zenbu-powers:react-master` — React/TypeScript 前端實作
 - `@zenbu-powers:nodejs-master` — Node.js 後端實作
 - `@zenbu-powers:nestjs-master` — NestJS 後端實作
 
 **Opt-in 審查團隊**（用戶顯式喚醒才上場，不在自動流程中）：
-- `@zenbu-powers:wordpress-reviewer` — WordPress/PHP 程式碼深度審查
+- `@wordpress-reviewer` — WordPress/PHP 程式碼深度審查（非全域常駐，WordPress 專案需先 `/copy-sets`，複製後無前綴調用）
 - `@zenbu-powers:react-reviewer` — React/TypeScript 程式碼深度審查
 - `@zenbu-powers:nestjs-reviewer` — NestJS 程式碼深度審查
 - `@zenbu-powers:security-reviewer` — 安全性審查（涉及敏感領域強烈建議補派）

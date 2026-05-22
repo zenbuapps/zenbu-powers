@@ -235,7 +235,7 @@ description: >
 | `zenbu-powers:tdd-workflow` | Phase 4 的失敗測試走 Red 階段；Phase 4 的修復驗證走 Green Gate |
 | `@zenbu-powers:test-creator` | Phase 4 寫失敗測試的執行者 |
 | `zenbu-powers:aibdd-consistency-analyzer` | AIBDD 場景下檢查規格漂移 |
-| `@zenbu-powers:wordpress-master` | WP 領域實作根因修復 |
+| `@wordpress-master` | WP 領域實作根因修復（非全域常駐，WordPress 專案需先 `/copy-sets`，複製後無前綴調用） |
 | `@zenbu-powers:react-master` | React 領域實作根因修復 |
 | `@zenbu-powers:security-reviewer` | 若 bug 涉及權限、資料外洩，必須拉進來審 |
 

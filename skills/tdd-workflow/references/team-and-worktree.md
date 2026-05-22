@@ -56,10 +56,12 @@
 
 | 專案類型 | Master | Reviewer |
 |---------|--------|----------|
-| WordPress Plugin | `zenbu-powers:wordpress-master` | `zenbu-powers:wordpress-reviewer` + `zenbu-powers:security-reviewer` |
+| WordPress Plugin | `wordpress-master` | `wordpress-reviewer` + `zenbu-powers:security-reviewer` |
 | React 前端 | `zenbu-powers:react-master` | `zenbu-powers:react-reviewer` |
 | Node.js 後端 | `zenbu-powers:nodejs-master` | `zenbu-powers:security-reviewer` |
 | NestJS 後端 | `zenbu-powers:nestjs-master` | `zenbu-powers:nestjs-reviewer` |
+
+> WordPress agent（`wordpress-master` / `wordpress-reviewer`）非 plugin 全域常駐，需先在目標 WordPress 專案執行 `/copy-sets` 複製進 `.claude/`，複製後以無前綴名稱調用。
 
 ### 1.2 Step 2：建立 Worktree（本地環境才需要）
 
@@ -94,7 +96,7 @@ Agent(
 Agent(
   team_name="tdd-{issue-id}",
   name="impl-backend",
-  subagent_type="zenbu-powers:wordpress-master",
+  subagent_type="wordpress-master",   # 非全域，需先 /copy-sets，複製後無前綴
   prompt="<從藍圖第 4 節複製>"
 )
 
@@ -109,7 +111,7 @@ Agent(
 Agent(
   team_name="tdd-{issue-id}",
   name="rev-wp",
-  subagent_type="zenbu-powers:wordpress-reviewer",
+  subagent_type="wordpress-reviewer",   # 非全域，需先 /copy-sets，複製後無前綴
   prompt="<從藍圖第 6 節複製>"
 )
 
