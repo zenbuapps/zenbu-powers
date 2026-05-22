@@ -5,19 +5,34 @@ description: >
   Use this skill whenever the task involves any antd v5 component: Table, Form, Select,
   Input, Button, Modal, notification, message, Upload, Tag, Tooltip, Badge, Image,
   Radio, Segmented, Switch, DatePicker, RangePicker, Popconfirm, Drawer, Descriptions,
-  ConfigProvider, Space, Layout, Grid (Row/Col), Spin, Pagination, or the antd theme system
-  (token, algorithm, useToken, CSS variables). Also use when code imports from 'antd',
+  ConfigProvider, Space, Layout, Grid (Row/Col), Spin, Pagination, Menu, Dropdown,
+  Breadcrumb, Tabs, Steps, Affix, Anchor, AutoComplete, Cascader, Checkbox, ColorPicker,
+  InputNumber, Mentions, Rate, Slider, TimePicker, Transfer, TreeSelect, Avatar, Calendar,
+  Card, Carousel, Collapse, Empty, List, Popover, QRCode, Statistic, Timeline, Tree,
+  Alert, Progress, Result, Skeleton, Watermark, Divider, Flex, FloatButton, Splitter,
+  Typography, App, or the antd theme system (token, algorithm, useToken, CSS variables).
+  Also use when code imports from 'antd',
   references antd TypeScript types (TableProps, FormInstance, ColumnsType, UploadFile, etc.),
   or when configuring antd theming/tokens. Do NOT use this skill for @ant-design/pro-components
-  (use ant-design-pro-v2 skill instead). Version coverage: antd 5.x (tested against 5.25.x).
+  (use ant-design-pro-v2 skill instead). Version coverage: antd 5.x (tested against 5.29.x).
 ---
 
 # Ant Design v5 API Reference
 
 ## Quick Navigation
 
-This skill covers antd v5 core components organized by category. Each reference file provides
+This skill covers antd v5 components organized by category. Each reference file provides
 complete API signatures, all props with types and defaults, TypeScript types, and usage patterns.
+
+### Official Documentation Source
+
+權威查證入口（給 LLM 消化的精簡文件索引）：
+
+- **LLMs.txt 索引頁**：https://5x.ant.design/docs/react/llms
+- **完整文件索引**：https://ant.design/llms.txt （列出所有元件 / API 文件連結）
+- **單一元件 API**：`https://5x.ant.design/components/<component-name>`（v5.x 版本權威來源）
+
+需新增或查證元件 API 時，優先以上述來源為準。`5x.ant.design` 對應 v5.x，`ant.design` 可能已切換至更新 major。
 
 ### Reference Files
 
@@ -26,9 +41,12 @@ Read only the file relevant to your current task:
 | File | Components | When to Read |
 |------|-----------|--------------|
 | `references/data-display.md` | Table, Tag, Badge, Image, Tooltip, Descriptions | Rendering data, lists, status indicators, previews |
+| `references/data-display-advanced.md` | Avatar, Calendar, Card, Carousel, Collapse, Empty, List, Popover, QRCode, Statistic, Timeline, Tree | Cards, lists, trees, calendars, stats, popovers |
 | `references/data-entry.md` | Form, Input, Select, Radio, Segmented, Switch, Upload, DatePicker/RangePicker | Form building, user input, file upload, date selection |
-| `references/feedback.md` | Modal, notification, message, Popconfirm, Drawer | Dialogs, alerts, confirmations, side panels |
-| `references/general-layout.md` | Button, ConfigProvider, Space, Layout, Grid, Spin, Pagination | Buttons, layout structure, loading states, page navigation |
+| `references/data-entry-advanced.md` | AutoComplete, Cascader, Checkbox, ColorPicker, InputNumber, Mentions, Rate, Slider, TimePicker, Transfer, TreeSelect | Advanced inputs: cascading select, numeric, color, rating, sliders |
+| `references/navigation.md` | Affix, Anchor, Breadcrumb, Dropdown, Menu, Steps, Tabs | Menus, breadcrumbs, dropdowns, tabs, step flows, anchors |
+| `references/feedback.md` | Modal, notification, message, Popconfirm, Drawer, Alert, Progress, Result, Skeleton, Watermark | Dialogs, alerts, confirmations, side panels, progress, result pages |
+| `references/general-layout.md` | Button, ConfigProvider, Space, Layout, Grid, Spin, Pagination, Divider, Flex, FloatButton, Splitter, Typography, App | Buttons, layout structure, loading states, navigation, typography |
 | `references/theme.md` | theme, useToken, ConfigProvider theme prop | Theming, design tokens, dark mode, CSS variables |
 
 ## Key Patterns (antd v5)

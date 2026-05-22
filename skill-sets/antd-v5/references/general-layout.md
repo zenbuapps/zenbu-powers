@@ -8,6 +8,12 @@
 - [Grid (Row/Col)](#grid-rowcol)
 - [Spin](#spin)
 - [Pagination](#pagination)
+- [Divider](#divider)
+- [Flex](#flex)
+- [FloatButton](#floatbutton)
+- [Splitter](#splitter)
+- [Typography](#typography)
+- [App](#app)
 
 ---
 
@@ -373,3 +379,255 @@ import type { PaginationProps } from 'antd';
 // Hide pagination
 <Table pagination={false} />
 ```
+
+---
+
+## Divider
+
+分割線。
+
+```tsx
+import { Divider } from 'antd';
+```
+
+### Divider Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `children` | `ReactNode` | - (包裹的標題) |
+| `type` | `'horizontal' \| 'vertical'` | `'horizontal'` |
+| `orientation` | `'start' \| 'end' \| 'center'` | `'center'` (start/end: v5.24.0+) |
+| `orientationMargin` | `string \| number` | - (標題與最近邊界距離) |
+| `dashed` | `boolean` | `false` |
+| `variant` | `'dashed' \| 'dotted' \| 'solid'` | `'solid'` (v5.20.0+) |
+| `plain` | `boolean` | `true` (文字普通樣式，v4.2.0+) |
+| `size` | `'small' \| 'middle' \| 'large'` | - (v5.25.0+，僅 horizontal) |
+
+### Design Tokens
+
+`orientationMargin` (0.05), `textPaddingInline`, `verticalMarginInline` (8)
+
+---
+
+## Flex
+
+彈性佈局容器。
+
+```tsx
+import { Flex } from 'antd';
+```
+
+### Flex Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `vertical` | `boolean` | `false` (`flex-direction: column`) |
+| `wrap` | `boolean \| CSS flex-wrap` | `'nowrap'` (boolean: v5.17.0+) |
+| `justify` | `CSS justify-content` | `'normal'` |
+| `align` | `CSS align-items` | `'normal'` |
+| `flex` | `CSS flex` | `'normal'` |
+| `gap` | `'small' \| 'middle' \| 'large' \| string \| number` | - |
+| `component` | `React.ComponentType` | `'div'` (自訂元素類型) |
+
+```tsx
+<Flex gap="middle" vertical align="center">
+  <Button>A</Button>
+  <Button>B</Button>
+</Flex>
+```
+
+---
+
+## FloatButton
+
+懸浮按鈕。
+
+```tsx
+import { FloatButton } from 'antd';
+```
+
+### FloatButton Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `icon` | `ReactNode` | - |
+| `description` | `ReactNode` | - (文字等內容) |
+| `tooltip` | `ReactNode \| TooltipProps` | - (TooltipProps: v5.25.0+) |
+| `type` | `'default' \| 'primary'` | `'default'` |
+| `shape` | `'circle' \| 'square'` | `'circle'` |
+| `href` | `string` | - |
+| `target` | `string` | - |
+| `htmlType` | `'submit' \| 'reset' \| 'button'` | `'button'` (v5.21.0+) |
+| `badge` | `BadgeProps` | - (v5.4.0+，不支援 status 相關 props) |
+| `onClick` | `(event) => void` | - |
+
+### FloatButton.Group Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `shape` | `'circle' \| 'square'` | `'circle'` |
+| `trigger` | `'click' \| 'hover'` | - (觸發選單開合) |
+| `open` | `boolean` | - (配合 trigger 使用) |
+| `closeIcon` | `ReactNode` | `<CloseOutlined />` |
+| `placement` | `'top' \| 'left' \| 'right' \| 'bottom'` | `'top'` (v5.21.0+) |
+| `onOpenChange` | `(open: boolean) => void` | - |
+| `onClick` | `(event) => void` | - (僅 Menu 模式，v5.3.0+) |
+
+### FloatButton.BackTop Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `duration` | `number` | `450` (回到頂部時間 ms) |
+| `target` | `() => HTMLElement` | `() => window` |
+| `visibilityHeight` | `number` | `400` (滾動高度達此值才顯示) |
+| `onClick` | `() => void` | - |
+
+---
+
+## Splitter
+
+分隔面板，可拖曳調整尺寸。
+
+```tsx
+import { Splitter } from 'antd';
+```
+
+### Splitter Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `layout` | `'horizontal' \| 'vertical'` | `'horizontal'` |
+| `lazy` | `boolean` | `false` (v5.23.0+，懶模式) |
+| `onResizeStart` | `(sizes: number[]) => void` | - |
+| `onResize` | `(sizes: number[]) => void` | - |
+| `onResizeEnd` | `(sizes: number[]) => void` | - |
+| `onCollapse` | `(collapsed: boolean[], sizes: number[]) => void` | - (v5.28.0+) |
+
+### Splitter.Panel Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `defaultSize` | `number \| string` | - (初始尺寸，數字為 px，字串如 `'30%'`) |
+| `size` | `number \| string` | - (受控尺寸) |
+| `min` | `number \| string` | - (最小閾值) |
+| `max` | `number \| string` | - (最大閾值) |
+| `collapsible` | `boolean \| { start?, end?, showCollapsibleIcon? }` | `false` (showCollapsibleIcon: v5.27.0+) |
+| `resizable` | `boolean` | `true` |
+
+### Design Tokens
+
+`splitBarSize` (2), `splitBarDraggableSize` (20), `splitTriggerSize` (6)
+
+---
+
+## Typography
+
+排版元件。包含 `Typography.Text`、`Typography.Title`、`Typography.Paragraph`、`Typography.Link`。
+
+```tsx
+import { Typography } from 'antd';
+const { Text, Title, Paragraph, Link } = Typography;
+```
+
+### Text / Paragraph 通用 Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `code` | `boolean` | `false` (程式碼樣式) |
+| `keyboard` | `boolean` | `false` (v4.3.0+) |
+| `mark` | `boolean` | `false` (標記樣式) |
+| `strong` | `boolean` | `false` (粗體；Title 無此屬性) |
+| `italic` | `boolean` | `false` (v4.16.0+) |
+| `underline` | `boolean` | `false` |
+| `delete` | `boolean` | `false` (刪除線) |
+| `disabled` | `boolean` | `false` |
+| `type` | `'secondary' \| 'success' \| 'warning' \| 'danger'` | - (success: v4.6.0+) |
+| `copyable` | `boolean \| CopyConfig` | `false` |
+| `editable` | `boolean \| EditConfig` | `false` |
+| `ellipsis` | `boolean \| EllipsisConfig` | `false` |
+| `onClick` | `(event) => void` | - |
+
+### Title 額外 Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `level` | `1 \| 2 \| 3 \| 4 \| 5` | `1` (對應 h1~h5，5: v4.6.0+) |
+
+> `Text` 的 `ellipsis` 物件不支援 `expandable` / `rows` / `onExpand`。
+
+### CopyConfig
+
+| Prop | Type | Default |
+|------|------|---------|
+| `text` | `string` | - (要複製的文字) |
+| `format` | `'text/plain' \| 'text/html'` | - (v4.21.0+) |
+| `icon` | `[ReactNode, ReactNode]` | - (`[copyIcon, copiedIcon]`，v4.6.0+) |
+| `tooltips` | `[ReactNode, ReactNode]` | `['Copy', 'Copied']` (false 隱藏，v4.4.0+) |
+| `tabIndex` | `number` | `0` (v5.17.0+) |
+| `onCopy` | `() => void` | - |
+
+### EditConfig
+
+| Prop | Type | Default |
+|------|------|---------|
+| `editing` | `boolean` | `false` |
+| `text` | `string` | - (編輯內容，v4.24.0+) |
+| `icon` | `ReactNode` | `<EditOutlined />` (v4.6.0+) |
+| `tooltip` | `ReactNode` | `'Edit'` (false 隱藏，v4.6.0+) |
+| `autoSize` | `boolean \| { minRows, maxRows }` | - (v4.4.0+) |
+| `maxLength` | `number` | - (v4.4.0+) |
+| `triggerType` | `Array<'icon' \| 'text'>` | `['icon']` |
+| `enterIcon` | `ReactNode` | `<EnterOutlined />` (null 移除，v4.17.0+) |
+| `tabIndex` | `number` | `0` (v5.17.0+) |
+| `onChange` | `(value: string) => void` | - |
+| `onStart` / `onCancel` / `onEnd` | `() => void` | - (onEnd: v4.14.0+) |
+
+### EllipsisConfig
+
+| Prop | Type | Default |
+|------|------|---------|
+| `rows` | `number` | - (最大行數) |
+| `expandable` | `boolean \| 'collapsible'` | - (collapsible: v5.16.0+) |
+| `suffix` | `string` | - (省略內容後綴) |
+| `symbol` | `ReactNode \| ((expanded: boolean) => ReactNode)` | `'Expand'` / `'Collapse'` |
+| `tooltip` | `ReactNode \| TooltipProps` | - (v4.11.0+) |
+| `defaultExpanded` | `boolean` | - (v5.16.0+) |
+| `expanded` | `boolean` | - (v5.16.0+) |
+| `onEllipsis` | `(ellipsis: boolean) => void` | - (v4.2.0+) |
+| `onExpand` | `(event, { expanded: boolean }) => void` | - (info: v5.16.0+) |
+
+### Design Tokens
+
+`titleMarginTop` (1.2em), `titleMarginBottom` (0.5em)
+
+---
+
+## App
+
+應用包裹元件，提供 message / notification / Modal 的 hook context，無需手動放置 contextHolder。
+
+```tsx
+import { App } from 'antd';
+
+const Page = () => {
+  const { message, notification, modal } = App.useApp();
+  return <Button onClick={() => message.success('OK')}>Click</Button>;
+};
+
+// 根層級包裹
+<App>
+  <Page />
+</App>
+```
+
+### App Props
+
+| Prop | Type | Default |
+|------|------|---------|
+| `component` | `ComponentType \| false` | `'div'` (false 則不建立 DOM 節點，v5.11.0+) |
+| `message` | `MessageConfig` | - (Message 全域設定，v5.3.0+) |
+| `notification` | `NotificationConfig` | - (Notification 全域設定，v5.3.0+) |
+
+### App.useApp()
+
+回傳 `{ message, notification, modal }`，三者皆已綁定當前 React context（ConfigProvider、theme、locale），是取代靜態方法的建議用法。必須在 `<App>` 元件內呼叫。
