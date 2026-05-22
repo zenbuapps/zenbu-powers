@@ -5,7 +5,6 @@ model: sonnet
 skills:
   # 核心必載（≤ 5 條，避免 context 浪費）
   - "zenbu-powers:test-creation-playbook"   # 通用測試 playbook（必載）
-  - "zenbu-powers:wp-testing"               # WordPress 測試框架（最高頻）
   - "zenbu-powers:aibdd-discovery"          # AIBDD 主入口（規格驅動測試）
   - "zenbu-powers:aibdd-auto-tdd"           # TDD 自動化流程中心（C#/PHP/TS 統一入口）
   - "zenbu-powers:aibdd-handlers"           # Step Handlers 決策中心（語言無關）
@@ -75,7 +74,6 @@ skills:
 ### 核心必載（frontmatter 強制注入）
 
 - `/zenbu-powers:test-creation-playbook` — 邊緣案例目錄、測試指令參考、E2E/IT/UT 覆蓋策略（**必載**）
-- `/zenbu-powers:wp-testing` — WordPress Plugin 測試統一入口；E2E 流程載入 `references/e2e-playwright.md`，Integration 測試載入 `references/integration-phpunit.md`（依 SKILL 主檔的 E2E vs IT 決策樹分流）
 - `/zenbu-powers:aibdd-discovery` — AIBDD 規格探索主入口（規格驅動測試）
 - `/zenbu-powers:aibdd-auto-tdd` — 語言無關 TDD 流程中心；8 stage：control-flow / red / green / refactor / code-quality / step-template / schema-analysis / starter / test-skeleton；依語言載入 `references/{stage}/{csharp|php|typescript}.md`
 - `/zenbu-powers:aibdd-handlers` — 語言無關決策中心；6 種 handler：aggregate-given / aggregate-then / command / query / readmodel-then / success-failure；依語言載入 `references/{handler}/{csharp|php|typescript}.md`
@@ -91,6 +89,8 @@ skills:
 - `/zenbu-powers:aibdd-auto-frontend-msw-api-layer` — 前端 MSW + Zod + API client 骨架
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。
+
+> **WordPress 測試**：`wp-testing` skill 非 plugin 全域常駐，需先在 WordPress 專案執行 `/copy-sets` 複製進 `.claude/`，複製後以無前綴名稱 `/wp-testing` 調用。
 
 ---
 

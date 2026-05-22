@@ -88,7 +88,7 @@ skills:
 
 ### 每個 Task 的執行流程
 1. 清楚描述要做什麼(移動 / 提取 / 重命名 / 建立)
-2. 指派 `@zenbu-powers:wordpress-master` 執行實際 PHP 開發,提供:
+2. 指派 `@wordpress-master` 執行實際 PHP 開發（WordPress agent 非全域常駐，需先在目標專案執行 `/copy-sets`，複製後以無前綴名稱調用），提供:
    - 涉及的檔案與類別
    - 預期的目標結構
    - 相關的 `./specs` 區段(業務上下文)

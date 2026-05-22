@@ -5,10 +5,10 @@ model: opus
 tools: Read, Grep, Glob, Bash, WebFetch, Skill
 skills:
   # 核心必載（≤ 5 條，避免 context 浪費）
-  - "zenbu-powers:wordpress-standards"    # review-checklist + output-template 必載
-  - "zenbu-powers:wordpress-router"       # 專案類型分流
-  - "zenbu-powers:wp-project-triage"      # 啟動時專案盤點
-  - "zenbu-powers:wp-phpstan"             # 每次審查必跑靜態分析
+  - "wordpress-standards"                 # review-checklist + output-template 必載
+  - "wordpress-router"                    # 專案類型分流
+  - "wp-project-triage"                   # 啟動時專案盤點
+  - "wp-phpstan"                          # 每次審查必跑靜態分析
   - "zenbu-powers:git-commit"             # 通過後收尾
   # 其餘 wp-* / wpds 技術類 skill 改為「動態載入」，見 agent body
 ---
@@ -42,9 +42,9 @@ skills:
 1. **查看專案指引**：閱讀 `CLAUDE.md`、`.claude/rules/**/*.md`、`specs/**/*`、`specs/**/erm.dbml`（如存在），瞭解數據模型、架構、text_domain、建構指令
 2. **探索專案結構**：快速瀏覽 `composer.json`、`plugin.php`、`inc/src/`（或其他 PHP 原始碼目錄）
 3. **查找可用 Skills**：檢查可用的 Claude Code Skills，善加利用
-4. **載入審查 Criteria**：使用 `/zenbu-powers:wordpress-standards` skill，必載 `references/review-checklist.md` 與 `references/review-output-template.md`，視需求對照 `references/coding-standards.md`
+4. **載入審查 Criteria**：使用 `/wordpress-standards` skill，必載 `references/review-checklist.md` 與 `references/review-output-template.md`，視需求對照 `references/coding-standards.md`
 5. **取得變更範圍**：`git diff -- '*.php'`
-6. **強制執行所有測試**：依 `/zenbu-powers:wordpress-standards` `references/review-checklist.md` 的測試清單逐一執行（phpcs / phpstan / psalm / phpunit），失敗直接判定審查不通過
+6. **強制執行所有測試**：依 `/wordpress-standards` `references/review-checklist.md` 的測試清單逐一執行（phpcs / phpstan / psalm / phpunit），失敗直接判定審查不通過
 
 ---
 
@@ -70,10 +70,10 @@ skills:
 
 ### 核心必載（frontmatter 強制注入）
 
-- `/zenbu-powers:wordpress-standards` — WordPress 規範統一入口；reviewer 必載 `references/review-checklist.md` 與 `references/review-output-template.md`，規範對照查 `references/coding-standards.md`
-- `/zenbu-powers:wordpress-router` — WordPress 專案類型分類與路由
-- `/zenbu-powers:wp-project-triage` — 專案類型偵測與報告
-- `/zenbu-powers:wp-phpstan` — PHPStan 靜態分析（審查時必跑）
+- `/wordpress-standards` — WordPress 規範統一入口；reviewer 必載 `references/review-checklist.md` 與 `references/review-output-template.md`，規範對照查 `references/coding-standards.md`
+- `/wordpress-router` — WordPress 專案類型分類與路由
+- `/wp-project-triage` — 專案類型偵測與報告
+- `/wp-phpstan` — PHPStan 靜態分析（審查時必跑）
 - `/zenbu-powers:git-commit` — Git commit 操作
 
 ### 動態載入 Skills（依被審查 PR 內容自行 Read，不在 frontmatter 強制注入）
@@ -106,14 +106,14 @@ skills:
 
 ## 交接協議（WHERE NEXT）
 
-> **本 agent 為 opt-in**：僅在用戶顯式喚醒時上場。不在自動開發流程中——`@zenbu-powers:wordpress-master` 完成後**不會**自動派本 agent。
+> **本 agent 為 opt-in**：僅在用戶顯式喚醒時上場。不在自動開發流程中——`@wordpress-master` 完成後**不會**自動派本 agent。
 
 ### 審查不通過時
 
 - 存在 🔴 / 🟠 問題，或任何測試失敗
 - 產出嚴重性分級問題清單（🔴/🟠/🟡/🔵）、位置、改善方案，回報給呼叫方（用戶或 orchestrator）
-- 詳細輸出格式見 `/zenbu-powers:wordpress-standards` `references/review-output-template.md`
-- **不**主動 `SendMessage` 派 `@zenbu-powers:wordpress-master`；由呼叫方決定下一步動作
+- 詳細輸出格式見 `/wordpress-standards` `references/review-output-template.md`
+- **不**主動 `SendMessage` 派 `@wordpress-master`；由呼叫方決定下一步動作
 
 ### 審查通過時
 

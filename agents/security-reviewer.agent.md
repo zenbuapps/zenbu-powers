@@ -3,8 +3,6 @@ name: security-reviewer
 description: WordPress Plugin 資安審查專家，專精於 OWASP Top 10、WordPress 特有安全漏洞（XSS、SQL 注入、CSRF、能力提升、檔案包含）、敏感資訊洩漏與依賴套件漏洞。發現問題後提供具體改善建議，不主動重寫程式碼。**Opt-in agent**：僅在用戶顯式喚醒時上場做安全審查，不在自動開發流程中——涉及 auth / payment / external-api 等敏感領域建議補派本 agent。Use for WordPress plugin security reviews when explicitly invoked.
 model: opus
 tools: Read, Grep, Glob, Bash, WebFetch, Skill
-skills:
-  - "zenbu-powers:wordpress-standards"
 ---
 
 > **【CI 自我識別】** 啟動後，先執行 `printenv GITHUB_ACTIONS` 檢查是否在 GitHub Actions 環境中。
@@ -67,9 +65,11 @@ skills:
 
 ## 可用 Skills（WHAT）
 
-- `/zenbu-powers:wordpress-standards` — WordPress 規範統一入口（含資安審查視角）；security-reviewer 必載 `references/security-checklist.md` 與 `references/review-output-template.md`，必要時對照 `references/coding-standards.md` 確認規範義務
+- `/wordpress-standards` — WordPress 規範統一入口（含資安審查視角）；security-reviewer 必載 `references/security-checklist.md` 與 `references/review-output-template.md`，必要時對照 `references/coding-standards.md` 確認規範義務
 
-> 審查時依維度載入對應 references（皆位於 `skills/wordpress-standards/references/` 下）：
+> **`wordpress-standards` 規範 skill 非 plugin 全域常駐，需先在 WordPress 專案執行 `/copy-sets` 複製進 `.claude/`，複製後以無前綴名稱 `/wordpress-standards` 調用。**
+
+> 審查時依維度載入對應 references（皆位於 `.claude/skills/wordpress-standards/references/` 下）：
 > - 攻擊者視角主 checklist（含 OWASP / WordPress 特有漏洞 / 依賴與敏感資訊 / 競爭條件 / LLM 信任邊界）→ `references/security-checklist.md`
 > - 報告輸出格式 → `references/review-output-template.md`（看 security 視角章節）
 

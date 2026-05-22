@@ -84,7 +84,7 @@ skills:
 依技術棧列出每個 master 要 spawn 的內容：
 
 ```
-@zenbu-powers:wordpress-master  ← 後端任務
+@wordpress-master               ← 後端任務（WordPress 專案需先 /copy-sets，複製後無前綴調用）
 @zenbu-powers:react-master      ← 前端任務
 @zenbu-powers:nodejs-master     ← Node.js/TypeScript 後端
 @zenbu-powers:nestjs-master     ← NestJS 後端
@@ -112,7 +112,7 @@ Green Gate 通過後**不再強制派 reviewer**。
 若用戶要求強化品質深度，可手動喚醒對應 reviewer 做深度 code review：
 
 ```
-@zenbu-powers:wordpress-reviewer   ← WordPress 程式品質（opt-in）
+@wordpress-reviewer                ← WordPress 程式品質（opt-in；WordPress 專案需先 /copy-sets，複製後無前綴調用）
 @zenbu-powers:react-reviewer       ← React 程式品質（opt-in）
 @zenbu-powers:nestjs-reviewer      ← NestJS 程式品質（opt-in）
 @zenbu-powers:security-reviewer    ← 安全審查（涉及 auth / payment / external-api 時強烈建議，opt-in）

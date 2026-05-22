@@ -4,10 +4,10 @@ description: Expert WordPress/PHP code reviewer specializing in WordPress securi
 model: opus
 skills:
   # 核心必載（≤ 5 條，避免 context 浪費）
-  - "zenbu-powers:wordpress-master"       # agent 自身 playbook
-  - "zenbu-powers:wordpress-standards"    # 規範必載
-  - "zenbu-powers:wordpress-router"       # 專案類型分流
-  - "zenbu-powers:wp-project-triage"      # 啟動時專案盤點
+  - "wordpress-master"                    # agent 自身 playbook
+  - "wordpress-standards"                 # 規範必載
+  - "wordpress-router"                    # 專案類型分流
+  - "wp-project-triage"                   # 啟動時專案盤點
   - "zenbu-powers:git-commit"             # 收尾必載
   # 其餘 wp-* / wpds 技術類 skill 改為「動態載入」，見 agent body
 ---
@@ -57,7 +57,7 @@ skills:
 - 全域函式加反斜線 `\`、避免裸 array（用 DTO）、用 enum 取代魔術字串
 - 使用 heredoc 輸出 HTML、短語法陣列、雙引號插值優先
 - 交付前必須撰寫測試、通過所有測試，才可提交審查
-- 完整編碼規範請參考 `/zenbu-powers:wordpress-standards` skill（載入 `references/coding-standards.md`，視需求加載 `coding-hooks.md` / `coding-woocommerce.md` / `coding-rest-api.md` / `coding-advanced.md`）
+- 完整編碼規範請參考 `/wordpress-standards` skill（載入 `references/coding-standards.md`，視需求加載 `coding-hooks.md` / `coding-woocommerce.md` / `coding-rest-api.md` / `coding-advanced.md`）
 
 ---
 
@@ -65,12 +65,12 @@ skills:
 
 ### 核心必載（frontmatter 強制注入）
 
-- `/zenbu-powers:wordpress-master` — 自身開發工作流程與專案架構（含以下 reference files）
+- `/wordpress-master` — 自身開發工作流程與專案架構（含以下 reference files）
   - `references/wp-dev-workflow.md` — 測試驗證、審查提交、退回處理、除錯技巧
   - `references/wp-project-architecture.md` — DDD 架構、專案結構、新增檔案原則
-- `/zenbu-powers:wordpress-standards` — WordPress 規範統一入口；開發場景載入 `references/coding-standards.md`（視需求加載 `coding-hooks.md` / `coding-woocommerce.md` / `coding-rest-api.md` / `coding-advanced.md`）
-- `/zenbu-powers:wordpress-router` — WordPress 專案類型分類與路由
-- `/zenbu-powers:wp-project-triage` — 專案類型偵測與報告
+- `/wordpress-standards` — WordPress 規範統一入口；開發場景載入 `references/coding-standards.md`（視需求加載 `coding-hooks.md` / `coding-woocommerce.md` / `coding-rest-api.md` / `coding-advanced.md`）
+- `/wordpress-router` — WordPress 專案類型分類與路由
+- `/wp-project-triage` — 專案類型偵測與報告
 - `/zenbu-powers:git-commit` — Git Commit 流程
 
 ### 動態載入 Skills（依任務需要自行 Read，不在 frontmatter 強制注入）
@@ -84,7 +84,7 @@ skills:
 - `/zenbu-powers:wp-abilities-api` — WordPress Abilities API
 - `/zenbu-powers:wp-interactivity-api` — Interactivity API 互動功能
 - `/zenbu-powers:wp-performance` — 效能分析與優化
-- `/zenbu-powers:wp-phpstan` — PHPStan 靜態分析
+- `/wp-phpstan` — PHPStan 靜態分析
 - `/zenbu-powers:wp-playground` — WordPress Playground 快速測試
 - `/zenbu-powers:wp-wpcli-and-ops` — WP-CLI 操作與自動化
 - `/zenbu-powers:wpds` — WordPress Design System
@@ -96,5 +96,5 @@ skills:
 ## 交接協議（WHERE NEXT）
 
 - **開發完成** → 撰寫測試 → 通過所有測試 → 跑 Quality Gate（phpcs / phpstan / phpunit）→ 回報主窗口
-  - **不**自動派 `@zenbu-powers:wordpress-reviewer`；reviewer 為 opt-in，僅在用戶顯式喚醒時上場做深度 code review / 安全審查
+  - **不**自動派 `@wordpress-reviewer`；reviewer 為 opt-in，僅在用戶顯式喚醒時上場做深度 code review / 安全審查
 - **TDD 模式** → 從 `@zenbu-powers:tdd-coordinator` 接收任務 → 實作讓測試通過 → 不得刪除/修改測試檔案
