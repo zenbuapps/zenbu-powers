@@ -1,0 +1,708 @@
+# Offline API (v4, v2.4, v2)
+
+Source:
+- `https://developers-pay.line.me/offline-api-v4` and its 7 endpoint pages
+- `https://developers-pay.line.me/offline-api-v2_4` (legacy)
+- `https://developers-pay.line.me/offline-api-v2` (legacy)
+
+The LINE Pay Offline API processes **offline payments** at a physical merchant
+terminal. The flow this API covers: the **customer presents their My Code**
+(QR/barcode generated in the LINE app), the **merchant terminal scans it**, and
+the merchant server requests payment with the scanned `oneTimeKey`. (The reverse
+flow — customer scans a merchant-displayed code — needs no merchant
+implementation and is not covered by this API.)
+
+Host: `api-pay.line.me` (production) or `sandbox-api-pay.line.me` (sandbox).
+
+**Auth differs by version**:
+- **Offline API v4** — HMAC signing (`X-LINE-Authorization`), identical to
+  Online API v3/v4.
+- **Offline API v2 and v2.4** — plain `X-LINE-ChannelId` + `X-LINE-ChannelSecret`
+  headers, plus a server IP allowlist.
+
+See `references/common-and-auth.md`. All endpoints below are **v4**; the v2.4
+and v2 differences are noted at the end.
+
+In every parameter table: indentation = object nesting; the last column is the
+Required (request) / Included (response) flag.
+
+## Table of contents
+
+1. Request payment — `POST /v4/payments/oneTimeKeys/pay`
+2. Check payment status — `GET /v4/payments/orders/{orderId}/check`
+3. Retrieve confirmation information — `GET /v4/payments/authorizations`
+4. Capture — `POST /v4/payments/orders/{orderId}/capture`
+5. Void — `POST /v4/payments/orders/{orderId}/void`
+6. Retrieve payment details — `GET /v4/payments`
+7. Refund — `POST /v4/payments/orders/{orderId}/refund`
+8. Offline API v2.4 / v2 differences
+
+> Offline endpoints are addressed by **`orderId`** (the merchant-generated
+> order ID), not by `transactionId` as on the Online API. URL-encode the
+> `orderId` when placing it in a path.
+
+---
+
+## 1. Request payment
+
+`POST /v4/payments/oneTimeKeys/pay`
+
+Requests a payment using the customer's My Code (`oneTimeKey`) scanned by the
+merchant terminal, the product details, and merchant information. If processed
+successfully, the payment is completed. If confirmation and capture are
+separated, this call alone doesn't complete the payment — capture or void
+afterward. A `transactionId` is returned (used for void/capture/refund). If a
+read timeout occurs, call **Check payment status** to obtain the result and
+transaction ID. Set the read timeout to **at least 40 seconds**.
+
+> When the payment completes, verify that the total `info.payInfo[].amount`
+> matches the requested amount; if mismatched, request a refund.
+
+**Path / Query**: None.
+
+### Request body
+
+| Name | Type | Length | Description | Required |
+|---|---|---|---|---|
+| `amount` | number | | Payment amount. | REQUIRED |
+| `currency` | string | 3 | Payment currency code (ISO 4217): `"USD"`, `"TWD"`, `"THB"`. | REQUIRED |
+| `oneTimeKey` | string | 18 (TW), 12 (TH and Global) | The customer's My Code, obtained when the merchant terminal scans it. Valid for **5 minutes** from generation. | REQUIRED |
+| `options` | object | | Payment request settings. | - |
+| &nbsp;&nbsp;`options.extra` | object | | Additional payment information. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`options.extra.branchId` | string | 32 | ID of the merchant branch requesting payment. Truncated to max length if exceeded. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`options.extra.branchName` | string | 200 | Name of the merchant branch. Truncated to max length if exceeded. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`options.extra.events[]` | object array | | Promotion event information; enter when the transaction meets promotion conditions set up with LINE Pay. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...events[].code` | string | 30 | Promotion event code — identifies which promotion to apply. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...events[].productQuantity` | number | | Quantity for a fixed-amount rebate promotion. If set, `...events[].totalAmount` must be `null`. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...events[].totalAmount` | number | | Amount for a fixed-rate rebate promotion. If set, `...events[].productQuantity` must be `null`. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`options.extra.promotionRestriction` | object | | Promotion restriction info — price for products where promotions cannot apply due to law/regulation. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...promotionRestriction.rewardLimit` | number | | Price when promotion can't be applied. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...promotionRestriction.useLimit` | number | | Price not allowed for discount or points redemption. | - |
+| &nbsp;&nbsp;`options.payment` | object | | Payment settings. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`options.payment.capture` | boolean | | Whether to capture automatically. Default `true`. `true`: confirm + capture together. `false`: separate them. | - |
+| `orderId` | string | 100 | Order ID generated by the merchant. | REQUIRED |
+| `packages[]` | object array | | Product package information classified by delivery/store unit. | REQUIRED |
+| &nbsp;&nbsp;`packages[].amount` | number | | Total purchase amount of the package = sum of (`products[].price` × `products[].quantity`). | REQUIRED |
+| &nbsp;&nbsp;`packages[].id` | string | 50 | Product package ID. | REQUIRED |
+| &nbsp;&nbsp;`packages[].name` | string | 100 | Package / shipment-merchant name. | - |
+| &nbsp;&nbsp;`packages[].products[]` | object array | | Products in the package. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`packages[].products[].id` | string | 50 | Product ID. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`packages[].products[].imageUrl` | string | 500 | Product image URL. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`packages[].products[].name` | string | 4000 | Product name. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`packages[].products[].originalPrice` | number | | Original product price. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`packages[].products[].price` | number | | Product price. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`packages[].products[].quantity` | number | | Purchased quantity. | REQUIRED |
+
+### Response body
+
+| Name | Type | Description | Included |
+|---|---|---|---|
+| `info` | Object | Result information. | - |
+| &nbsp;&nbsp;`info.authorizationExpireDate` | String | Authentication expiration date-time (ISO 8601). Included when confirmation and capture are separated. | - |
+| &nbsp;&nbsp;`info.merchantReference` | Object | Membership info — E-invoicing / affiliate card info for an affiliated transaction. **TW only**; requires contacting LINE Pay. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.merchantReference.affiliateCards[]` | Object array | E-invoice or affiliate card information. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...affiliateCards[].cardId` | String | E-invoice code or affiliate card ID. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...affiliateCards[].cardType` | String | Affiliate type. `"MOBILE_CARRIER"` → `cardId` is the E-invoice code; otherwise a merchant-defined type. | REQUIRED |
+| &nbsp;&nbsp;`info.orderId` | String | Order ID entered during the payment request. | - |
+| &nbsp;&nbsp;`info.payInfo[]` | Object | Payment information. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].amount` | Number | Payment amount. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].maskedCreditCardNumber` | String | Masked credit card number (e.g. `"**** **** **** 1234"`). **TW only**, by separate application. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].method` | String | `"BALANCE"` / `"CREDIT_CARD"` / `"POINT"`. | REQUIRED |
+| &nbsp;&nbsp;`info.paymentProvider` | String | `"TSP"` / `"EPI"`; `null` ⇒ TSP. | REQUIRED |
+| &nbsp;&nbsp;`info.transactionDate` | String | Transaction date-time (ISO 8601). | - |
+| &nbsp;&nbsp;`info.transactionId` | Number | Payment transaction ID. | REQUIRED |
+| `returnCode` | String | Result code. `"0000"` on success. | REQUIRED |
+| `returnMessage` | String | Result message. | REQUIRED |
+
+### Request example
+
+```
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -H "X-LINE-ChannelId: YOUR_CHANNEL_ID" \
+     -H "X-LINE-Authorization-Nonce: GENERATED_NONCE" \
+     -H "X-LINE-Authorization: PROCESSED_SIGNATURE" \
+     -H "X-LINE-MerchantDeviceProfileId: YOUR_DEVICE_PROFILE_ID" \
+     -d '{
+          "amount": 100,
+          "orderId": merchant_test_order_1,
+          "oneTimeKey": "12345678901245678",
+          "currency": "TWD",
+          "options":{
+              "extra":
+              {
+                  "branchId": "branch1"
+                  "branchName": "test_branch_1",
+              }
+          },
+          "packages":
+          [
+              {
+                  "id": "29d2397-357f-3446-58315",
+                  "amount": 100,
+                  "products":
+                  [
+                      {
+                          "name": "test product",
+                          "quantity": 1,
+                          "price": 100
+                      }
+                  ],
+              }
+          ]
+        }' \
+      https://sandbox-api-pay.line.me/v4/payments/oneTimeKeys/pay
+```
+
+### Response example
+
+```json
+{
+  "returnCode": "0000",
+  "returnMessage": "success",
+  "info": {
+    "transactionId": 2019010112345678910,
+    "orderId": "test_order_1",
+    "transactionDate": "2019-01-01T01:01:00Z",
+    "payInfo": [
+      { "method": "CREDIT_CARD", "amount": 10 },
+      { "method": "POINT", "amount": 5 }
+    ],
+    "paymentProvider": "TSP"
+  }
+}
+```
+
+---
+
+## 2. Check payment status
+
+`GET /v4/payments/orders/{orderId}/check`
+
+Checks the payment status — call this when a payment-request read timeout
+occurred and no response was received. Set the read timeout to **at least 20
+seconds**.
+
+**Path**: `orderId` (REQUIRED, length 100) — order ID; **URL-encode it**.
+**Query / Body**: None.
+
+### Response body
+
+| Name | Type | Description | Included |
+|---|---|---|---|
+| `info` | Object | Result information. | - |
+| &nbsp;&nbsp;`info.authorizationExpireDate` | String | Authentication expiration date-time (ISO 8601). Included when confirmation and capture are separated and `info.status` is `"COMPLETE"`. | - |
+| &nbsp;&nbsp;`info.failReturnCode` | String | Error code of the retrieved transaction. Returned when `info.status` is `"FAIL"`. | - |
+| &nbsp;&nbsp;`info.failReturnMessage` | String | Error message of the retrieved transaction. Returned when `info.status` is `"FAIL"`. | - |
+| &nbsp;&nbsp;`info.merchantReference` | Object | Membership info — E-invoicing / affiliate card info. **TW only**; requires contacting LINE Pay. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.merchantReference.affiliateCards[]` | Object array | E-invoice or affiliate card information. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...affiliateCards[].cardId` | String | E-invoice code or affiliate card ID. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...affiliateCards[].cardType` | String | Affiliate type (`"MOBILE_CARRIER"` etc.). | REQUIRED |
+| &nbsp;&nbsp;`info.orderId` | String | Order ID. Included when `info.status` is `"COMPLETE"` or `"AUTH_READY"`. | - |
+| &nbsp;&nbsp;`info.payInfo[]` | Object | Payment information. Returned when `info.status` is `"COMPLETE"`. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].amount` | Number | Payment amount. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].method` | String | `"BALANCE"` / `"CREDIT_CARD"` / `"POINT"`. | REQUIRED |
+| &nbsp;&nbsp;`info.paymentProvider` | String | `"TSP"` / `"EPI"`; `null` ⇒ TSP. | REQUIRED |
+| &nbsp;&nbsp;`info.status` | String | Payment status. `"AUTH_READY"`: waiting for the customer to complete LINE Pay authentication. `"CANCEL"`: canceled by the customer. `"COMPLETE"`: completed. `"FAIL"`: failed. | REQUIRED |
+| &nbsp;&nbsp;`info.transactionDate` | String | Transaction date-time (ISO 8601). Included when `info.status` is `"COMPLETE"`. | - |
+| &nbsp;&nbsp;`info.transactionId` | Number | Payment transaction ID. | - |
+| `returnCode` | String | Result code. `"0000"` on success. | REQUIRED |
+| `returnMessage` | String | Result message. | REQUIRED |
+
+### Request example
+
+```
+curl -X GET \
+     -H "Content-Type: application/json" \
+     -H "X-LINE-ChannelId: YOUR_CHANNEL_ID" \
+     -H "X-LINE-Authorization-Nonce: GENERATED_NONCE" \
+     -H "X-LINE-Authorization: PROCESSED_SIGNATURE" \
+     -H "X-LINE-MerchantDeviceProfileId: YOUR_DEVICE_PROFILE_ID" \
+     https://sandbox-api-pay.line.me/v4/payments/orders/merchant_test_order_1/check
+```
+
+### Response example
+
+```json
+{
+  "returnCode": "0000",
+  "returnMessage": "success",
+  "info": {
+    "status": "COMPLETE",
+    "transactionId": 2019010112345678910,
+    "orderId": "test_order_1",
+    "transactionDate": "2019-01-01T01:01:00Z",
+    "payInfo": [
+      { "method": "CREDIT_CARD", "amount": 10 },
+      { "method": "POINT", "amount": 5 }
+    ],
+    "paymentProvider": "TSP"
+  }
+}
+```
+
+---
+
+## 3. Retrieve confirmation information
+
+`GET /v4/payments/authorizations`
+
+Retrieves details of payments **confirmed or voided** while confirmation and
+capture are separated. (To view captured or refunded payments, use **Retrieve
+payment details**.) Set the read timeout to **at least 20 seconds**.
+
+**Path / Body**: None.
+
+### Query parameters
+
+| Name | Length | Description | Required |
+|---|---|---|---|
+| `orderId` | 100 | Order ID. | - |
+| `transactionId` | | Payment transaction ID. | - |
+
+(Supply either `orderId` or `transactionId`.)
+
+### Response body
+
+`info` is returned as an **array** of confirmation objects.
+
+| Name | Type | Description | Included |
+|---|---|---|---|
+| `info` | Object | Result information (array of objects). | - |
+| &nbsp;&nbsp;`info.authorizationExpireDate` | String | Authentication expiration date-time (ISO 8601). | - |
+| &nbsp;&nbsp;`info.currency` | String | Payment currency code (ISO 4217): `"USD"` / `"TWD"` / `"THB"`. | REQUIRED |
+| &nbsp;&nbsp;`info.payInfo[]` | Object | Payment information. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].amount` | Number | Payment amount. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].method` | String | `"BALANCE"` / `"CREDIT_CARD"` / `"POINT"`. | - |
+| &nbsp;&nbsp;`info.payStatus` | String | Payment status. `"AUTHORIZATION"`: confirmed. `"CAPTURE"`: captured. `"EXPIRED_AUTHORIZATION"`: confirmation expired. `"VOIDED_AUTHORIZATION"`: confirmation voided. | REQUIRED |
+| &nbsp;&nbsp;`info.paymentProvider` | String | `"TSP"` / `"EPI"`; `null` ⇒ TSP. | REQUIRED |
+| &nbsp;&nbsp;`info.productName` | String | Product name. | REQUIRED |
+| &nbsp;&nbsp;`info.transactionDate` | String | Transaction date-time (ISO 8601). | REQUIRED |
+| &nbsp;&nbsp;`info.transactionId` | Number | Payment transaction ID. | REQUIRED |
+| &nbsp;&nbsp;`info.transactionType` | String | `"PAYMENT"` / `"PAYMENT_REFUND"` (full) / `"PARTIAL_REFUND"`. | - |
+| `returnCode` | String | Result code. `"0000"` on success. | REQUIRED |
+| `returnMessage` | String | Result message. | REQUIRED |
+
+### Request example
+
+```
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -H "X-LINE-ChannelId: YOUR_CHANNEL_ID" \
+     -H "X-LINE-Authorization-Nonce: GENERATED_NONCE" \
+     -H "X-LINE-Authorization: PROCESSED_SIGNATURE" \
+     -H "X-LINE-MerchantDeviceProfileId: YOUR_DEVICE_PROFILE_ID" \
+      https://sandbox-api-pay.line.me/v4/payments/authorizations?orderId=merchant_test_order_1
+```
+
+### Response example
+
+```json
+{
+  "returnCode": "0000",
+  "returnMessage": "success",
+  "info": [
+    {
+      "transactionId": 2019049910005498410,
+      "transactionDate": "2019-04-08T07:02:38Z",
+      "transactionType": "PAYMENT",
+      "productName": "test product",
+      "currency": "TWD",
+      "paymentProvider": "TSP",
+      "authorizationExpireDate": "2019-04-13T07:02:38Z",
+      "payInfo": [
+        { "method": "CREDIT_CARD", "amount": 100 }
+      ],
+      "orderId": "20190408003",
+      "payStatus": "VOIDED_AUTHORIZATION"
+    }
+  ]
+}
+```
+
+---
+
+## 4. Capture
+
+`POST /v4/payments/orders/{orderId}/capture`
+
+Captures the payment when confirmation and capture are separated and a payment
+request has been made. Set the read timeout to **at least 20 seconds**.
+
+> The captured amount may differ from the requested amount. A capture less than
+> the payment amount is a **partial capture** — the uncaptured remainder is
+> partially canceled. You cannot capture more than the requested amount. After
+> capture the payment cannot be voided — only refunded.
+
+**Path**: `orderId` (REQUIRED, length 100) — **URL-encode it**.
+**Query**: None.
+
+### Request body
+
+| Name | Type | Length | Description | Required |
+|---|---|---|---|---|
+| `amount` | number | | Payment amount. | REQUIRED |
+| `currency` | string | 3 | Payment currency code (ISO 4217): `"USD"`, `"TWD"`, `"THB"`. | REQUIRED |
+| `promotionRestriction` | object | | Promotion restriction info — price for products where promotions cannot apply due to law/regulation. | - |
+| &nbsp;&nbsp;`promotionRestriction.rewardLimit` | number | | Price when promotion can't be applied. | - |
+| &nbsp;&nbsp;`promotionRestriction.useLimit` | number | | Price not allowed for discount or points redemption. | - |
+
+### Response body
+
+| Name | Type | Description | Included |
+|---|---|---|---|
+| `info` | Object | Result information. | - |
+| &nbsp;&nbsp;`info.orderId` | String | Order ID entered during the payment request. | - |
+| &nbsp;&nbsp;`info.payInfo[]` | Object | Payment information. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].amount` | Number | Payment amount. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].method` | String | `"BALANCE"` / `"CREDIT_CARD"` / `"POINT"`. | - |
+| &nbsp;&nbsp;`info.paymentProvider` | String | `"TSP"` / `"EPI"`; `null` ⇒ TSP. | REQUIRED |
+| &nbsp;&nbsp;`info.transactionId` | String | Payment transaction ID. | REQUIRED |
+| `returnCode` | String | Result code. `0000` on success. If `1199` or `1280`–`1298` is returned, the payment is automatically canceled. | REQUIRED |
+| `returnMessage` | String | Result message. | REQUIRED |
+
+### Request example
+
+```
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -H "X-LINE-ChannelId: YOUR_CHANNEL_ID" \
+     -H "X-LINE-Authorization-Nonce: GENERATED_NONCE" \
+     -H "X-LINE-Authorization: PROCESSED_SIGNATURE" \
+     -H "X-LINE-MerchantDeviceProfileId: YOUR_DEVICE_PROFILE_ID" \
+     -d '{
+          "amount": 100,
+          "currency": "TWD"
+          }' \
+      https://sandbox-api-pay.line.me/v4/payments/orders/merchant_test_order_1/capture
+```
+
+### Response example
+
+```json
+{
+  "returnCode": "0000",
+  "returnMessage": "success",
+  "info": {
+    "transactionId": 2019010112345678910,
+    "orderId": "test_order_1",
+    "transactionDate": "2019-01-01T01:01:00Z",
+    "payInfo": [
+      { "method": "CREDIT_CARD", "amount": 95 },
+      { "method": "POINT", "amount": 5 }
+    ],
+    "paymentProvider": "TSP"
+  }
+}
+```
+
+---
+
+## 5. Void
+
+`POST /v4/payments/orders/{orderId}/void`
+
+Voids a confirmed payment when confirmation and capture are separated. **After
+capture the payment cannot be voided — process a refund instead.** Set the read
+timeout to **at least 20 seconds**.
+
+**Path**: `orderId` (REQUIRED, length 100) — **URL-encode it**.
+**Query / Body**: None.
+
+### Response body
+
+| Name | Type | Description | Included |
+|---|---|---|---|
+| `returnCode` | String | Result code. `"0000"` on success. | REQUIRED |
+| `returnMessage` | String | Result message. | REQUIRED |
+
+### Request example
+
+```
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -H "X-LINE-ChannelId: YOUR_CHANNEL_ID" \
+     -H "X-LINE-Authorization-Nonce: GENERATED_NONCE" \
+     -H "X-LINE-Authorization: PROCESSED_SIGNATURE" \
+     -H "X-LINE-MerchantDeviceProfileId: YOUR_DEVICE_PROFILE_ID" \
+     https://sandbox-api-pay.line.me/v4/payments/orders/merchant_test_order_1/void
+```
+
+### Response example
+
+```json
+{ "returnCode": "0000", "returnMessage": "success" }
+```
+
+---
+
+## 6. Retrieve payment details
+
+`GET /v4/payments`
+
+Retrieves details of confirmed or captured payments. Set the read timeout to
+**at least 20 seconds**.
+
+**Path / Body**: None.
+
+### Query parameters
+
+| Name | Length | Description | Required |
+|---|---|---|---|
+| `orderId` | 100 | Order ID. | - |
+| `transactionId` | | Payment transaction ID. | - |
+
+(Supply at least one.)
+
+### Response body
+
+| Name | Type | Description | Included |
+|---|---|---|---|
+| `info` | Object | Result information (array of objects). | - |
+| &nbsp;&nbsp;`info.currency` | String | Payment currency code (ISO 4217): `"USD"` / `"TWD"` / `"THB"`. | REQUIRED |
+| &nbsp;&nbsp;`info.merchantReference` | Object | Membership info — E-invoicing / affiliate card info. **TW only**; requires contacting LINE Pay. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.merchantReference.affiliateCards[]` | Object array | E-invoice or affiliate card information. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...affiliateCards[].cardId` | String | E-invoice code or affiliate card ID. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`...affiliateCards[].cardType` | String | Affiliate type (`"MOBILE_CARRIER"` etc.). | REQUIRED |
+| &nbsp;&nbsp;`info.originalTransactionId` | Number | Original payment transaction ID. | - |
+| &nbsp;&nbsp;`info.payInfo[]` | Object | Payment information. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].amount` | Number | Payment amount. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.payInfo[].method` | String | `"BALANCE"` / `"CREDIT_CARD"` / `"POINT"`. | - |
+| &nbsp;&nbsp;`info.paymentProvider` | String | `"TSP"` / `"EPI"`; `null` ⇒ TSP. | REQUIRED |
+| &nbsp;&nbsp;`info.productName` | String | Product name. | REQUIRED |
+| &nbsp;&nbsp;`info.refundList[]` | Object array | Refund info — returned when there is a refund history. | - |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.refundList[].refundAmount` | Number | Refund amount. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.refundList[].refundTransactionDate` | String | Refund date-time (ISO 8601). | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.refundList[].refundTransactionId` | Number | Refund payment transaction ID. | REQUIRED |
+| &nbsp;&nbsp;&nbsp;&nbsp;`info.refundList[].transactionType` | String | `"PARTIAL_REFUND"` / `"PAYMENT_REFUND"` (full). | REQUIRED |
+| &nbsp;&nbsp;`info.transactionDate` | String | Transaction date-time (ISO 8601). | REQUIRED |
+| &nbsp;&nbsp;`info.transactionId` | Number | Payment transaction ID. | REQUIRED |
+| &nbsp;&nbsp;`info.transactionType` | String | `"PAYMENT"` / `"PAYMENT_REFUND"` (full) / `"PARTIAL_REFUND"`. | - |
+| `returnCode` | String | Result code. `"0000"` on success. | REQUIRED |
+| `returnMessage` | String | Result message. | REQUIRED |
+
+### Request example
+
+```
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -H "X-LINE-ChannelId: YOUR_CHANNEL_ID" \
+     -H "X-LINE-Authorization-Nonce: GENERATED_NONCE" \
+     -H "X-LINE-Authorization: PROCESSED_SIGNATURE" \
+     -H "X-LINE-MerchantDeviceProfileId: YOUR_DEVICE_PROFILE_ID" \
+      https://sandbox-api-pay.line.me/v4/payments?orderId=20190408001
+```
+
+### Response example
+
+```json
+{
+  "returnCode": "0000",
+  "returnMessage": "success",
+  "info": [
+    {
+      "transactionId": 2019049910005496810,
+      "transactionDate": "2019-04-08T06:31:19Z",
+      "transactionType": "PAYMENT",
+      "productName": "test product",
+      "currency": "TWD",
+      "paymentProvider": "TSP",
+      "payInfo": [
+        { "method": "CREDIT_CARD", "amount": 100 }
+      ],
+      "refundList": [
+        { "refundTransactionId": 2019049910005497012, "transactionType": "PARTIAL_REFUND", "refundAmount": -1, "refundTransactionDate": "2019-04-08T06:33:17Z" }
+      ],
+      "orderId": "20190408001"
+    }
+  ]
+}
+```
+
+---
+
+## 7. Refund
+
+`POST /v4/payments/orders/{orderId}/refund`
+
+Refunds payments that were requested or captured. Set the read timeout to **at
+least 20 seconds**.
+
+**Path**: `orderId` (REQUIRED, length 100) — **URL-encode it**.
+**Query**: None.
+
+### Request body
+
+| Name | Type | Description | Required |
+|---|---|---|---|
+| `refundAmount` | number | Refund amount. Specify for a partial refund. **Omit to refund the full paid amount.** | - |
+| `promotionRestriction` | object | Promotion restriction info — price for products where promotions cannot apply due to law/regulation. If specified, **partial refunds are not supported** and the full amount is refunded. | - |
+| &nbsp;&nbsp;`promotionRestriction.rewardLimit` | number | Price when promotion can't be applied. | - |
+| &nbsp;&nbsp;`promotionRestriction.useLimit` | number | Price not allowed for discount or points redemption. | - |
+
+### Response body
+
+| Name | Type | Length | Description | Included |
+|---|---|---|---|---|
+| `info` | Object | | Result information. | - |
+| &nbsp;&nbsp;`info.refundTransactionDate` | String | 20 | Refund date-time (ISO 8601). | REQUIRED |
+| &nbsp;&nbsp;`info.refundTransactionId` | Number | | Refund payment transaction ID. | REQUIRED |
+| `returnCode` | String | 4 | Result code. `0000` on success. A partial refund on a transaction involving coupons or fees may return `1115` — process it as a full refund instead. | REQUIRED |
+| `returnMessage` | String | | Result message. | REQUIRED |
+
+### Request example
+
+```
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -H "X-LINE-ChannelId: YOUR_CHANNEL_ID" \
+     -H "X-LINE-Authorization-Nonce: GENERATED_NONCE" \
+     -H "X-LINE-Authorization: PROCESSED_SIGNATURE" \
+     -H "X-LINE-MerchantDeviceProfileId: YOUR_DEVICE_PROFILE_ID" \
+     -d '{ "refundAmount": 100 }' \
+      https://sandbox-api-pay.line.me/v4/payments/orders/merchant_test_order_1/refund
+```
+
+### Response example
+
+```json
+{
+  "returnCode": "0000",
+  "returnMessage": "success",
+  "info": {
+    "refundTransactionId": 2018082512345678911,
+    "refundTransactionDate": "2018-08-25T09:15:01Z"
+  }
+}
+```
+
+---
+
+## 8. Offline API v2.4 / v2 differences
+
+Both legacy Offline versions have the **same 7 endpoints** as v4 with the same
+endpoint names, the same path/query parameters, the same response-body shape on
+most endpoints, and the same result-code semantics. All 16 legacy pages (each
+overview + 7 endpoints) were crawled. But the **request body of Request payment
+and Capture has a different shape** from v4 — do not copy v4 request bodies onto
+a v2.4/v2 endpoint.
+
+### Shared v2.4 + v2 differences from v4
+
+- **Authentication is the `X-LINE-ChannelSecret` header scheme — no HMAC
+  signing.** Required request headers: `Content-Type`, `X-LINE-ChannelId`,
+  `X-LINE-ChannelSecret`; optional `X-LINE-MerchantDeviceProfileId`,
+  `X-LINE-MerchantDeviceType`. There is no `X-LINE-Authorization` /
+  `X-LINE-Authorization-Nonce`. See `references/common-and-auth.md`.
+- **The server IP allowlist is required** (`Developer Tools > Manage Payment
+  Server IP` in the merchant center). Sandbox merchants are exempt. Offline v4
+  removed this requirement.
+- **Request payment uses a flat body, not v4's nested `options` + `packages[]`:**
+  - `amount` (number, REQUIRED).
+  - `currency` (string, 3, REQUIRED) — `"USD"` / `"TWD"` / `"THB"`.
+  - `oneTimeKey` (string, 18 TW / 12 TH and Global, REQUIRED) — the customer's
+    My Code, valid 5 minutes.
+  - `orderId` (string, 100, REQUIRED).
+  - `productName` (string, 4000, **REQUIRED**) — a top-level field. (v4 has no
+    `productName` on its oneTimeKey request; v4 instead carries `packages[]`.)
+  - `capture` (boolean) — auto-capture flag, default `true`. Top-level, not
+    under `options.payment`.
+  - `extras` (object) — additional payment info (note the name `extras`, not
+    v4's `options.extra`):
+    - `extras.branchId` (string, 32), `extras.branchName` (string, 200).
+    - `extras.events[]` (object array) — promotion events; each has `code`
+      (string, 30), `productQuantity` (number), `totalAmount` (number).
+    - `extras.promotionRestriction` (object) — `rewardLimit` (number),
+      `useLimit` (number).
+  - There is **no `packages[]` / `products[]`** on the v2.4/v2 Request payment.
+- **Capture uses `extras.promotionRestriction`** — the promotion-restriction
+  object is nested under `extras` (`extras.promotionRestriction.rewardLimit` /
+  `.useLimit`), whereas v4 Capture takes a top-level `promotionRestriction`.
+- Refund request body matches v4 (`refundAmount`, plus a top-level
+  `promotionRestriction` object). Void, Retrieve confirmation information, and
+  Retrieve payment details take the same path/query parameters as v4.
+
+### Offline API v2.4 only (`https://developers-pay.line.me/offline-api-v2_4`)
+
+- **Path prefix is `/v2.4/`** — `POST /v2.4/payments/oneTimeKeys/pay`,
+  `GET /v2.4/payments/orders/{orderId}/check`,
+  `GET /v2.4/payments/authorizations`,
+  `POST /v2.4/payments/orders/{orderId}/capture`,
+  `POST /v2.4/payments/orders/{orderId}/void`, `GET /v2.4/payments`,
+  `POST /v2.4/payments/orders/{orderId}/refund`.
+- v2.4 is `v2` **plus the EPI changes** — it **has the `info.paymentProvider`**
+  (`"TSP"` / `"EPI"`) field on Request payment, Check payment status, Retrieve
+  confirmation information, and Retrieve payment details (response). Capture's
+  response does not include it. Use v2.4 to get the EPI fields without switching
+  the auth method.
+- v2.4 has **no `info.balance` field** (that field is v2-only — see below).
+- v2.4 `extras` does **not** have `addFriends[]` (that is v2-only).
+
+### Offline API v2 only (`https://developers-pay.line.me/offline-api-v2`)
+
+- **Path prefix is `/v2/`** — `POST /v2/payments/oneTimeKeys/pay`,
+  `GET /v2/payments/orders/{orderId}/check`, `GET /v2/payments/authorizations`,
+  `POST /v2/payments/orders/{orderId}/capture`,
+  `POST /v2/payments/orders/{orderId}/void`, `GET /v2/payments`,
+  `POST /v2/payments/orders/{orderId}/refund`.
+- v2 has **no `paymentProvider` field anywhere** — it predates the EPI changes.
+- v2 has an extra **`info.balance`** field (Number — LINE Pay balance after
+  payment) in the **Request payment** response and in the **Check payment
+  status** response (the latter returned when `info.status` is `"COMPLETE"`).
+  Neither v4 nor v2.4 returns `info.balance`.
+- v2 Request payment has an extra **`extras.addFriends[]`** request object —
+  LINE Family add-friends settings, with `extras.addFriends[].idList[]` (string
+  array of friend / official-account IDs) and `extras.addFriends[].type`
+  (string; only `"lineAt"` / `"LINE_AT"` official-account type supported). This
+  is v2's equivalent of Online v3's `options.familyService`. Neither v4 nor
+  v2.4 has it.
+
+### v2 Request payment example (note the flat body)
+
+```
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -H "X-LINE-ChannelId: YOUR_CHANNEL_ID" \
+     -H "X-LINE-ChannelSecret: YOUR_CHANNEL_SECRET" \
+     -H "X-LINE-MerchantDeviceProfileId: YOUR_DEVICE_PROFILE_ID" \
+     -d '{
+          "productName": "test product",
+          "amount": 100,
+          "currency": "THB",
+          "orderId": "merchant_test_order_1",
+          "oneTimeKey": "123456789012",
+          "extras": {
+            "addFriends": [
+              { "type": "LINE_AT", "idList": ["@aaa"] }
+            ],
+            "branchName": "test_branch_1",
+            "branchId": "branch1"
+          }
+        }' \
+      https://sandbox-api-pay.line.me/v2/payments/oneTimeKeys/pay
+```
+
+v2 Request payment response (note `info.balance`):
+
+```json
+{
+  "returnCode": "0000",
+  "returnMessage": "success",
+  "info": {
+    "transactionId": 2019010112345678910,
+    "orderId": "test_order_1",
+    "transactionDate": "2019-01-01T01:01:00Z",
+    "payInfo": [
+      { "method": "BALANCE", "amount": 15 }
+    ],
+    "balance": 9900
+  }
+}
+```
+
+All three Offline versions are current and supported. New integrations should
+use v4; v2.4/v2 remain for existing merchants. Migrating v2 → v4 requires
+changing the auth method (header → HMAC) **and** restructuring the Request
+payment body (flat `extras` → nested `options` + `packages[]`); migrating
+v2 → v2.4 keeps both the auth method and the flat body and only adds the EPI
+`paymentProvider` field.
