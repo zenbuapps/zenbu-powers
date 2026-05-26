@@ -1,6 +1,6 @@
 {
   "name": "zenbu-powers",
-  "version": "3.19.0",
+  "version": "3.20.0",
   "description": "全棧 Claude Code Plugin：內建 SessionStart hook 注入 orchestrator 心法，搭配完整的 Agent、Skill 與 MCP Server 設定。涵蓋 WordPress（外掛 / 主題 / Gutenberg / WooCommerce / REST API / Interactivity API / 效能優化）、React（Refine / Ant Design / TanStack Query）、Node.js / NestJS / TypeORM / Drizzle / Better Auth 後端、AIBDD（Cucumber / Gherkin / TDD）測試流程、Milestone Tracker（專案級任務追蹤管理 + UserPromptSubmit hook 自動注入 STATUS dashboard）。",
   "author": {
     "name": "j7-dev",
