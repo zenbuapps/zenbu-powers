@@ -12,6 +12,9 @@ argument-hint: "[--force] [--dry-run]"
 ## 配對機制
 
 - **library set** — 比對 cwd `package.json` 的 npm 依賴名稱（含 ALIAS 與去版號）
+  - **Monorepo 支援**（turborepo / pnpm workspaces / nx）：除根 `package.json` 外，遞迴掃描 `apps/**/package.json`、`packages/**/package.json`、`src/**/package.json`、`lib/**/package.json`，合併所有子套件依賴
+  - 自動跳過 `node_modules`、`.git`、`dist`、`build`、`.next`、`.turbo`、`coverage`、`.cache`、`out` 與 dotfile 目錄
+  - 遞迴深度上限 6 層；任一 `package.json` JSON 無效會印 warning 後跳過該檔，不中止流程
 - **WordPress set** — 比對 cwd 是否為 WordPress 專案。涵蓋 `wordpress` agent-set（wordpress-master / wordpress-reviewer）、6 個 WP skill-set，以及既有 wp-* 參考 set
   - 強訊號（任一即判定）：`composer.json` 含 WP 套件、`*.php` 含 `Plugin Name:`、`style.css` 含 `Theme Name:`、`wp-content/` 目錄、cwd 路徑位於 `wp-content/plugins|themes`
   - 弱訊號（需 ≥2 才判定）：`README.md` / `CLAUDE.md` / `.claude/CLAUDE.md` 內文提及 WordPress

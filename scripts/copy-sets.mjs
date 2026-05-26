@@ -64,21 +64,55 @@ const WP_SETS = new Set([
   'wp-wpcli-and-ops',
 ]);
 
-function loadDeps() {
-  const pkgPath = path.join(cwd, 'package.json');
-  if (!fs.existsSync(pkgPath)) return null;
+// monorepo roots scanned recursively for sub-package.json (turborepo / pnpm workspaces).
+const MONOREPO_ROOTS = ['apps', 'packages', 'src', 'lib'];
+const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', '.next', '.turbo', 'coverage', '.cache', 'out']);
+const MONOREPO_MAX_DEPTH = 6;
+
+function readPkgDeps(pkgPath, into, sources) {
   try {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-    return new Set([
-      ...Object.keys(pkg.dependencies || {}),
-      ...Object.keys(pkg.devDependencies || {}),
-      ...Object.keys(pkg.peerDependencies || {}),
-      ...Object.keys(pkg.optionalDependencies || {}),
-    ]);
+    for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
+      for (const name of Object.keys(pkg[field] || {})) into.add(name);
+    }
+    sources.push(path.relative(cwd, pkgPath) || 'package.json');
+    return true;
   } catch (e) {
-    console.log(`warning: package.json is invalid JSON (${e.message}) — npm-matched sets skipped`);
-    return null;
+    console.log(`warning: invalid JSON at ${path.relative(cwd, pkgPath)} (${e.message}) — skipped`);
+    return false;
   }
+}
+
+function walkForPackageJson(dir, into, sources, depth = 0) {
+  if (depth > MONOREPO_MAX_DEPTH) return;
+  let entries;
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+  catch { return; }
+  const pkgHere = entries.find((e) => e.isFile() && e.name === 'package.json');
+  if (pkgHere) readPkgDeps(path.join(dir, 'package.json'), into, sources);
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    if (SKIP_DIRS.has(e.name) || e.name.startsWith('.')) continue;
+    walkForPackageJson(path.join(dir, e.name), into, sources, depth + 1);
+  }
+}
+
+function loadDeps() {
+  const into = new Set();
+  const sources = [];
+  const rootPkg = path.join(cwd, 'package.json');
+  const rootExists = fs.existsSync(rootPkg);
+  if (rootExists) readPkgDeps(rootPkg, into, sources);
+
+  for (const root of MONOREPO_ROOTS) {
+    const dir = path.join(cwd, root);
+    if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+      walkForPackageJson(dir, into, sources);
+    }
+  }
+
+  if (sources.length === 0) return { deps: null, sources };
+  return { deps: into, sources };
 }
 
 // --- WordPress project detection -------------------------------------------
@@ -249,13 +283,19 @@ function processKind(label, sourceDir, targetDir, deps, isWp) {
   console.log('');
 }
 
-const deps = loadDeps() ?? new Set();
+const { deps: loadedDeps, sources: depSources } = loadDeps();
+const deps = loadedDeps ?? new Set();
 const { isWp, signals } = isWordPressProject();
 
 console.log(`plugin root: ${pluginRoot}`);
 console.log(`cwd: ${cwd}`);
 console.log(`mode: ${DRY ? 'DRY-RUN' : (FORCE ? 'FORCE' : 'NORMAL')}`);
-console.log(`npm deps: ${deps.size} package(s)`);
+console.log(`npm deps: ${deps.size} package(s) from ${depSources.length} package.json file(s)`);
+if (depSources.length > 1) {
+  const preview = depSources.slice(0, 8).join(', ');
+  const tail = depSources.length > 8 ? `, +${depSources.length - 8} more` : '';
+  console.log(`  monorepo sources: ${preview}${tail}`);
+}
 console.log(`WordPress project: ${isWp ? 'YES' : 'no'}${signals.length ? `  (${signals.join('; ')})` : ''}`);
 console.log('');
 
