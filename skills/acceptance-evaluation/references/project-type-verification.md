@@ -26,25 +26,34 @@
 - 或 PHP/Node.js + 對外 HTTP 服務
 - 產出包含 UI 變更、頁面、互動行為
 
-### 首選工具：`playwright-cli` SKILL
+### 首選工具：Claude in Chrome（本機互動式驗收）
+
+**為何 Chrome 優先（第一性原理）**：Chrome 直連用戶**真實** Chrome → 真實 cookie / session / 正在跑的頁面，最貼近現實狀態，直接對齊「零假設、驗真實狀態」精神。playwright 是隔離 headless 環境，需自行重建登入態，離真實一層。故**本機互動式驗收一律 Chrome 優先**，僅 CI / headless / 需隔離可重現時降級 playwright。
+
+```
+1. 先用 ToolSearch 載入 mcp__claude-in-chrome__* 工具 schema（deferred 工具，未載入無法呼叫）
+2. 呼叫 tabs_context_mcp 取得當前分頁，理解用戶正在驗收哪個頁面（禁重用舊 session 的 tab id）
+3. navigate / tabs_create_mcp 到目標頁面
+4. 用 computer / find / form_input 模擬人類操作：點擊、輸入、提交
+5. read_page 截圖 + get_page_text 取整頁文字，斷言元素出現/消失/含特定文字
+6. 對照 testable criteria 逐條驗收
+```
+
+> ⚠️ 勿觸發 alert / confirm / prompt 對話框——會凍結 Chrome extension，後續指令全部失效（見 MCP server instructions）。
+
+### 次選工具：`playwright-cli` SKILL（CI / headless / 隔離可重現）
+
+下列情境改用 playwright-cli：
+- **CI 環境**（GitHub Actions 等）——無 GUI，Claude in Chrome 不可用，**唯一可行方案**
+- **需隔離可重現**——乾淨環境、固定 viewport、無用戶既有狀態干擾
+- **用戶環境未配置 Claude in Chrome**
 
 ```
 1. 載入 /playwright-cli SKILL
 2. 啟動本地 dev server（依 package.json scripts）
-3. 用 playwright-cli 模擬人類操作：
-   - 導航到目標頁面
-   - 模擬點擊、輸入、提交
-   - 斷言畫面元素出現/消失/含特定文字
-   - 截圖記錄關鍵節點
+3. 用 playwright-cli 模擬人類操作：導航、點擊、輸入、提交、斷言元素出現/消失/含特定文字、截圖記錄關鍵節點
 4. 對照 testable criteria 逐條驗收
 ```
-
-### 替代方案：Claude in Chrome
-
-若用戶環境配置了 Claude in Chrome（VS Code extension 或 Browser MCP），可直接讓 Claude 透過 Chrome 操作：
-- 適合「dev server 已在跑、用戶要驗收正在開的頁面」場景
-- 比 playwright-cli 更輕量，不用啟動隔離環境
-- 限制：依賴用戶環境，CI 環境不可用
 
 ### 驗收清單（套用到每條 criterion）
 
@@ -59,17 +68,20 @@
 
 ### WEB 反向訊號掃描清單（強制執行）
 
-每次截圖後**必跑**：
+每次截圖後**必跑**（每項列出 Chrome 首選 / playwright 次選兩套對應手法）：
 
-1. **整頁文字 dump**：用 playwright `page.innerText('body')` 取得整頁文字，**不只截圖**
-2. **grep 反向訊號**（中英文）：
+1. **整頁文字 dump**（**不只截圖**）：Chrome `get_page_text` ／ playwright `page.innerText('body')`
+2. **grep 反向訊號**（中英文，對上一步取得的整頁文字做）：
    - 服務不可用：`尚未啟用 / 未啟用 / 服務暫停 / 維護中 / coming soon / unavailable / disabled / not enabled`
    - 認證失敗：`未授權 / 權限不足 / 請先登入 / unauthorized / forbidden / 401 / 403`
    - 錯誤：`錯誤 / 失敗 / 異常 / error / failed / exception`
    - 警告：`警告 / 注意 / warning / deprecated`
 3. **DOM 屬性掃描**：找所有 `[disabled]`、`[aria-disabled="true"]`、CSS class 含 `error|warning|disabled|unavailable`
+   - Chrome：`find` 定位 ／ `javascript_tool` 跑 `querySelectorAll`　·　playwright：`page.$$eval` / `querySelectorAll`
 4. **Network 掃描**：列出所有 4xx/5xx response，即使是非阻擋性的也要記錄
-5. **Console 掃描**：listen `pageerror` + `console.error` + unhandled promise rejection
+   - Chrome `read_network_requests` ／ playwright network 攔截（`page.on('response')`）
+5. **Console 掃描**：error / unhandled promise rejection
+   - Chrome `read_console_messages`（可用 pattern 過濾）／ playwright listen `pageerror` + `console.error`
 6. **第三方 iframe / 外連頁面**：跳轉到第三方（金流、OAuth）時，**也要對該頁做整頁文字 dump 與 grep**——
    不是「能跳轉」就 PASS，要驗第三方頁面**內容**沒有反向訊號
 
@@ -89,9 +101,10 @@
 - ❌ 不及格：跳轉到金流頁 → 截圖 → PASS
 - ✅ 合格：跳轉 + 第三方頁無反向訊號 + 提交測試卡 + 跳回商家頁 + **查 DB 訂單表** + **查金流商交易紀錄** + **查確認信寄送紀錄**
 
-### CI 環境注意
+### CI 環境注意（Chrome 優先的唯一例外）
 
-CI 中沒有 GUI，必須用 headless mode（playwright-cli 預設支援）。Claude in Chrome 在 CI 不可用。
+CI 中沒有 GUI，Claude in Chrome **不可用** → 此時**降級**為 playwright-cli headless mode（預設支援）。
+acceptance-evaluator 啟動時若偵測到 `GITHUB_ACTIONS=true`，直接跳過 Chrome、走 playwright-cli，不需逐項判斷。
 
 ---
 

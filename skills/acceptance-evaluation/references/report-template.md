@@ -67,7 +67,7 @@
 ### C1: {Criterion 敘述}
 - **判定**：✅ PASS / ❌ FAIL / ⚠️ PASS w/ Note
 - **維度**：[Coverage / Boundary / On-Topic / Quality Floor]
-- **驗收動作**：{用了哪種手法，例如「playwright-cli 開頁面點按鈕」/「Read CLAUDE.md grep 關鍵字」}
+- **驗收動作**：{用了哪種手法，例如「Claude in Chrome 開頁面點按鈕 + get_page_text」/「CI 環境 playwright-cli headless」/「Read CLAUDE.md grep 關鍵字」}
 - **觀察**：{具體看到什麼}
 - **若 FAIL**：缺漏項是 {X}，建議改善為 {Y}
 

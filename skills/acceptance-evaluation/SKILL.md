@@ -62,7 +62,7 @@ description: 驗收標準對齊評估方法論。給定用戶原始任務需求 
 
 | 專案類型 | 驗收手法 |
 |---------|---------|
-| WEB 應用 | `playwright-cli` SKILL 跑互動 + 截圖；或 Claude in Chrome 直連 |
+| WEB 應用 | **Claude in Chrome 直連優先**（本機互動 / 驗真實環境與登入態）；CI / headless / 需隔離可重現時用 `playwright-cli` SKILL |
 | 桌面 / GUI 應用 | 要求 orchestrator/用戶提供**截圖**（無法自動化） |
 | CLI / API | 跑指令、Read 輸出檔、grep 關鍵字 |
 | 純文件 / 規格 | Read 對照、語意一致性檢查 |
