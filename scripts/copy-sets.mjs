@@ -23,7 +23,8 @@ const cwd = process.cwd();
 const skillsTarget = path.join(cwd, '.claude', 'skills');
 const agentsTarget = path.join(cwd, '.claude', 'agents');
 
-// set name → npm package names (for non-obvious library-set cases)
+// set name → npm package names (for non-obvious library-set cases).
+// keys may also be a version-stripped base name (e.g. 'refine' covers refine-v4 / refine-v5).
 const ALIAS = {
   'nextjs': ['next'],
   'antd-v5': ['antd'],
@@ -73,7 +74,10 @@ function readPkgDeps(pkgPath, into, sources) {
   try {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
     for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
-      for (const name of Object.keys(pkg[field] || {})) into.add(name);
+      for (const [name, range] of Object.entries(pkg[field] || {})) {
+        if (!into.has(name)) into.set(name, new Set());
+        into.get(name).add(String(range));
+      }
     }
     sources.push(path.relative(cwd, pkgPath) || 'package.json');
     return true;
@@ -98,7 +102,7 @@ function walkForPackageJson(dir, into, sources, depth = 0) {
 }
 
 function loadDeps() {
-  const into = new Set();
+  const into = new Map(); // dep name → Set of version ranges
   const sources = [];
   const rootPkg = path.join(cwd, 'package.json');
   const rootExists = fs.existsSync(rootPkg);
@@ -209,8 +213,48 @@ function candidatesFor(setName) {
   const list = ALIAS[setName] ? [...ALIAS[setName]] : [];
   list.push(setName);
   const stripped = stripVersionSuffix(setName);
-  if (stripped !== setName) list.push(stripped);
+  if (stripped !== setName) {
+    // version-pinned set (e.g. refine-v4) inherits the base-name alias (ALIAS['refine'])
+    if (ALIAS[stripped]) list.push(...ALIAS[stripped]);
+    list.push(stripped);
+  }
   return list;
+}
+
+// set name version suffix → significant numeric segments for compatibility check.
+// semver rule: major >=1 → only major is breaking ('better-auth-v1-4' → [1]);
+//              major 0   → minor is breaking too ('drizzle-orm-v0-38' → [0, 38]).
+function setVersionSegments(setName) {
+  const m = setName.match(/-v([\d-]+)$/);
+  if (!m) return null;
+  const seg = m[1].split('-').map(Number);
+  return seg[0] === 0 ? seg.slice(0, 2) : seg.slice(0, 1);
+}
+
+// version range → numeric segments of the first version token: '^4.56.0' → [4, 56, 0].
+// returns null for unparseable ranges ('workspace:*', 'latest', ...) → treated as version-unknown.
+function rangeSegments(range) {
+  const m = String(range).match(/\d+(?:\.\d+)*/);
+  if (!m) return null;
+  return m[0].split('.').map(Number);
+}
+
+// find the dep that matches this set. version-pinned sets additionally require the
+// dep's version range to prefix-match the set's version segments (unknown ranges pass).
+function depMatch(setName, deps) {
+  const verSeg = setVersionSegments(setName);
+  let versionMiss = null;
+  for (const c of candidatesFor(setName)) {
+    const ranges = deps.get(c);
+    if (!ranges) continue;
+    if (!verSeg) return { dep: c };
+    for (const r of ranges) {
+      const seg = rangeSegments(r);
+      if (!seg || verSeg.every((v, i) => seg[i] === v)) return { dep: c, range: r };
+    }
+    versionMiss = { dep: c, ranges: [...ranges] };
+  }
+  return versionMiss ? { versionMiss } : null;
 }
 
 function listSets(dir) {
@@ -242,12 +286,19 @@ function copySet(src, dest) {
 function processKind(label, sourceDir, targetDir, deps, isWp) {
   const sets = listSets(sourceDir);
   const results = [];
+  const versionSkipped = [];
   for (const set of sets) {
     let matchedBy = null;
     if (WP_SETS.has(set)) {
       if (isWp) matchedBy = 'WordPress project';
     } else {
-      matchedBy = candidatesFor(set).find((c) => deps.has(c)) || null;
+      const m = depMatch(set, deps);
+      if (m?.versionMiss) {
+        versionSkipped.push({ set, ...m.versionMiss });
+        results.push({ set, status: 'no-match' });
+        continue;
+      }
+      if (m) matchedBy = m.range ? `${m.dep}@${m.range}` : m.dep;
     }
     if (!matchedBy) { results.push({ set, status: 'no-match' }); continue; }
     const src = path.join(sourceDir, set);
@@ -276,6 +327,9 @@ function processKind(label, sourceDir, targetDir, deps, isWp) {
       : `←  dep "${r.matched}"`;
     console.log(`[${label}]   [${String(r.status).padEnd(8)}] ${r.set}  ${via}`);
   }
+  for (const v of versionSkipped) {
+    console.log(`[${label}]   [ver-skip] ${v.set}  ←  dep "${v.dep}" installed as ${v.ranges.join(', ')} (version mismatch)`);
+  }
   if (errored.length) {
     console.log(`[${label}] errors detail:`);
     for (const r of errored) console.log(`[${label}]   ${r.set}: ${r.status}`);
@@ -284,7 +338,7 @@ function processKind(label, sourceDir, targetDir, deps, isWp) {
 }
 
 const { deps: loadedDeps, sources: depSources } = loadDeps();
-const deps = loadedDeps ?? new Set();
+const deps = loadedDeps ?? new Map();
 const { isWp, signals } = isWordPressProject();
 
 console.log(`plugin root: ${pluginRoot}`);
