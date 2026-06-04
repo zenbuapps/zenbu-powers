@@ -65,8 +65,6 @@ const WP_SETS = new Set([
   'wp-wpcli-and-ops',
 ]);
 
-// monorepo roots scanned recursively for sub-package.json (turborepo / pnpm workspaces).
-const MONOREPO_ROOTS = ['apps', 'packages', 'src', 'lib'];
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', 'build', '.next', '.turbo', 'coverage', '.cache', 'out']);
 const MONOREPO_MAX_DEPTH = 6;
 
@@ -104,16 +102,10 @@ function walkForPackageJson(dir, into, sources, depth = 0) {
 function loadDeps() {
   const into = new Map(); // dep name → Set of version ranges
   const sources = [];
-  const rootPkg = path.join(cwd, 'package.json');
-  const rootExists = fs.existsSync(rootPkg);
-  if (rootExists) readPkgDeps(rootPkg, into, sources);
-
-  for (const root of MONOREPO_ROOTS) {
-    const dir = path.join(cwd, root);
-    if (fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
-      walkForPackageJson(dir, into, sources);
-    }
-  }
+  // walk the whole project from cwd: reads ./package.json, then recurses into
+  // every non-skipped subdir (frontend/, client/, web/, apps/**, packages/**, …)
+  // up to MONOREPO_MAX_DEPTH. SKIP_DIRS + dotfile skip keep node_modules etc. out.
+  walkForPackageJson(cwd, into, sources);
 
   if (sources.length === 0) return { deps: null, sources };
   return { deps: into, sources };
