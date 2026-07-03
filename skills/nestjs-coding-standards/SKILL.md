@@ -11,7 +11,7 @@ NestJS 後端開發的統一編碼規範。與 `@zenbu-powers:nestjs-master` 開
 
 - 開始新 Module / Controller / Service 開發
 - 重構既有程式碼以符合 NestJS 慣例
-- 審查 PR 時對照規範（搭配 `@zenbu-powers:nestjs-review-criteria`）
+- 審查 PR 時對照規範（搭配 `zenbu-powers:nestjs-review-criteria`）
 - 新成員熟悉專案編碼慣例
 - 確立命名、DI、分層、錯誤處理的一致性
 

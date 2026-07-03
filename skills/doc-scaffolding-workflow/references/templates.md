@@ -175,7 +175,7 @@ description: {一句話說明：這個 SKILL 何時被觸發}
 
 ## 4. `specs/arguments.yml` 模板（若專案使用 aibdd）
 
-由 `@zenbu-powers:aibdd-kickoff` 互動產出，doc-manager 不直接建立，但可偵測：
+由 `zenbu-powers:aibdd-kickoff` 互動產出，doc-manager 不直接建立，但可偵測：
 
 ```yaml
 project_name: {name}

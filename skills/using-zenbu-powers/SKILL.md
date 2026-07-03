@@ -52,7 +52,7 @@ description: 在做出任何回應（包含釐清提問）之前先檢查是否�
 **三類窄門**（暫停回報的唯一合法情境）：
 
 1. **不可逆操作確認**——force push、刪資料/分支、發外部訊息、destructive bash、修改共享基礎設施
-2. **用戶獨有資訊**——業務目標選擇、密碼/憑證、規格未定的個人偏好（顏色、文案、命名風格等用戶才知道答案的事）
+2. **用戶獨有資訊**——業務目標選擇、密碼/憑證、規格未定的個人偏好（顏色、文案、命名風格等用戶才知道答案的事）。human-in-the-loop skill 明文定義的暫停點（如 `zenbu-powers:aibdd-carry-on-engineering-plan` 的每-Phase feedback loop）亦屬此類——依 skill 定義暫停等待用戶審查是流程設計的一部分，不算停手話術
 3. **3 輪 FAIL 升級**——reviewer ↔ master 修復迴圈走完仍未達標
 
 「多個合理選項」**不在窄門內**——技術選型、實作方式、架構取捨一律由 orchestrator 自主決策。「不中途停下」**不覆蓋**上述三類窄門：自主性是「不為禮貌停」，不是「不為安全停」。
@@ -71,48 +71,23 @@ description: 在做出任何回應（包含釐清提問）之前先檢查是否�
 
 ## 派發模式
 
-預設純 sub-agent 鏈式委派（user `~/.claude/CLAUDE.md` ##4 已強化，不開 Teams/Worktree）。鏈條走法**依 agent 檔案標示**動態交接，不寫死管線——主窗口讀 sub-agent 檔案中「Hand-off / Next Agent / 自動交接給 @xxx」標示後 spawn 下一位（sub-agent 無法自 dispatch）。
+預設純 sub-agent 鏈式委派（user `~/.claude/CLAUDE.md` ##4 已強化，不開 Teams/Worktree）。鏈條走法**依 agent 檔案標示**動態交接，不寫死管線——主窗口讀 sub-agent 檔案中「WHERE NEXT / Hand-off / Next Agent」標示後 spawn 下一位（sub-agent 無法自 dispatch）。
 
 **`*-reviewer` 不在自動鏈中**——它是 opt-in（僅在用戶顯式喚醒時上場）。`*-master` 完成後直接交給主窗口、主窗口彙整交付用戶。若用戶顯式發起 reviewer ↔ master 修復迴圈，主窗口仍扛中繼（最多 3 輪）。
 
 ## AIBDD 預設模式
 
-當 user prompt 含 `AIBDD` / `BDD` / `TDD` 任一觸發詞時，UserPromptSubmit hook 會在每輪反射注入旁追加 `<ZENBU_AIBDD_MODE>` 區塊，列出預設 dispatch 路由。本段為該模式的設計總覽——觸發後實際路由表以 hook 注入的內容為準。
+當 user prompt 含 `AIBDD` / `BDD` / `TDD` 任一觸發詞且覆寫詞未命中時，UserPromptSubmit hook 會在每輪反射注入旁追加 `<ZENBU_AIBDD_MODE>` 區塊，內含三條 dispatch 路由：全流程 → `@zenbu-powers:clarifier`（預設）、僅 Phase 01 拆解 → `zenbu-powers:aibdd-discovery`、僅 TDD 紅綠重構 → `@zenbu-powers:tdd-coordinator`。
 
-### 啟用條件（AND 邏輯）
+選擇 heuristic 同「自主決策授權」——選一條立即 dispatch，不丟選擇題回用戶。AIBDD mode 與 reflex 並列、互不取代，是 reflex 第 2 條「能委派就委派」的具體 dispatch 表。
 
-1. `ZENBU_HOOKS_ENABLED=1` 環境變數已設（與 reflex 共用 outer guard）
-2. 本輪 user prompt 含關鍵字（**word boundary** + **case-insensitive**）：`AIBDD` / `BDD` / `TDD`
-3. 既有覆寫關鍵詞未命中（`直接 / 自己來 / 跳過 skill` 等覆寫詞先命中 → 整段 reflex 與 AIBDD mode 都跳過）
-
-### 三條 dispatch 路由
-
-| 情境 | 派發目標 | 適用 |
-|---|---|---|
-| 全流程（規格化 + 紅綠重構） | `@zenbu-powers:clarifier` | 預設選項；用戶說「BDD / AIBDD」、意圖不明 |
-| 僅 Phase 01 拆解 | 直接呼叫 `zenbu-powers:aibdd-discovery` skill | 用戶明說「我只要做 discovery / 拆 feature」 |
-| 僅 TDD 紅綠重構（不含規格化） | `@zenbu-powers:tdd-coordinator` | 用戶只說「TDD / 紅綠重構」，不提 spec / feature |
-
-選擇 heuristic 同 orchestrator 自主決策授權——選一條立即 dispatch，不丟選擇題回用戶。
-
-### 關閉方式（用戶 override）
-
-下列關鍵詞同樣會關閉 AIBDD 模式：
-
-- 既有覆寫詞（先命中即整體跳過）：`直接`、`自己來`、`跳過 skill`、`不用派`、`不要派`、`就你處理`、`不用 sub-agent`、`不要 sub-agent`、`你做就好`、`不用查 skill`、`不用走流程`
-- AIBDD 專屬 override（在 prompt 文意中聲明）：`不要 BDD`、`不要 AIBDD`、`不要 TDD`、`先 patch`、`跳過規格化`、`先寫 code`、`skip BDD`、`no BDD`
-
-### 與 reflex 的關係
-
-- **reflex**（每輪反射）：無條件注入的協調紀律
-- **AIBDD mode**（本段）：條件式注入，僅在觸發詞命中時出現
-- 兩段獨立並列、互不取代——AIBDD mode 是 reflex 第 2 條「能委派就委派」的具體 dispatch 表
+**實際啟用條件、路由細節與 override 詞一律以 hook 注入的 `<ZENBU_AIBDD_MODE>` 內容為準**——本段僅為設計總覽，不重複維護路由表。
 
 ## 鏈式委派（Chained Delegation）
 
 Sub-agent 回報時**必須**進入此流程，不得回到「禮貌詢問用戶下一步」的預設。核心步驟：
 
-1. **讀 sub-agent 回報**找「Hand-off / Next Agent / 自動交接給」標示
+1. **讀 sub-agent 回報**找交接標示——認可的寫法有「WHERE NEXT」「Hand-off」「Next Agent」三種（agent 模板普遍以 WHERE NEXT 區塊標示）
 2. **有指定下一位** → 立即自動 dispatch，不停下問用戶
 3. **沒有指定** → orchestrator 自評對齊（覆蓋度、邏輯正確、邊界完整）後交付用戶
 

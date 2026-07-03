@@ -119,7 +119,7 @@ git branch -d <feature-branch>
 git push -u origin <feature-branch>
 ```
 
-呼叫 `@zenbu-powers:git-commit` 確認所有 commit 訊息符合 conventional commits，然後：
+呼叫 `zenbu-powers:git-commit` 確認所有 commit 訊息符合 conventional commits，然後：
 
 ```bash
 gh pr create --title "<type>(<scope>): <description>" --body "$(cat <<'EOF'
@@ -196,7 +196,7 @@ git worktree remove <worktree-path>
 無互動環境，直接走「Push + 開 PR」：
 
 1. 確認測試全綠（貼證據）
-2. 確認所有變更已 commit（必要時呼叫 `@zenbu-powers:git-commit`）
+2. 確認所有變更已 commit（必要時呼叫 `zenbu-powers:git-commit`）
 3. `git push -u origin <feature-branch>`
 4. `gh pr create` 開 PR（同 Option 2 範本）
 5. 由 GitHub Actions 後續自動化處理

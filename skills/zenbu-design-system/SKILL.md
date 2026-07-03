@@ -14,6 +14,10 @@ user-invocable: false
 
 Implementation-ready design system for all Zenbu admin dashboard modules (zenbu-cms, zb-cart, future modules). Extracted from the live production UI.
 
+## Skill Boundary: frontend-design
+
+This skill takes precedence whenever the project uses Zenbu design tokens — it is a Zenbu module (zenbu-cms, zb-cart, other Zenbu admin modules), or its stylesheets define/consume the `--color-*` CSS custom properties below. Strict token compliance beats creative freedom here. For greenfield UI with no established design system, use `zenbu-powers:frontend-design` instead — bold, distinctive aesthetics belong there.
+
 ## Reference Files
 
 - **[tokens.md](references/tokens.md)** — Color palette (CSS custom properties), typography scale, spacing, border-radius, shadows, z-index

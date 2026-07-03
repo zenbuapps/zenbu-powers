@@ -11,21 +11,38 @@ description: "Git diff 驅動的瀏覽器模擬人工測試工作流程。分析
 
 ## Phase 0: 前置檢查
 
-### 0.1 設定 playwright-cli
+### 0.1 偵測 playwright 執行介面（fallback 鏈）
 
-```bash
-export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
-export PWCLI="$CODEX_HOME/skills/playwright/scripts/playwright_cli.sh"
-"$PWCLI" --version
+依序偵測，取**第一個可用者**作為本次測試的執行介面：
+
+1. **playwright-cli skill**（優先）：若環境中可調用 `playwright-cli` skill，直接以該 skill 執行後續所有瀏覽器操作（`open` / `resize` / `snapshot` / `screenshot` / `video-start` 等指令語意相同）。
+2. **$CODEX_HOME 腳本**（存在才用）：
+
+   ```bash
+   export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+   export PWCLI="$CODEX_HOME/skills/playwright/scripts/playwright_cli.sh"
+   [ -f "$PWCLI" ] && "$PWCLI" --version
+   ```
+
+   腳本存在且 `--version` 成功 → 後續以 `$PWCLI` 執行。
+3. **npx playwright**（備援）：
+
+   ```bash
+   npx playwright --version
+   ```
+
+   成功 → 以 `npx playwright` 等價命令驅動後續操作。
+
+**三者皆不可用** → 輸出以下訊息並**中斷所有操作**：
+
+```
+瀏覽器測試依賴缺失。請確認以下任一項可用：
+1. playwright-cli skill
+2. $CODEX_HOME/skills/playwright/scripts/playwright_cli.sh
+3. Node.js / npm 已安裝且 npx 在 PATH 中（npx playwright）
 ```
 
-**如果 `$PWCLI --version` 失敗** → 輸出以下訊息並**中斷所有操作**：
-
-```
-playwright-cli 不可用。請確認：
-1. Node.js / npm 已安裝
-2. npx 在 PATH 中
-```
+> 後續 Phase 3 的 `"$PWCLI"` 指令一律代表本步驟選定的執行介面：走 skill 路徑時以 playwright-cli skill 的同名指令執行；走 npx 路徑時以 `npx playwright` 等價命令執行。
 
 ### 0.2 偵測環境
 
@@ -304,7 +321,7 @@ CI 模式檢查清單：
 
 | 錯誤情境 | 處理方式 |
 |---------|---------|
-| playwright-cli 不可用 | 輸出安裝指引，**中斷操作** |
+| fallback 鏈全數不可用（skill / $CODEX_HOME 腳本 / npx playwright） | 輸出依賴缺失指引，**中斷操作** |
 | 測試 URL 不可達 | 輸出提示（啟動 dev server / 提供 URL），**中斷操作** |
 | 頁面載入超時 | 記錄為失敗，繼續測試下一個頁面 |
 | `video-start` 失敗 | 記錄警告，改用連續截圖模式，繼續測試 |

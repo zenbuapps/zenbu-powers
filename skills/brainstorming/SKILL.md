@@ -9,6 +9,8 @@ Help turn ideas into fully-formed designs and specs through natural collaborativ
 
 The flow is fixed: **explore project context → detect project type → ask clarifying questions one at a time → propose 2–3 approaches → present design → user approves → write spec → user reviews spec → hand off**. Do not jump steps.
 
+> **Skill boundary**: "new feature idea" phrasing can trigger both this skill and `zenbu-powers:issue-creator` — route by deliverable. Exploring approaches / writing an approved `design.md` (Socratic dialogue + HARD-GATE) → this skill (brainstorming). Producing a structured GitHub Issue requirements document to paste into GitHub → `zenbu-powers:issue-creator`.
+
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design AND the user has approved it. This applies to EVERY project regardless of perceived simplicity — including "just a quick WP plugin tweak" or "just a small React component".
 </HARD-GATE>

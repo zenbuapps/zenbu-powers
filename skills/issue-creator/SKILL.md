@@ -9,6 +9,10 @@ description: 從用戶的粗略需求出發，結合專案 specs（features、ac
 
 核心價值：**用戶只需要說出「我想做什麼」，你負責把它變成可執行的需求規格。**
 
+> **邊界區分**：「新功能 idea」語句可能同時觸發本 skill 與 `zenbu-powers:brainstorming`，依**產出物**分流——
+> 要**產出 GitHub Issue 需求文件**（可直接貼上 GitHub 的結構化需求）→ 本 skill（issue-creator）；
+> 要**探索方案、比較 approach、寫 design.md**（含設計審查 gate）→ `zenbu-powers:brainstorming`。
+
 ---
 
 ## 工作流程
@@ -47,10 +51,10 @@ Step 5: 直接輸出到終端機
 - `specs/open-issue/` — 進行中的需求，避免重複或衝突
 
 ### 按需讀取
-- `specs/api/api.yml` — 現有 API endpoints，判斷是否需要新增 API
-- `specs/entity/erm.dbml` — 資料模型，判斷是否需要新增欄位或表
-- `specs/specs/actors/` — 角色定義，確認需求涉及哪些角色
-- `specs/specs/ui/` — UI 頁面規格，判斷影響哪些頁面
+- `specs/api.yml` — 現有 API endpoints，判斷是否需要新增 API
+- `specs/erm.dbml` — 資料模型，判斷是否需要新增欄位或表
+- `specs/actors/` — 角色定義，確認需求涉及哪些角色
+- `specs/ui/` — UI 頁面規格，判斷影響哪些頁面
 
 上下文建立的目的：找到相關功能（延伸/修改/衝突）、識別影響範圍、發現依賴關係、避免與 open-issue 重複。
 
@@ -86,7 +90,7 @@ Step 5: 直接輸出到終端機
 - **PM 模式簡化**：只描述用戶可感知的異常情境，不提技術細節
 
 #### 3.2 角色視角
-參考 `specs/specs/actors/` 中的角色定義，思考：
+參考 `specs/actors/` 中的角色定義，思考：
 - 各角色看到什麼？能做什麼？
 - **PM 模式追加**：每個角色的完整使用者旅程（從進入頁面到完成目標）
 

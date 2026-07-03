@@ -7,6 +7,10 @@ This skill guides creation of distinctive, production-grade frontend interfaces 
 
 The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
 
+## Skill Boundary: zenbu-design-system takes precedence on token-governed projects
+
+If the project already uses Zenbu design tokens — it is a Zenbu module (zenbu-cms, zb-cart, other Zenbu admin modules), or its stylesheets define/consume the `--color-*` CSS custom properties documented in `zenbu-powers:zenbu-design-system` — that skill wins: follow its strict tokens, spacing scale, and QA checklist instead of inventing a bold new aesthetic. Use this skill (frontend-design) for greenfield UI with no established design system.
+
 ## Design Thinking
 
 Before coding, understand the context and commit to a BOLD aesthetic direction:

@@ -1,5 +1,5 @@
 ---
-name: aho-corasick
+name: aho-corasick-skill
 description: >
   Multi-pattern text search, filtering, and replacement using the Aho-Corasick algorithm.
   Use this skill whenever the user wants to: search for multiple keywords/patterns simultaneously

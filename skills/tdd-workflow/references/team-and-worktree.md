@@ -107,19 +107,20 @@ Agent(
   prompt="<從藍圖第 4 節複製>"
 )
 
-# Refactor 階段：依語言/領域動態加入 reviewer
+# Refactor 階段：reviewer 為 opt-in——僅用戶顯式喚醒時才加入，
+# 依 tdd-coordinator 藍圖第 6 節的 optional 清單自行組 prompt spawn
 Agent(
   team_name="tdd-{issue-id}",
   name="rev-wp",
   subagent_type="wordpress-reviewer",   # 非全域，需先 /copy-sets，複製後無前綴
-  prompt="<從藍圖第 6 節複製>"
+  prompt="<依藍圖第 6 節 optional 清單自行組>"
 )
 
 Agent(
   team_name="tdd-{issue-id}",
   name="rev-sec",
   subagent_type="zenbu-powers:security-reviewer",
-  prompt="<從藍圖第 6 節複製>"
+  prompt="<依藍圖第 6 節 optional 清單自行組>"
 )
 ```
 
