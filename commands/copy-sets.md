@@ -2,12 +2,12 @@
 description: 偵測 cwd 技術棧，將 zenbu-powers skill-sets/ 與 agent-sets/ 內配對的項目直接複製到專案 .claude/skills/ 與 .claude/agents/
 allowed-tools: Bash(node *)
 disable-model-invocation: true
-argument-hint: "[--force] [--dry-run]"
+argument-hint: "[--force] [--dry-run] [--set <name> ...]"
 ---
 
 !`node "${CLAUDE_PLUGIN_ROOT}/scripts/copy-sets.mjs" $ARGUMENTS`
 
-完成。已將配對到的 skill-set 複製至 `.claude/skills/`、agent-set 複製至 `.claude/agents/`。
+執行結果以上方腳本輸出為準（配對到的 skill-set 複製至 `.claude/skills/`、agent-set 複製至 `.claude/agents/`；`--dry-run` 只預覽不寫入）。
 
 ## 配對機制
 
@@ -24,4 +24,5 @@ argument-hint: "[--force] [--dry-run]"
 
 - `--dry-run` 先預覽不寫入（含 WordPress 偵測結果與命中訊號）
 - `--force` 覆蓋既有同名項目
+- `--set <name>`（可重複，亦支援 `--set=<name>`）——跳過自動配對，明確複製指定的 skill-set / agent-set（例如 `--set docker-compose`、`--set line-pay`）。名稱不存在時列出全部可用 set 並以非零碼結束
 - 直接複製檔案，不使用 symlink（不需 Developer Mode 或 admin 權限）

@@ -1,22 +1,47 @@
 #!/usr/bin/env node
 // copy-sets.mjs — copy matched skill-sets/ and agent-sets/ into cwd .claude/
-// usage: node copy-sets.mjs [--force] [--dry-run]
+// usage: node copy-sets.mjs [--force] [--dry-run] [--set <name> ...]
 // env: CLAUDE_PLUGIN_ROOT (plugin root containing skill-sets/ and agent-sets/)
 //
 // matching:
 //   - library sets  → matched by cwd package.json npm dependency names
 //   - WordPress sets → matched by WordPress-project detection of cwd (see WP_SETS)
+//   - --set <name>  → explicitly copy the named set(s), skipping auto-matching
+//                     (repeatable; also accepts --set=<name>)
 
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 
-const args = new Set(process.argv.slice(2));
+const argv = process.argv.slice(2);
+const args = new Set(argv);
 const FORCE = args.has('--force') || args.has('-f');
 const DRY = args.has('--dry-run') || args.has('-n');
 
+// --set <name> / --set=<name>：明確指定要複製的 set（可重複）
+const EXPLICIT_SETS = [];
+for (let i = 0; i < argv.length; i += 1) {
+  if (argv[i] === '--set') {
+    const name = argv[i + 1];
+    if (!name || name.startsWith('-')) {
+      console.error('error: --set requires a set name (e.g. --set docker-compose)');
+      process.exit(1);
+    }
+    EXPLICIT_SETS.push(name);
+    i += 1;
+  } else if (argv[i].startsWith('--set=')) {
+    const name = argv[i].slice('--set='.length);
+    if (!name) {
+      console.error('error: --set requires a set name (e.g. --set=docker-compose)');
+      process.exit(1);
+    }
+    EXPLICIT_SETS.push(name);
+  }
+}
+
 const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT
-  || path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..');
+  || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const skillSetsDir = path.join(pluginRoot, 'skill-sets');
 const agentSetsDir = path.join(pluginRoot, 'agent-sets');
 const cwd = process.cwd();
@@ -37,6 +62,11 @@ const ALIAS = {
   'drizzle-orm-v0-38': ['drizzle-orm'],
   'i18next-v25': ['i18next', 'react-i18next'],
   'jotai-v2': ['jotai'],
+  'line-liff': ['@line/liff', '@line/liff-cli'],
+  'line-message-api': ['@line/bot-sdk'],
+  // 其餘 line-* / telegram-api / whatsapp-api 無明確對應 npm 套件
+  // （telegram-api 走 Telethon、whatsapp-api 為 Cloud API 官方文件），
+  // 不自動配對，需以 --set <name> 手動複製。
   'next-intl-v4': ['next-intl'],
   'pdf-lib-v1-17': ['pdf-lib'],
   'powerhouse-v3-3': ['@powerhousedao/reactor-api', '@powerhousedao/builder-tools'],
@@ -329,21 +359,60 @@ function processKind(label, sourceDir, targetDir, deps, isWp) {
   console.log('');
 }
 
-const { deps: loadedDeps, sources: depSources } = loadDeps();
-const deps = loadedDeps ?? new Map();
-const { isWp, signals } = isWordPressProject();
+// --set 明確模式：只複製指定 set，不做 npm / WordPress 自動配對。
+function processExplicit(setNames) {
+  const skillSets = new Set(listSets(skillSetsDir));
+  const agentSets = new Set(listSets(agentSetsDir));
+  let hadError = false;
+  for (const name of setNames) {
+    const kinds = [
+      { label: 'skills', sourceDir: skillSetsDir, targetDir: skillsTarget, present: skillSets.has(name) },
+      { label: 'agents', sourceDir: agentSetsDir, targetDir: agentsTarget, present: agentSets.has(name) },
+    ].filter((k) => k.present);
+    if (kinds.length === 0) {
+      hadError = true;
+      console.log(`[--set]   [not-found] ${name}  ←  not in skill-sets/ or agent-sets/`);
+      continue;
+    }
+    for (const { label, sourceDir, targetDir } of kinds) {
+      ensureDir(targetDir);
+      let status;
+      try { status = copySet(path.join(sourceDir, name), path.join(targetDir, name)); }
+      catch (e) { status = `error: ${e.code || e.message}`; }
+      if (String(status).startsWith('error')) hadError = true;
+      console.log(`[${label}]   [${String(status).padEnd(8)}] ${name}  ←  --set explicit`);
+    }
+  }
+  if (hadError) {
+    console.log('');
+    console.log(`available skill-sets: ${[...skillSets].join(', ')}`);
+    console.log(`available agent-sets: ${[...agentSets].join(', ')}`);
+    process.exitCode = 1;
+  }
+}
 
 console.log(`plugin root: ${pluginRoot}`);
 console.log(`cwd: ${cwd}`);
 console.log(`mode: ${DRY ? 'DRY-RUN' : (FORCE ? 'FORCE' : 'NORMAL')}`);
-console.log(`npm deps: ${deps.size} package(s) from ${depSources.length} package.json file(s)`);
-if (depSources.length > 1) {
-  const preview = depSources.slice(0, 8).join(', ');
-  const tail = depSources.length > 8 ? `, +${depSources.length - 8} more` : '';
-  console.log(`  monorepo sources: ${preview}${tail}`);
-}
-console.log(`WordPress project: ${isWp ? 'YES' : 'no'}${signals.length ? `  (${signals.join('; ')})` : ''}`);
-console.log('');
 
-processKind('skills', skillSetsDir, skillsTarget, deps, isWp);
-processKind('agents', agentSetsDir, agentsTarget, deps, isWp);
+if (EXPLICIT_SETS.length > 0) {
+  console.log(`explicit sets: ${EXPLICIT_SETS.join(', ')}`);
+  console.log('');
+  processExplicit(EXPLICIT_SETS);
+} else {
+  const { deps: loadedDeps, sources: depSources } = loadDeps();
+  const deps = loadedDeps ?? new Map();
+  const { isWp, signals } = isWordPressProject();
+
+  console.log(`npm deps: ${deps.size} package(s) from ${depSources.length} package.json file(s)`);
+  if (depSources.length > 1) {
+    const preview = depSources.slice(0, 8).join(', ');
+    const tail = depSources.length > 8 ? `, +${depSources.length - 8} more` : '';
+    console.log(`  monorepo sources: ${preview}${tail}`);
+  }
+  console.log(`WordPress project: ${isWp ? 'YES' : 'no'}${signals.length ? `  (${signals.join('; ')})` : ''}`);
+  console.log('');
+
+  processKind('skills', skillSetsDir, skillsTarget, deps, isWp);
+  processKind('agents', agentSetsDir, agentsTarget, deps, isWp);
+}
