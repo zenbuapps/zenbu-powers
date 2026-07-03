@@ -63,6 +63,15 @@ else
   HAS_GH=true
 fi
 
+# Plugin validation (abort on failure; skip with warning if claude CLI unavailable)
+if command -v claude &> /dev/null; then
+  info "Running claude plugin validate..."
+  claude plugin validate . || error "claude plugin validate failed. Fix the issues before releasing."
+  ok "Plugin validation passed"
+else
+  warn "claude CLI not found. Skipping plugin validation."
+fi
+
 ok "All checks passed"
 
 # ============================================================================
@@ -167,7 +176,9 @@ info "New version: ${GREEN}v${NEW_VERSION}${NC}"
 # Skip update if version is unchanged (first release)
 if [ "$CURRENT_VERSION" != "$NEW_VERSION" ]; then
   info "Updating $PLUGIN_JSON..."
-  sed -i "s/\"version\"[[:space:]]*:[[:space:]]*\"${CURRENT_VERSION}\"/\"version\": \"${NEW_VERSION}\"/" "$PLUGIN_JSON"
+  # portable in-place edit: BSD/macOS sed requires a suffix after -i, GNU accepts -i.bak too
+  sed -i.bak "s/\"version\"[[:space:]]*:[[:space:]]*\"${CURRENT_VERSION}\"/\"version\": \"${NEW_VERSION}\"/" "$PLUGIN_JSON" \
+    && rm -f "${PLUGIN_JSON}.bak"
   ok "Version updated in $PLUGIN_JSON"
 fi
 

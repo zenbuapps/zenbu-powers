@@ -6,4 +6,4 @@ disable-model-invocation: true
 
 !`node "${CLAUDE_PLUGIN_ROOT}/scripts/ide-toggle.mjs" on`
 
-IDE MCP 已啟用。請 /exit 後重啟 claude session 讓設定生效。
+執行結果以上方腳本輸出為準。若顯示切換成功，請 /exit 後重啟 claude session 讓設定生效。
