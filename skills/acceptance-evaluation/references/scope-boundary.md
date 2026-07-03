@@ -123,17 +123,7 @@ master → orchestrator 整合 → 用戶喚醒 *-reviewer → 退回 issue list
 
 **適用**：用戶要求強化品質深度、涉及敏感領域（auth / payment / external-api）需安全審查。reviewer ↔ master 修復迴圈最多 3 輪上限仍適用。
 
-### 模式 4（orchestrator 主動派的窄門）
-
-```
-master → orchestrator 偵測窄門（高風險領域 / 多 agent conflict / 用戶 prompt 含驗收關鍵詞）→ 主動派 @acceptance-evaluator
-```
-
-**適用**：
-
-1. 用戶 prompt 含「驗收 / 評估 / final check」等明確關鍵詞
-2. 多 agent 整合 conflict 想做 sanity check
-3. 任務跨多個 sub-agent + 高風險 / 不可逆領域
+> **注意**：acceptance-evaluator 為**純人工調用**——main agent / orchestrator 禁止自動派發，僅模式 2（用戶顯式喚醒）一條進場路徑。
 
 ## 何時主動建議補派 reviewer
 

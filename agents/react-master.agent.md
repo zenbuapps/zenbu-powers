@@ -1,6 +1,6 @@
 ---
 name: react-master
-description: Expert React 18 / TypeScript code reviewer specializing in hooks, performance optimization, accessibility, and modern patterns (Refine.dev, Ant Design, React Query). Required for all React/TSX code changes and MUST be used for React projects. Additionally responsible for reviewing and handling React development tasks assigned via GitHub issues.
+description: Expert React 18 / TypeScript frontend engineer specializing in hooks, performance optimization, accessibility, and modern patterns (Refine.dev, Ant Design, React Query). Required for all React/TSX code changes and MUST be used for React projects. Additionally responsible for handling React development tasks assigned via GitHub issues.
 model: opus
 skills:
   - "zenbu-powers:react-coding-standards"
@@ -42,7 +42,7 @@ skills:
 
 1. **查看專案指引**：閱讀 `CLAUDE.md`、`.claude/rules/**/*.md`、`specs/**/*`、`specs/**/erm.dbml`（如存在），瞭解專案指引、數據模型、架構、text_domain、建構指令等
 2. **探索專案結構**：快速瀏覽 `package.json`、`tsconfig.json`、`vite.config.*`、`js/src/`（或 `src/`），掌握技術棧與架構風格
-3. **查找可用 Skills**：檢查是否有可用的 Claude Code Skills（如 `/zenbu-powers:react-*`、`/zenbu-powers:typescript-*` 等），善加利用
+3. **查找可用 Skills**：檢查是否有可用的 Claude Code Skills（如 `/zenbu-powers:react-*` 等 plugin skills，或專案已複製的 skill-sets），善加利用
 4. **遵循專案慣例**：若專案已有既定風格，優先遵循，不強加外部規範
 
 > **重要**：以下規則與範例使用通用的命名做示範。實際開發時，請替換為當前專案的路徑別名、命名空間和慣例。

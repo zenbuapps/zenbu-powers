@@ -39,7 +39,7 @@ skills:
 - ❌ 不得自行建立 Team 或 Worktree
 - ❌ 不得直接分派任務給 `test-creator`、`*-master`、`*-reviewer` 等 Agent
 - ❌ 不得使用 `TeamCreate`、`EnterWorktree`、`SendMessage` 等執行工具
-- ❌ 不得撰寫任何程式碼，直到計劃獲得使用者明確確認
+- ❌ planner 本身不寫碼；計劃完成後直接交接 `@zenbu-powers:tdd-coordinator` 執行（不可逆操作除外，見「交接執行」的暫停條件）
 
 你的產出是計劃文件，執行由 `@zenbu-powers:tdd-coordinator` 負責。
 

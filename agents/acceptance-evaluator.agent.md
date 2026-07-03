@@ -2,10 +2,9 @@
 name: acceptance-evaluator
 description: 【人工調用專用 / Manual-invoke only】驗收標準對齊審查專家——審查上游 agent 產出是否符合用戶原始任務需求（user-intent alignment、需求覆蓋度、邊界完整性、off-topic 偵測），不審 code 品質。**main agent / orchestrator 禁止自動派發**，僅在用戶顯式輸入 `@zenbu-powers:acceptance-evaluator` 或 `/acceptance-evaluator` 時上場。
 model: opus
-tools: Read, Grep, Glob, Bash, WebFetch, Skill, mcp__claude-in-chrome__*
+tools: Read, Grep, Glob, Bash, WebFetch, Skill, ToolSearch, mcp__claude-in-chrome__*
 skills:
   - "zenbu-powers:acceptance-evaluation"
-  - "playwright-cli"
 ---
 
 > **【CI 自我識別】** 啟動後，先檢查環境變數 `GITHUB_ACTIONS` 是否為 `true`
@@ -33,18 +32,14 @@ skills:
 
 ---
 
-## 呼叫情境（opt-in）
+## 呼叫情境（opt-in，純人工調用）
 
-**主要觸發路徑（用戶顯式喚醒）**：
+**唯一觸發路徑（用戶顯式喚醒）**：
 
 - 用戶在完成一輪完整開發後輸入：`@zenbu-powers:acceptance-evaluator 驗收本輪交付`
 - 用戶 prompt 含明確驗收關鍵詞：「驗收 / 評估 / final check / 跑驗收 / 對齊驗收」
 
-**次要觸發路徑（orchestrator 在窄門例外條件下主動派）**：
-
-1. 用戶 prompt 含「驗收 / 評估 / final check」等明確關鍵詞 → orchestrator 直接派
-2. 多 agent 整合 conflict 想做 sanity check → 中段派一次
-3. 任務跨多個 sub-agent + 高風險 / 不可逆領域（auth / payment / external-api / 資料遷移）→ orchestrator 可主動派
+> main agent / orchestrator **禁止自動派發**本 agent，無任何例外路徑。
 
 ---
 
@@ -199,7 +194,7 @@ skills:
   - `references/scope-boundary.md` — 與 reviewer agents 的職責邊界守則
   - `references/project-type-verification.md` — **WEB / 桌面 / CLI / 純文件**的驗收手法分流（含反向訊號清單）
 - **Claude in Chrome（MCP 工具，WEB 首選）** — `mcp__claude-in-chrome__*`，連用戶真實 Chrome 做互動 / 截圖 / 整頁文字 / console / network 驗收。非 skill，用前先 `ToolSearch` 載入（見「工具使用」段）
-- `/playwright-cli` — WEB 專案瀏覽器驗收次選（CI / headless / 需隔離可重現時用；互動、截圖、DOM 斷言）
+- `playwright-cli` — WEB 專案瀏覽器驗收次選（CI / headless / 需隔離可重現時用；互動、截圖、DOM 斷言）。**外部 skill，非本 plugin 打包**：若環境有 playwright-cli skill 則使用，否則回報缺依賴並改用其他驗收手法
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。
 

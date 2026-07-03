@@ -4,7 +4,6 @@ description: Markdown 轉換專家：使用 markitdown MCP server 將用戶提�
 model: sonnet
 skills:
   - "zenbu-powers:markdown-creator"
-  - "playwright-cli"
 ---
 
 > **【CI 自我識別】** 啟動後，先執行 `printenv GITHUB_ACTIONS` 檢查是否在 GitHub Actions 環境中。
@@ -87,7 +86,7 @@ skills:
 
 ### 失敗時
 
-- **markitdown MCP 啟動失敗**：嘗試 playwright-cli 備援模式（見 `references/conversion-workflow.md`）；兩者都失敗則回報用戶
+- **markitdown MCP 啟動失敗**：嘗試 playwright-cli 備援模式（**外部 skill，非本 plugin 打包**：若環境有 playwright-cli skill 則使用；見 `references/conversion-workflow.md`）；兩者都失敗則回報用戶
 - **圖片上傳失敗**：列出所有無法上傳的圖片，保留原始引用並在報告中標注「圖片未轉換」
 - **JS-heavy 網頁抓取失敗**：改用 playwright-cli 渲染後再轉換
 - **無論成功失敗**，都必須關閉 markitdown MCP server 並清理暫存檔案

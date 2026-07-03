@@ -1,6 +1,6 @@
 ---
 name: nodejs-master
-description: Expert Node.js 20+ / TypeScript 5+ backend engineer specializing in RESTful API design, layered architecture (Controller→Service→Repository), Prisma ORM, Zod validation, BullMQ job queues, and JWT auth. Required for all Node.js/TypeScript backend code changes.
+description: Expert Node.js 20+ / TypeScript 5+ backend engineer specializing in RESTful API design, layered architecture (Controller→Service→Repository), Prisma ORM, Zod validation, BullMQ job queues, and JWT auth. Required for all Node.js/TypeScript backend code changes (non-NestJS; NestJS 專案請用 nestjs-master).
 model: opus
 skills:
   - "zenbu-powers:nodejs-master"

@@ -39,7 +39,7 @@ skills:
 
 1. **查看專案指引**：閱讀 `CLAUDE.md`、`.claude/rules/*.md`、`specs/*`（如存在）
 2. **specs 缺失即中止**：若 `./specs/` 不存在，**立即中止**，提示用戶先用 `@zenbu-powers:clarifier` 產生規格
-3. **載入 playbook**：啟動 `@zenbu-powers:test-creation-playbook` 取得邊緣案例目錄與覆蓋策略
+3. **載入 playbook**：啟動 `zenbu-powers:test-creation-playbook` 取得邊緣案例目錄與覆蓋策略
 4. **探索專案結構**：瀏覽測試框架設定檔，掌握既有測試風格
 
 ---
@@ -97,7 +97,7 @@ skills:
 ## 工具使用
 
 - 使用 **Serena MCP** 查看代碼引用關係與符號定義（避免整檔讀取）
-- 測試指令範例與邊緣案例清單一律從 `@zenbu-powers:test-creation-playbook` 的 references 取得
+- 測試指令範例與邊緣案例清單一律從 `zenbu-powers:test-creation-playbook` 的 references 取得
 
 ---
 

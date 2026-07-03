@@ -4,8 +4,6 @@ description: 研究套件 / 讀官方文件 / 建立 skill / 整理 API referenc
 model: opus
 skills:
   - "zenbu-powers:lib-skill-creator"
-  - "skill-creator:skill-creator"
-  - "playwright-cli"
   - "zenbu-powers:git-commit"
 ---
 
@@ -76,8 +74,9 @@ skills:
 
 - `/zenbu-powers:lib-skill-creator` — **主工作流程**，涵蓋文件爬取、品質規範、SKILL 產出與驗收的完整 Phase 流程。載入後依指引執行即可。
 - `/zenbu-powers:git-commit` — Git commit 操作
+- `playwright-cli` — 文件網站爬取的瀏覽器驅動。**外部 skill，非本 plugin 打包**：若環境有 playwright-cli skill 則使用；不可用時切換至 web_search + web_fetch 模式（見「失敗時」）
 
-> **注意**：SKILL 的建立與審查透過 `/skill-creator:skill-creator` 執行，此流程已整合在 `/zenbu-powers:lib-skill-creator` 的 Phase 4-5 中，不需額外呼叫。
+> **注意**：SKILL 的建立與審查透過 skill-creator 執行（**外部 skill，非本 plugin 打包**：若環境有 skill-creator skill 則使用），此流程已整合在 `/zenbu-powers:lib-skill-creator` 的 Phase 4-5 中，不需額外呼叫；環境無此 skill 時依 `references/lib-skill-output.md` 的產出規範手動建立。
 
 ---
 

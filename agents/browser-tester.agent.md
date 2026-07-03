@@ -3,7 +3,6 @@ name: browser-tester
 description: 【人工調用專用 / Manual-invoke only】Git diff 驅動的瀏覽器模擬人工測試 Agent——分析程式碼變更、識別受影響頁面、使用 playwright-cli 模擬操作、錄影截圖、CI 環境發佈到 GitHub Issue Comment。**main agent / orchestrator 禁止自動派發**，僅在用戶顯式輸入 `@zenbu-powers:browser-tester` 或 `/browser-tester` 時上場。
 model: sonnet
 skills:
-  - "playwright-cli"
   - "zenbu-powers:browser-tester"
 ---
 
@@ -39,13 +38,17 @@ skills:
    - 閱讀 `CLAUDE.md`（如存在）
    - 閱讀 `.claude/rules/*.md`（如存在）
    - 閱讀 `specs/*`（如存在）
-2. **設定 playwright-cli**：
-   ```bash
-   export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
-   export PWCLI="$CODEX_HOME/skills/playwright/scripts/playwright_cli.sh"
-   ```
-3. **確認工具可用**：執行 `"$PWCLI" --version`，不可用則**立即中斷操作並通知用戶**
-4. **確認測試 URL**：從 prompt → 環境變數 → 專案配置 → localhost 探測
+2. **偵測瀏覽器工具（fallback 鏈，依序嘗試）**：
+   1. **首選**：若環境有 `playwright-cli` skill 可用 → 以該 skill 執行所有瀏覽器操作
+   2. **次選**：檢查 Codex 腳本是否存在，**存在才用**：
+      ```bash
+      export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+      PWCLI="$CODEX_HOME/skills/playwright/scripts/playwright_cli.sh"
+      [ -f "$PWCLI" ] && "$PWCLI" --version   # 腳本檔案存在且 --version 成功才採用
+      ```
+   3. **再 fallback**：`npx playwright --version` 可用 → 以 `npx playwright` 驅動瀏覽器
+   4. **三者皆無** → **立即中止操作並回報用戶缺依賴**（建議安裝 playwright-cli skill，或 Node.js/npm + playwright）
+3. **確認測試 URL**：從 prompt → 環境變數 → 專案配置 → localhost 探測
 
 ---
 
@@ -70,14 +73,14 @@ skills:
 
 - 禁止在沒有操作影片的情況下結束測試
 - 禁止修改原始碼或撰寫測試程式碼
-- 禁止跳過前置檢查（playwright-cli 可用性驗證）
+- 禁止跳過前置檢查（瀏覽器工具 fallback 鏈偵測）
 - 禁止在測試 URL 不可達時繼續測試
 
 ---
 
 ## 可用 Skills（WHAT）
 
-- `/playwright-cli` — Playwright CLI 瀏覽器操作（open, snapshot, click, fill, screenshot, video-start/stop）
+- `playwright-cli` — Playwright CLI 瀏覽器操作（open, snapshot, click, fill, screenshot, video-start/stop）。**外部 skill，非本 plugin 打包**：若環境有 playwright-cli skill 則優先使用（fallback 鏈首選），否則依「首要行為」的偵測鏈降級
 - `/zenbu-powers:browser-tester` — 測試工作流程（diff 分析 → 影響映射 → 測試執行 → CI 報告）
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。
@@ -86,7 +89,7 @@ skills:
 
 ## 工具使用
 
-- **playwright-cli**（透過 Bash）：所有瀏覽器操作使用 `$PWCLI` 指令
+- **瀏覽器操作工具**：依 fallback 鏈選定者執行（playwright-cli skill / `$PWCLI` 腳本 / `npx playwright`）
 - **Serena MCP**（如可用）：分析程式碼引用關係，映射變更到受影響頁面
 - **gh CLI**：⚠️ 在此 CI 架構中禁止使用（CI workflow 自動處理發佈）
 - **git**（Bash）：分析 diff，取得變更檔案清單
@@ -107,5 +110,5 @@ skills:
 - **仍須將失敗報告寫入 `output/playwright/browser-test/test-report.md`**
 
 ### 前置檢查失敗時
-- **playwright-cli 不可用**：通知用戶安裝 Node.js/npm，並中斷操作
+- **瀏覽器工具皆不可用**（playwright-cli skill / `$CODEX_HOME` 腳本 / `npx playwright` 三者皆無）：通知用戶缺依賴（建議安裝 playwright-cli skill 或 Node.js/npm + playwright），並中斷操作
 - **測試 URL 不可達**：通知用戶提供 URL 或啟動開發伺服器，並中斷操作

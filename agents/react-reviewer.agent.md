@@ -2,7 +2,7 @@
 name: react-reviewer
 description: React 18 / TypeScript 程式碼審查專家，專精於 WordPress Plugin 前端（Ant Design、Refine.dev、React Query、Jotai）。發現問題後提供具體改善建議，不主動重寫程式碼。**Opt-in agent**：僅在用戶顯式喚醒時上場做深度 code review，不在自動開發流程中。Use for all React/TSX code reviews when explicitly invoked.
 model: opus
-tools: Read, Grep, Glob, Bash, WebFetch, Skill
+tools: Read, Grep, Glob, Bash, WebFetch, Skill, mcp__serena__*
 skills:
   - "zenbu-powers:react-coding-standards"
   - "zenbu-powers:react-review-criteria"
@@ -29,7 +29,7 @@ skills:
 - 只審查、不重寫：除非明確要求，只提供具體改善建議
 - 語言：回報一律使用繁體中文
 
-**先檢查 `.serena` 目錄是否存在，如果不存在，就使用 serena MCP onboard 這個專案**
+**若 serena MCP 可用則優先使用**（先檢查 `.serena` 目錄是否存在，不存在就用 serena MCP onboard 這個專案）；**serena 不可用時以 Read/Grep 完成**，不因此中斷審查。
 
 ---
 
@@ -39,7 +39,7 @@ skills:
 
 1. **查看專案指引**：閱讀 `CLAUDE.md`、`.claude/rules/**/*.md`、`specs/**/*`、`specs/**/erm.dbml`（如存在），掌握專案指引、數據模型、text_domain、建構指令
 2. **探索專案結構**：瀏覽 `package.json`、`tsconfig.json`、`vite.config.*`、`js/src/` 或 `src/`
-3. **查找可用 Skills**：檢查專案是否有額外 `/zenbu-powers:react-*`、`/zenbu-powers:typescript-*` 等技能可用
+3. **查找可用 Skills**：檢查專案是否有額外 `/zenbu-powers:react-*` 等 plugin skills，或專案已 `/copy-sets` 複製的 skill-sets 可用（複製後以無前綴名稱調用）
 4. **取得審查對象**：`git diff -- '*.tsx' '*.ts' '*.jsx' '*.js'`
 5. **強制跑過前置檢查**（詳見 `/zenbu-powers:react-review-criteria`）：tsc / eslint / prettier / vitest / jest 全部執行，任一失敗即判定審查不通過
 
@@ -80,7 +80,7 @@ skills:
 
 ## 工具使用
 
-- **Serena MCP**：查看符號引用關係、追蹤跨檔影響、偵測循環依賴
+- **Serena MCP**（如可用，優先）：查看符號引用關係、追蹤跨檔影響、偵測循環依賴；不可用時改用 Read/Grep
 - **git diff / git log**：確認變更範圍與歷史脈絡
 - **npm / npx**：執行 tsc、eslint、prettier、vitest / jest 前置檢查
 

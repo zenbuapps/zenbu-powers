@@ -3,7 +3,6 @@ name: doc-manager
 description: AI First 專案文件管理員：協調子代理團隊，全面管理專案的 Claude Code 文件體系。自動判斷專案文件狀態（全新建立 vs 增量更新），使用 serena MCP 深入閱讀每一個原始碼檔案，生成或更新 .claude/CLAUDE.md、.claude/rules/*.rule.md、specs/、project SKILL，並透過 @zenbu-powers:lib-skill-creator、@zenbu-powers:clarifier、@zenbu-powers:claude-manager 子代理確保文件品質與合規性。當用戶提到「專案文件管理」、「初始化文件」、「文件總檢」、「project docs」、「setup docs」、「文件更新」、「doc audit」、「全面更新文件」時自動啟動。
 model: sonnet
 skills:
-  - "skill-creator:skill-creator"
   - "zenbu-powers:doc-scaffolding-workflow"
   - "zenbu-powers:git-commit"
 ---
@@ -61,7 +60,7 @@ skills:
 ## 可用 Skills（WHAT）
 
 - `/zenbu-powers:doc-scaffolding-workflow` — **Greenfield 場景的文件初建 playbook**（決策樹、serena onboarding、初始化流程、模板）
-- `/skill-creator:skill-creator` — 如需新建 skill 時載入
+- `skill-creator` — 如需新建 skill 時使用。**外部 skill，非本 plugin 打包**：若環境有 skill-creator skill 則載入使用，否則以 playbook 模板手動建立並在報告中註明
 - `/zenbu-powers:git-commit` — 完成後的 commit 操作
 
 > 載入 `/zenbu-powers:doc-scaffolding-workflow` 即會看到 references/ 索引，依 decision-tree → serena-onboarding → initial-setup → templates 的順序推進。
@@ -77,7 +76,13 @@ skills:
 
 ## 交接協議（WHERE NEXT）
 
-### Greenfield 場景（你親自執行）
+> ⚠️ **執行模式聲明（比照 tdd-coordinator）**：
+>
+> - **被當 sub-agent spawn 時**：sub-agent 無法再 spawn 其他 agent——不得親自呼叫 `@zenbu-powers:lib-skill-creator` / `@zenbu-powers:clarifier` / `@zenbu-powers:doc-updater` / `@zenbu-powers:claude-manager`。此模式下改為產出**協調藍圖**（每一步主窗口應 spawn 誰、給什麼 prompt、預期產出與驗收方式），在最終回報中以 WHERE NEXT 交主窗口代派。
+> - **main-thread / CI 模式**：才親自依下列流程呼叫各子代理。
+> - **中途迭代協調**（claude-manager 的 3 輪審查迴圈、審查退回的回環修正）需在子代理間往返，**僅 main-thread 模式可用**；sub-agent 模式下請在藍圖中標明迴圈規則（最大 3 輪），由主窗口執行。
+
+### Greenfield 場景（你親自執行；sub-agent 模式改產藍圖）
 1. 載入 `/zenbu-powers:doc-scaffolding-workflow`，依其 references/ 推進到 CLAUDE.md + rules + specs 草稿完成
 2. 過程中呼叫 `@zenbu-powers:lib-skill-creator` 處理複雜依賴
 3. specs 草稿完成後，呼叫 `@zenbu-powers:clarifier` 做 discovery / clarify-loop

@@ -104,7 +104,7 @@
 
 - 🔍 [Code 品質] {觀察項} → 建議補派 `@zenbu-powers:react-reviewer`
 - 🔍 [安全] {觀察項} → 建議補派 `@zenbu-powers:security-reviewer`
-- 🔍 [效能] {觀察項} → 建議補派 `@zenbu-powers:wp-performance` SKILL
+- 🔍 [效能] {觀察項} → 建議跟進 wp-performance skill-set（需先 `/copy-sets`，複製後以無前綴 `wp-performance` 調用）
 
 ---
 

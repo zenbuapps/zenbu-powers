@@ -74,7 +74,7 @@ skills:
 
 詳細步驟、診斷 checklist、輸出模板與範例都在 `/zenbu-powers:prompt-optimization` 的 references/ 中。載入順序：
 
-1. 偵測模式 → 宣告 → Read `skills/zenbu-powers:prompt-optimization/SKILL.md`
+1. 偵測模式 → 宣告 →（`zenbu-powers:prompt-optimization` 已於 frontmatter 宣告，SKILL.md 自動載入，無需另行 Read；如需點名路徑為 `skills/prompt-optimization/SKILL.md`）
 2. Mode 1 → Read `references/optimization-playbook.md` + `diagnostic-framework.md`
 3. Mode 2 → Read `references/conversion-playbook.md` + `diagnostic-framework.md`
 4. 需要寫法參考 → Read `references/before-after-examples.md`

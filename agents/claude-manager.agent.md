@@ -73,8 +73,8 @@ skills:
 ### 審查退回時（由 doc-manager 回環）
 
 1. 若 doc-manager 對本次審查結果有異議或提供新資訊，依新資訊重新審查對應項目
-2. 重新產出報告，透過 `SendMessage` 回傳 `@zenbu-powers:doc-manager`
-3. 最多 **3 輪**迴圈（`doc-manager` 端的最大迭代次數），超過則 `SendMessage` 通知請求人類介入
+2. 重新產出報告，在最終回報中以 **WHERE NEXT** 標示「交回主窗口，請主窗口轉交 `@zenbu-powers:doc-manager`」（本 agent 無 SendMessage 工具，不直接回傳）
+3. 最多 **3 輪**迴圈（`doc-manager` 端的最大迭代次數），超過則在最終回報中標示「需人類介入」，由主窗口轉達
 
 ### 失敗時
 
