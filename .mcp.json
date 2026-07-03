@@ -13,9 +13,6 @@
 				"--project-from-cwd",
 				"--open-web-dashboard",
 				"false"
-			],
-			"tools": [
-				"*"
 			]
 		}
 	}
