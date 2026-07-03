@@ -116,6 +116,9 @@ description: >
 | `*.csproj` / `appsettings.json` / `Program.cs` 存在 | csharp |
 | `composer.json` 含 `wordpress` 或 `wp-env` 設定檔 | php |
 | `package.json` 含 `react` / `vitest` / `@testing-library/react` | typescript |
+| `package.json` 含 `express` / `drizzle-orm` / `prisma`（Node.js 後端） | nodejs（= typescript alias） |
+
+> **nodejs alias**：kickoff / specformula 支援的 `nodejs` 專案在本 skill 一律視為 `typescript`——路由沿用 `references/{stage}/typescript.md`，不另建 nodejs references。
 
 ### 推不出時詢問
 
@@ -126,6 +129,7 @@ description: >
 A. C# (.NET 8 / EF Core / SpecFlow)
 B. PHP (WordPress / PHPUnit)
 C. TypeScript (React / Vitest / MSW)
+D. TypeScript (Node.js 後端 / Express / Drizzle / Prisma)
 ```
 
 不要憑直覺猜；缺訊號時必問。
@@ -149,6 +153,8 @@ C. TypeScript (React / Vitest / MSW)
 | test-skeleton | `references/test-skeleton/csharp.md` (**N/A stub**) | `references/test-skeleton/php.md` | `references/test-skeleton/typescript.md` (**N/A stub**) |
 
 > **N/A stub** 不代表「請略過」——而是代表「此語言走另一路徑」。每份 stub 內含「替代路徑」指引，務必 Read 後依指引轉向。
+>
+> **nodejs** 無獨立欄位——nodejs 為 typescript 的 alias，一律查 typescript 欄。
 
 ---
 
@@ -217,5 +223,3 @@ control-flow 派發迴圈時，每個 .feature 嚴格依「schema-analysis → s
 - Stage C 完成項：
   - 主 SKILL.md 吸收 5 薄皮觸發詞 + 確立「先 `_stage-flow.md` 再 `{lang}.md`」流程
   - 下游 7 個檔案引用切換為 `/aibdd-auto-tdd（stage=...）`（`aibdd-handlers`、`aibdd-specformula` SKILL + assets + references、`aibdd-kickoff` SKILL + references、`README.md`、本 SKILL 自身）
-- **未刪除** 5 個薄皮 skill 目錄（`aibdd-auto-control-flow` / `aibdd-auto-red` / `aibdd-auto-green` / `aibdd-auto-refactor` / `aibdd-auto-backend-starter`）——留 Stage D 處理。
-- **交還 orchestrator**：請推進 Stage D（刪 5 薄皮目錄）+ 驗證引用切換是否完整。

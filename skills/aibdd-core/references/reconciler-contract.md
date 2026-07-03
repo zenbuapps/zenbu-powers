@@ -285,7 +285,7 @@ Reconciler 提供 **precision**（具體怎麼改）。
 
 ## IMPL_IMPACT：Spec → Implementation 影響標記
 
-Spec Reconciler（Phase 02-04）改動 spec artifact 時，可能影響已存在的 implementation artifacts（Phase 05-08）。Reconciler **不直接讀取或修改** implementation artifacts，但在 change_summary 中標記影響，由 Execution Plan 傳播給下游 Phase。
+Spec Reconciler（Phase 02-04）改動 spec artifact 時，可能影響已存在的 implementation artifacts（Phase 05-07）。Reconciler **不直接讀取或修改** implementation artifacts，但在 change_summary 中標記影響，由 Execution Plan 傳播給下游 Phase。
 
 **詳細規則、Impact Types 表、change_summary 格式、產出規則、下游消費方式 → 見 `references/impl-impact.md`。**
 

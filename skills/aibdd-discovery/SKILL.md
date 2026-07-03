@@ -5,7 +5,7 @@ description: >
   Composition → Flow Alignment → Structural Read → Impact Analysis
   → Behavior Design → Clarify → Quality Gate。
   以統一流程處理 greenfield / 新功能 / 改變需求（三者同一件事，差別只在起始狀態）。
-  產出 Execution Plan（Phase 02-08 的 scope 依據）+ Activity Diagrams + Feature Rules（@ignore，無 Examples）。
+  產出 Execution Plan（Phase 02-07 的 scope 依據）+ Activity Diagrams + Feature Rules（@ignore，無 Examples）。
   保持 Activity、.feature 兩個視圖的一致性（api.yml / erm.dbml 由後續 Phase 處理）。
   ⚠️ 邊界區分：完整 AIBDD 全流程（Phase 01 → 04 串接、寫 .feature / api.yml / erm.dbml）請改用
   @zenbu-powers:clarifier agent；純業務 idea 探索（產 design.md、不走 BDD）請改用
@@ -28,7 +28,7 @@ user-invocable: true
 | 方向 | 內容 |
 |------|------|
 | Input | User idea (raw text) &#124; existing `${SPECS_ROOT_DIR}` (for update) |
-| Output | Execution Plan, `activities/*${ACTIVITY_EXT}`, `features/**/*.feature` (Rules only), `specs/actors/*.md` |
+| Output | Execution Plan, `activities/*${ACTIVITY_EXT}`, `features/**/*.feature` (Rules only), `actors/*.md` |
 
 # 角色
 
@@ -118,7 +118,7 @@ Activity 視圖統一由 `/zenbu-powers:aibdd-form-activity` 處理。
 
 - 步驟完成後立即推進至下一步，不展示 review cycle
 - 需要使用者輸入的步驟（如 Step 2 Flow Alignment 的 confirm、Step 6 Clarify Loop 的問答）屬於**工作互動**，自然發生在連續執行中
-- 全部 7 步完成後，回傳 carry-on，由 carry-on 進入 Feedback Loop 讓使用者審查交付物
+- 全部 7 步完成後，依「完成後回傳（條件式）」規則回報呼叫來源（見下方 To-Do 規則 6）
 
 # To-Do List 進度控管
 
@@ -130,7 +130,10 @@ Activity 視圖統一由 `/zenbu-powers:aibdd-form-activity` 處理。
 3. **一次只有一個 `in_progress`**
 4. **澄清循環型任務的完成條件是「便條紙歸零」**
 5. **Compaction 後恢復**：讀取 To-Do List，找到第一個 `in_progress` 或 `pending` 任務繼續
-6. **完成後回傳**：Step 7 completed 後，REPORT 給 carry-on，不自行展示審查選項
+6. **完成後回傳（條件式）**：Step 7 completed 後，依呼叫來源回報：
+   - 由 `/zenbu-powers:aibdd-carry-on-engineering-plan` 或 `/zenbu-powers:aibdd-specformula` 呼叫 → **REPORT** 給 carry-on，不自行展示審查選項（由 carry-on 進入 Feedback Loop）
+   - 由 `@zenbu-powers:clarifier` 呼叫 → 回報 clarifier，由其接續 Phase 02-04 的 form skills
+   - user 直接呼叫 → 直接回報主窗口，展示交付物摘要
 
 ## 統一模板（7 個里程碑）
 
@@ -262,7 +265,7 @@ TodoWrite([
 |------|------|------|
 | create | POST /api/leads | 新增 endpoint |
 
-## Phase 05-08: Implementation
+## Phase 05-07: Implementation
 | 操作 | 目標 | 說明 |
 |------|------|------|
 | red-green-refactor | lead/*.feature | 新 feature 的 TDD |
@@ -281,7 +284,7 @@ TodoWrite([
 
 1. 標記 Step 5 → `in_progress`
 2. 依 Execution Plan 逐一處理：
-   - **create**：**DELEGATE** `/zenbu-powers:aibdd-form-activity` 新建 Activity Diagram + **DELEGATE** `/zenbu-powers:aibdd-form-feature-spec` 新建 Feature Files（Rules only，無 Examples，標記 `@ignore`）
+   - **create**：**DELEGATE** `/zenbu-powers:aibdd-form-activity` 新建 Activity Diagram + **DELEGATE** `/zenbu-powers:aibdd-form-feature-spec`（**mode: skeleton**）新建 Feature Files（Rules only，無 Examples，標記 `@ignore`，不腦補資料）
    - **modify**：修改現有 Activity / Feature 的 Rules
    - **delete**：移除不再需要的 Activity / Feature（需使用者確認）
    - 必須遵守「Feature 顆粒度與 Actor 合法性」規則
@@ -366,6 +369,7 @@ TodoWrite([
 
 2. 全部通過 → 標記 Step 7 → `completed`
 3. 寫入 Execution Plan 至 `${PLAN_DIR}/execution-plan.md`
+   - `${PLAN_DIR}` 由呼叫者（carry-on / specformula）傳入；**未定義時的 fallback**：先掃描專案既有 plan 目錄慣例（如已存在 `plans/<slug>/` 結構則沿用），皆無則預設 `plans/<feature-slug>/`（與 `/zenbu-powers:aibdd-specformula` 的 `plans/{slug}/` 慣例一致）
 
 ---
 
@@ -405,14 +409,13 @@ ${SPECS_ROOT_DIR}/
 │   └── <domain>/
 │       ├── <功能名>.feature   # @ignore @command, Rules only
 │       └── <功能名>.feature   # @ignore @query, Rules only
-├── specs/
-│   └── actors/
-│       └── <角色名>.md
+├── actors/
+│   └── <角色名>.md
 └── clarify/
     └── <YYYY-MM-DD-HHMM>.md
 
 ${PLAN_DIR}/
-└── execution-plan.md           # Execution Plan（Phase 02-08 的 scope 依據）
+└── execution-plan.md           # Execution Plan（Phase 02-07 的 scope 依據）
 ```
 
 **注意**：api.yml 和 erm.dbml 不在 Discovery 的產出範圍。它們分別由 Phase 02（Entity Modeling）和 Phase 04（API Contract）的 Reconciler 處理。
@@ -434,9 +437,8 @@ features/
       ├── <功能名>.feature  (@ignore @command)
       └── <功能名>.feature  (@ignore @query)
 
-specs/
-  └── actors/
-      └── <角色名>.md
+actors/
+  └── <角色名>.md
 
 共 N 張便條紙需要解決：
 
@@ -458,5 +460,5 @@ specs/
 - 所有 Activity 的 Actor 均為外部使用者或第三方系統
 - 所有 .feature 無未解便條紙、無 `(待澄清)` 佔位
 - F1-F6 面向覆蓋率全部 Clear
-- Execution Plan 產出，涵蓋 Phase 02-08 的 scope
+- Execution Plan 產出，涵蓋 Phase 02-07 的 scope
 - 所有新建/修改的 .feature 含 Rules、標記 `@ignore`、無 Examples

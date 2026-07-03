@@ -2,12 +2,11 @@
 name: aibdd-specformula
 description: >
   需求層級的全流程工程計畫產生器。給定任意新需求（功能群、單一功能、微調），
-  自動產出 plan.md（含 Dependency Graph）+ 8 張 Phase 卡片
+  自動產出 plan.md（含 Dependency Graph）+ 7 張 Phase 卡片
   （External Quality: Strategic → Entity → BDD Analysis → API Contract
-   → Implementation: Backend TDD → Frontend Build → Frontend E2E → Integration），
+   → Implementation: Backend TDD → Frontend Build → Integration），
   然後委派 /aibdd-carry-on-engineering-plan 以 feedback loop 審查機制逐步執行。
-  當使用者說「specformula」「新需求」「走完整開發流程」「前後端開發」，
-  或想對一個需求走 BDD 全流程時觸發。
+  當使用者說「specformula」「新需求工程計畫」「需求級 BDD 工程計畫」時觸發。
   前提：arguments.yml 已存在（/aibdd-kickoff 已完成）。
 ---
 
@@ -61,22 +60,22 @@ description: >
 
 ## Step 3：產生計畫資料夾
 
-執行 `scripts/generate-plan.py`，一次產出 plan.md + 8 張 Phase 卡片：
+執行**本 skill 目錄下**的 `scripts/generate-plan.py`（skill 載入時已知自身路徑，以下 `{SKILL_DIR}` 代指本 skill 所在目錄），一次產出 plan.md + 7 張 Phase 卡片：
 
 ```bash
-uv run .claude/skills/zenbu-powers:aibdd-specformula/scripts/generate-plan.py \
+uv run {SKILL_DIR}/scripts/generate-plan.py \
   --slug "${REQUIREMENT_TITLE}" \
   --summary "${REQUIREMENT_SUMMARY}" \
   --project-root "${PROJECT_ROOT}"
 ```
 
-腳本自動：讀 `arguments.yml` → 偵測技術棧 → 對 `assets/` 下 9 個模板做 `${VAR}` 替換 → 寫入 `plans/{slug}/`。
+腳本自動：讀 `arguments.yml` → 偵測技術棧 → 對 `assets/` 下 8 個模板做 `${VAR}` 替換 → 寫入 `plans/{slug}/`。
 
 ## Step 4：展示 + 委派
 
 展示已產生的計畫：
 - plan.md 中的 Dependency Graph
-- todo/ 中的 8 張卡片名稱
+- todo/ 中的 7 張卡片名稱
 - 提示：「計畫已產生，開始執行？」
 
 使用者確認後：
@@ -98,7 +97,7 @@ uv run .claude/skills/zenbu-powers:aibdd-specformula/scripts/generate-plan.py \
 | 03 | BDD Analysis | `assets/03-bdd-analysis.md` | `/zenbu-powers:aibdd-form-bdd-analysis` | 系統抽象 + 句型模型 + Feature Examples |
 | 04 | API Contract | `assets/04-api-contract.md` | `/zenbu-powers:aibdd-form-api-spec` | api.yml |
 
-**統一流程** — 不區分 greenfield / 新功能 / 改變需求。每個需求都是 current state → desired state 的 delta 操作。Phase 01 產出 Execution Plan，決定 Phase 02-08 各自的工作範圍。
+**統一流程** — 不區分 greenfield / 新功能 / 改變需求。每個需求都是 current state → desired state 的 delta 操作。Phase 01 產出 Execution Plan，決定 Phase 02-07 各自的工作範圍。
 
 推理順序：**意圖 + 影響評估 → 行為 → 資料 → 規格精煉 → 實作契約**
 
@@ -114,9 +113,8 @@ uv run .claude/skills/zenbu-powers:aibdd-specformula/scripts/generate-plan.py \
 | Phase | 名稱 | Asset 卡片 | 觸發 Skill | 核心產出 |
 |-------|------|-----------|-----------|---------|
 | 05 | Backend TDD | `assets/05-backend-tdd.md` | `/zenbu-powers:aibdd-auto-tdd（stage=control-flow）` | Step Defs + Models + Endpoints + Migrations |
-| 06 | Frontend Build | `assets/06-frontend-build.md` | 3 frontend skills | frontend/ 完整可運行 |
-| 07 | Frontend E2E | `assets/07-frontend-e2e.md` | activity-testplan + Chrome | mock 模式全通過 |
-| 08 | Integration Validation | `assets/08-integration.md` | Chrome E2E real mode | real backend 全通過 |
+| 06 | Frontend Build | `assets/06-frontend-build.md` | 3 frontend skills + Chrome Test Guard（前端 E2E，mock 模式） | frontend/ 完整可運行 + mock 模式 E2E 全通過 |
+| 07 | Integration Validation | `assets/07-integration.md` | Chrome E2E real mode | real backend 全通過 |
 
 ---
 
@@ -125,15 +123,14 @@ uv run .claude/skills/zenbu-powers:aibdd-specformula/scripts/generate-plan.py \
 ```
 01 → 02 → 03 → 04 ──┬──→ 05 ──┐
                      │         │
-                     └──→ 06 → 07 ──→ 08
-                                      ↑
-                               05 ────┘
+                     └──→ 06 ──→ 07
+                                ↑
+                         05 ────┘
 ```
 
 - Phase 01→02→03→04：嚴格串行（每步依賴前步產出）
 - Phase 05 & 06：互不依賴，可由兩個 AI 平行執行（carry-on 的 `doing/` 資料夾作為 lock）
-- Phase 07：依賴 06（需要 Pages 已建好）
-- Phase 08：依賴 05 + 07（前後端都完成）
+- Phase 07：依賴 05 + 06（前後端都完成）
 
 ---
 
@@ -143,12 +140,12 @@ External Quality（Phase 01-03）的產出物是後續所有 Phase 的共同依�
 
 | 產物 | 產出 Phase | 消費者 |
 |------|-----------|--------|
-| Execution Plan | 01 | 02-08（各 Phase 的 scope 依據） |
-| Activity Diagrams | 01 | 07（Test Plan 結構） |
+| Execution Plan | 01 | 02-07（各 Phase 的 scope 依據） |
+| Activity Diagrams | 01 | 06（Chrome Test Guard 測試計畫結構） |
 | Feature Files（Rules） | 01 | 02（實體推導依據）、03（BDD Analysis 輸入） |
 | Feature Files（含 Examples） | 03 | 04（API 推導）、05（TDD 循環） |
 | erm.dbml | 02 | 03（Examples 欄位/邊界值）、05（Schema Analysis） |
-| api.yml | 04 | 05（Red 欄位守衛）、06（MSW handlers）、08（驗證基準） |
+| api.yml | 04 | 05（Red 欄位守衛）、06（MSW handlers）、07（驗證基準） |
 
 ---
 
@@ -161,12 +158,12 @@ External Quality（Phase 01-03）的產出物是後續所有 Phase 的共同依�
 | 層 | 載體 | 持久性 | 內容 |
 |----|------|--------|------|
 | 1 | 檔案系統 | 最持久 | plan.md + 卡片位置 + 簽核 + clarify-log |
-| 2 | TodoWrite | 跨 compaction | specformula 8 任務（每 Phase 1 個）/ 各 Phase 內部自管細節 |
+| 2 | TodoWrite | 跨 compaction | specformula 7 任務（每 Phase 1 個）/ 各 Phase 內部自管細節 |
 | 3 | Context Window | 最易失 | 當前步驟的審查狀態 |
 
 ## Compact Proof 層次化
 
-specformula 層管 **8 個 TodoWrite 任務**（每 Phase 1 個）。
+specformula 層管 **7 個 TodoWrite 任務**（每 Phase 1 個）。
 每個 Phase 內部由對應 skill 自己展開自己的細節任務，不混在一起。
 
 ## Lazy Loading

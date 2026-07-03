@@ -13,7 +13,7 @@ Layer 1: 檔案系統（最持久，跨 session、跨 AI）
 └── 交付物狀態         → PENDING / SPEC_READY / DONE
 
 Layer 2: TodoWrite（跨 compaction 持久）
-├── specformula 層    → 8 Phase + 8 Gate = 16 任務
+├── specformula 層    → 7 任務（每 Phase 1 個）
 ├── discovery 層      → 7 里程碑任務（Phase 01，由 discovery 自管）
 ├── bdd-analysis 層   → 3 子階段（Phase 03，由 bdd-analysis 自管）
 └── control-flow 層   → N features × 3 phases（Phase 05，由 cf 自管）
@@ -40,11 +40,11 @@ Context 被壓縮後，carry-on 自動執行：
 ## Compact Proof 層次化展開
 
 ```
-specformula 層（Layer 0）— 固定 16 任務（8 Phase + 8 Gate）
+specformula 層（Layer 0）— 固定 7 任務（每 Phase 1 個）
 │
 ├─ Phase 01 展開時（Layer 1）
-│  └→ discovery 統一流程 6 步
-│     └→ 組成分析 → Structural Read → Impact Analysis → 澄清 → 行為設計 → Quality Gate
+│  └→ discovery 統一流程 7 步
+│     └→ 組成分析 → 流程對齊 → Structural Read → Impact Analysis → 行為設計 → 澄清 → Quality Gate
 │
 ├─ Phase 02 展開時（Layer 1）
 │  └→ entity-spec 澄清循環
@@ -60,29 +60,25 @@ specformula 層（Layer 0）— 固定 16 任務（8 Phase + 8 Gate）
 │  └→ control-flow 內部 N features × 3 phases
 │
 ├─ Phase 06 展開時（Layer 1）
-│  └→ Starter Batch A-F → API Layer → Pages
+│  └→ Starter Batch A-F → API Layer → Pages → Chrome Test Guard（前端 E2E，mock mode）
 │
-├─ Phase 07 展開時（Layer 1）
-│  └→ Activity Test Plan → Chrome E2E（mock mode）
-│
-└─ Phase 08 展開時（Layer 1）
+└─ Phase 07 展開時（Layer 1）
    └→ 啟動後端 → 環境切換 → 重跑 E2E → 驗證矩陣
 ```
 
-每一層各自用自己的 TodoWrite 管理。specformula 層看到 16 任務，不看到 discovery 的 7 步或 control-flow 的 N×3 步。
+每一層各自用自己的 TodoWrite 管理。specformula 層看到 7 任務，不看到 discovery 的 7 步或 control-flow 的 N×3 步。
 
 ## Skill Lazy Loading 策略
 
 | Phase doing 時 | LOAD 的 Skills |
 |---------------|---------------|
-| Phase 01 | `/zenbu-powers:aibdd-discovery`（統一流程：組成分析 → Structural Read → Impact → 行為設計） |
+| Phase 01 | `/zenbu-powers:aibdd-discovery`（統一流程 7 步：組成分析 → 流程對齊 → Structural Read → Impact → 行為設計 → 澄清 → Quality Gate） |
 | Phase 02 | `/zenbu-powers:aibdd-form-entity-spec` |
 | Phase 03 | `/zenbu-powers:aibdd-form-bdd-analysis`（內部 lazy load web-backend preset） |
 | Phase 04 | `/zenbu-powers:aibdd-form-api-spec` |
 | Phase 05 | `/zenbu-powers:aibdd-auto-tdd（stage=control-flow）` → 內部 stage 路由展開 red / green / refactor（各 stage 各自 lazy load `_stage-flow.md` + `{lang}.md`） |
-| Phase 06 | `/zenbu-powers:aibdd-auto-frontend-apifirst-msw-starter` → `msw-api-layer` → `nextjs-pages`（依序載入） |
-| Phase 07 | `/zenbu-powers:aibdd-frontend-e2e-activity-testplan` |
-| Phase 08 | 無新 skill，重用 Phase 07 的 test plan |
+| Phase 06 | `/zenbu-powers:aibdd-auto-frontend-apifirst-msw-starter` → `msw-api-layer` → `nextjs-pages`（依序載入）＋ Chrome Test Guard（前端 E2E，mock mode） |
+| Phase 07 | 無新 skill，重用 Phase 06 的 Chrome Test Guard 測試計畫（real backend mode） |
 
 **跨 skill 切換時必定重新 LOAD**（non-negotiable）— 確保 context 中涵蓋正確的規則。
 
@@ -95,4 +91,4 @@ Phase 05 & 06 可由兩個 AI session 平行執行：
 - 各 AI 只修改自己正在處理的卡片
 - `plan.md` 不被修改，無衝突風險
 
-Phase 08 必須等 05 + 07 都在 `done/` 才可啟動。
+Phase 07 必須等 05 + 06 都在 `done/` 才可啟動。

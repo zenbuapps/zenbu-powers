@@ -8,7 +8,7 @@ Usage:
     uv run generate-plan.py --slug <slug> --summary <summary> [--project-root <path>]
 
 Reads specs/arguments.yml, resolves template variables, and writes
-plans/<slug>/plan.md + plans/<slug>/todo/01~08.md in one shot.
+plans/<slug>/plan.md + plans/<slug>/todo/01~07.md in one shot.
 """
 
 import argparse
@@ -107,7 +107,7 @@ def main():
         (plan_dir / "plan.md").write_text(content, encoding="utf-8")
         print(f"  plan.md")
 
-    # Generate phase cards (01~08)
+    # Generate phase cards (01~07)
     card_templates = sorted(assets_dir.glob("[0-9][0-9]-*.md"))
     for template_path in card_templates:
         content = safe_substitute(template_path.read_text(encoding="utf-8"), variables)

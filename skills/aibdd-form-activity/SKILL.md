@@ -247,4 +247,6 @@ scope:
 
 ## Hand-off / Next Agent
 
-完成後交還 orchestrator。所有 form skill 重構（#4）完成後，將與 api-spec / bdd-analysis 一同由 orchestrator 自評 reconciler 一致性與 greenfield 行為等價性。
+完成後交還呼叫者，回傳 change_summary（含 IMPL_IMPACT）：
+- **被 `/zenbu-powers:aibdd-discovery` 調用**：REPORT 給 discovery，由其續跑 Step 5 後續流程（Feature 骨架、便條紙彙整）
+- **獨立調用**：直接回報使用者

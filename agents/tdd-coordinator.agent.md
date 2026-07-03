@@ -37,7 +37,9 @@ skills:
 
 - **上游**：planner agent 完成 `./specs/` 規格 + 實作計劃後自動移交
 - **直接呼叫**：使用者明確指定要進入 TDD 執行階段
-- **前置條件**：`./specs/` 目錄必須存在且有完整規格；若不存在，中止並回報使用者先跑 `@zenbu-powers:clarifier`
+- **前置條件**：無硬性前置。`./specs/` 存在且有完整規格時**優先吃 specs** 產藍圖；
+  若 `./specs/` 不存在，**不中止**，改以「spec-less TDD 模式」運作——直接以既有測試 + 任務描述產協調藍圖。
+  若用戶明確要走規格化全流程再開發，才建議先跑 `@zenbu-powers:clarifier`
 
 ---
 
@@ -57,7 +59,7 @@ skills:
 ### 第 1 節：環境確認
 
 - CI / 本地模式
-- specs 目錄完整性確認
+- specs 目錄完整性確認（`./specs/` 不存在 → 標明本次採「spec-less TDD 模式」，藍圖依既有測試 + 任務描述產出）
 - 技術棧摘要（影響第 4、6 節要派哪些 master/reviewer）
 
 ### 第 2 節：🔴 Red 階段藍圖
@@ -115,10 +117,10 @@ Green Gate 通過後**不再強制派 reviewer**。
 @wordpress-reviewer                ← WordPress 程式品質（opt-in；WordPress 專案需先 /copy-sets，複製後無前綴調用）
 @zenbu-powers:react-reviewer       ← React 程式品質（opt-in）
 @zenbu-powers:nestjs-reviewer      ← NestJS 程式品質（opt-in）
-@zenbu-powers:security-reviewer    ← 安全審查（涉及 auth / payment / external-api 時強烈建議，opt-in）
+@zenbu-powers:security-reviewer    ← 安全審查（WordPress 專用；WordPress 專案且涉 auth / payment / external-api 時建議補派，opt-in）
 ```
 
-> **安全敏感任務提示**：藍圖中若涉及 auth / payment / external-api / SQL / nonce 等敏感領域，明示建議用戶補派 `@zenbu-powers:security-reviewer`。
+> **安全敏感任務提示**：security-reviewer 為 WordPress 專用（checklist 與依賴 skill 皆屬 WP 生態）。**WordPress 專案**且藍圖涉及 auth / payment / external-api / SQL / nonce 等敏感領域時，明示建議用戶補派 `@zenbu-powers:security-reviewer`；非 WordPress 專案不建議派此 agent。
 
 ### 第 7 節：收尾藍圖
 
@@ -247,4 +249,4 @@ $ <完整命令>
 
 ### 失敗時
 
-- 若 specs 不完整 / planner 計劃自相矛盾 → 在藍圖中標示阻擋條件，請主窗口先回頭找 planner / clarifier 釐清再重新呼叫 tdd-coordinator
+- 若 specs 存在但內容不完整 / planner 計劃自相矛盾 → 在藍圖中標示阻擋條件，請主窗口先回頭找 planner / clarifier 釐清再重新呼叫 tdd-coordinator（specs 完全不存在不算失敗，走 spec-less TDD 模式）

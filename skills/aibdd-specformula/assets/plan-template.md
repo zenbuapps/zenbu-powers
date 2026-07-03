@@ -65,17 +65,19 @@ Phase 01-04 的產出物是所有實作 Phase 的共同契約。
 
 Phase 01-04 的產出物是 Phase 05-07 的共同依據（Single Source of Truth）：
 
+> 註：本檔（`${PLAN_DIR}/plan.md`）是 generate-plan.py 產出的 Dependency Graph；Execution Plan 由 Phase 01 discovery 另行產出。
+
 | 產物 | 路徑 | 消費者 |
 |------|------|--------|
-| Execution Plan | `${PLAN_DIR}/plan.md` | Phase 02-07（scope 依據） |
+| Execution Plan | `${PLAN_DIR}/execution-plan.md` | Phase 02-07（scope 依據） |
 | Activity Diagrams | `${SPECS_ROOT_DIR}/activities/` | Phase 06（Chrome Test Guard 測試計畫結構） |
 | Feature Files（含 Examples） | `${SPECS_ROOT_DIR}/features/` | Phase 05（TDD 循環） |
-| erm.dbml | `${SPECS_ROOT_DIR}/entity/erm.dbml` | Phase 05（Schema Analysis） |
-| api.yml | `${SPECS_ROOT_DIR}/api/api.yml` | Phase 05（Red 欄位守衛）、Phase 06（MSW handlers）、Phase 07（驗證基準） |
+| erm.dbml | `${SPECS_ROOT_DIR}/erm.dbml` | Phase 05（Schema Analysis） |
+| api.yml | `${SPECS_ROOT_DIR}/api.yml` | Phase 05（Red 欄位守衛）、Phase 06（MSW handlers）、Phase 07（驗證基準） |
 
 ## Context Management
 
 - 三層持久化：檔案系統（卡片）+ TodoWrite + Context Window
-- Compact Proof 層次化：specformula 16 任務 / 各 Phase 內部自管細節
+- Compact Proof 層次化：specformula 7 任務（每 Phase 1 個）/ 各 Phase 內部自管細節
 - Lazy Loading：每個 Phase 只載入當前 skill，跨 skill 必定重新 LOAD
 - 詳見 skill `references/context-management.md`

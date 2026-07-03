@@ -30,19 +30,19 @@ carry-on Step 02.2 觸發時：
 1. **DELEGATE `/zenbu-powers:aibdd-form-entity-spec`**，傳入：
    - Feature Files 路徑（`${SPECS_ROOT_DIR}/features/`）
    - Activity Diagrams 路徑（`${SPECS_ROOT_DIR}/activities/`）
-   - 輸出路徑（`${SPECS_ROOT_DIR}/entity/erm.dbml`）
+   - 輸出路徑（`${SPECS_ROOT_DIR}/erm.dbml`）
    - Execution Plan scope（Phase 02 區段）
 2. entity-spec 以 Reconciler 6 步執行：Derive Desired → Read Current → Compute Diff → Preview → Apply with Clarify → Output
 3. 產出 erm.dbml 後回傳控制權
 
 | # | 交付物 | 路徑 | 狀態 |
 |---|--------|------|------|
-| 02.1 | erm.dbml | `${SPECS_ROOT_DIR}/entity/erm.dbml` | PENDING |
+| 02.1 | erm.dbml | `${SPECS_ROOT_DIR}/erm.dbml` | PENDING |
 | 02.2 | 澄清紀錄 | `${SPECS_ROOT_DIR}/clarify/` | PENDING |
 
 ### 驗收點
 
 - [ ] erm.dbml 已產出
-- [ ] Grep `CiC\(` 掃描 `entity/erm.dbml` 結果為空
+- [ ] Grep `CiC\(` 掃描 `erm.dbml` 結果為空
 - [ ] 每個 Feature 中的操作都能追溯到 erm.dbml 中的實體
 - [ ] 欄位名、型別、約束條件完整

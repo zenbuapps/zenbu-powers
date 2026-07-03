@@ -24,6 +24,20 @@ user-invocable: true
 
 ## 執行流程
 
+### 模式參數（mode）
+
+| 參數值 | 預設 | 行為 |
+|--------|------|------|
+| `full` | ✅ | 現行完整流程：澄清後產出含 Examples 的完整 Feature File |
+| `skeleton` | | 骨架模式：只產出 Feature header + Rules + `@ignore` 標記；**不產 Examples、不腦補 datatable 測試資料**；不確定處保留便條紙（`# CiC(...)`） |
+
+- 呼叫者未指定時預設 `mode: full`。
+- `/zenbu-powers:aibdd-discovery` Step 5 委派本 skill 時固定帶 `mode: skeleton`（Phase 01 只需要 Rules 骨架；Examples 由 Phase 03 `/zenbu-powers:aibdd-form-bdd-analysis` 產出）。
+- `mode: skeleton` 時：
+  - 跳過下方「草稿模式」的 datatable 資料推斷
+  - Example 區段以 `# ⚠ Example 區段：使用者未提供具體案例，暫不生成。待澄清後補充。` 標記，不生成任何 Example
+  - 完成條件改為「所有 Rule 已列出（含必要便條紙）」，便條紙的澄清歸零由呼叫者（discovery Step 6 Clarify Loop）負責，不適用下方「完成條件」的無便條紙要求
+
 ### 輸入來源判斷
 
 **輸入來源一：`.feature` 骨架（含便條紙）**
@@ -52,9 +66,9 @@ user-invocable: true
 2. 列表呈現給用戶確認：會開出幾個 Feature、哪些是 Command 類型、哪些是 Query 類型
 3. 確認後進入草稿模式或澄清模式
 
-### 草稿模式（ES 項目已 clear）
+### 草稿模式（ES 項目已 clear；僅 `mode: full`）
 
-**當 ES 項目無 `(待澄清)` 標記時，AI 直接根據 ES 的 Rules、參數、Aggregate 生成完整的 Feature File 草稿，不逐條提問。**
+**當 ES 項目無 `(待澄清)` 標記時，AI 直接根據 ES 的 Rules、參數、Aggregate 生成完整的 Feature File 草稿，不逐條提問。**（`mode: skeleton` 時不適用——只列 Rules，不推斷資料）
 
 - ES 中的每條原子規則 → 對應一條 Gherkin Rule + Example
 - AI 自行推斷具體的 datatable 測試資料（如用戶名 `Alice`、商品 ID `1`、價格 `50`）
@@ -77,7 +91,7 @@ user-invocable: true
 
 ## 便條紙格式（強制規範）
 
-**完整格式定義、品質標準與範例見 `../zenbu-powers:aibdd-form-activity/references/cic-format.md`。**
+**完整格式定義、品質標準與範例見 `../aibdd-form-activity/references/cic-format.md`。**
 
 本 skill 使用 Gherkin 註解前綴：`# CiC(<CATEGORY>): ...`
 

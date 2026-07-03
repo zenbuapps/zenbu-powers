@@ -8,7 +8,8 @@ description: >
   善用 Scenario Outline + Examples 做 Data-Driven 測試，
   善用 Data Table 承載結構化輸入與驗證。
   支援 Boundary 偵測——偵測到 Web Backend 時載入內建 preset（句型分析方針 + Handler 決策樹）。
-  由 /aibdd-discovery 在 Strategic 完成後、Tactical 開始前 DELEGATE 觸發。
+  由 @zenbu-powers:clarifier 在 Phase 03（BDD Analysis）親自呼叫，
+  或由 /zenbu-powers:aibdd-carry-on-engineering-plan 執行 Phase 03 卡片時觸發。
 ---
 
 # BDD 分析：系統抽象驅動的可執行規格產出（Reconciler）
@@ -301,4 +302,7 @@ change_summary 中附帶 IMPL_IMPACT 表，格式見 `aibdd-core/references/reco
 
 ## Hand-off / Next Agent
 
-完成後交還 orchestrator。所有 form skill 重構（#4）的 sub-agent 階段於本檔對齊後告一段落；Stage D 必須 human-in-the-loop 跑回歸驗證（活化 reconciler 一致性、greenfield 行為等價性、IMPL_IMPACT 傳播鏈），交由後續處理。
+完成後交還呼叫者，回傳 change_summary（含 IMPL_IMPACT）：
+- **clarifier 路徑**：回報 clarifier，由其接續 Phase 04 呼叫 `/zenbu-powers:aibdd-form-api-spec`
+- **carry-on 路徑**：REPORT 給 carry-on，由 carry-on 進入該 Phase 的 Feedback Loop
+- **獨立調用**：直接回報使用者

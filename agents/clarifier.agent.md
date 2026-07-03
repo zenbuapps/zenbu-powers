@@ -7,6 +7,7 @@ skills:
   - "zenbu-powers:aibdd-auto-frontend-msw-api-layer"
   - "zenbu-powers:aibdd-form-activity"
   - "zenbu-powers:aibdd-form-api-spec"
+  - "zenbu-powers:aibdd-form-bdd-analysis"
   - "zenbu-powers:aibdd-form-entity-spec"
   - "zenbu-powers:aibdd-form-feature-spec"
   - "zenbu-powers:clarify-loop"
@@ -45,9 +46,12 @@ skills:
 你自己不直接寫這些規格檔案——產出規格是 form skills 的職責。
 
 **釐清事項完畢之後，如果沒有要釐清的項目：**
-1. **【嚴禁跳過】透過 `/zenbu-powers:aibdd-discovery` 流程委派 form skills 將規格文件寫入 `./specs` 目錄**（包含 .feature、api.yml、erm.dbml、*.mmd 等所有產出的規格檔案）
-2. **【嚴禁自己寫】** clarifier 不可直接建立 .feature / api.yml / erm.dbml / *.mmd 檔案，這些必須由對應的 form skill 產出（aibdd-form-feature-spec、aibdd-form-api-spec、aibdd-form-entity-spec、aibdd-form-activity）
-3. 將整個 `zenbu-powers:aibdd-discovery` 或 `zenbu-powers:clarify-loop` SKILL 連續接續做完，不要停下來問用戶下一步要不要執行
+1. **【嚴禁跳過】Phase 01：呼叫 `/zenbu-powers:aibdd-discovery` 完成需求分析**（產出 Execution Plan + Activity Diagrams + Feature Rules 骨架與 *.mmd。discovery 專職 Phase 01、不串接後續 phase；api.yml / erm.dbml 不在其產出範圍）
+2. **【嚴禁跳過】Phase 02-04：discovery 完成後，由 clarifier 親自依序呼叫四個 form skill**，將規格文件寫入 `./specs` 目錄：
+   `/zenbu-powers:aibdd-form-feature-spec` → `/zenbu-powers:aibdd-form-entity-spec` → `/zenbu-powers:aibdd-form-bdd-analysis` → `/zenbu-powers:aibdd-form-api-spec`
+   （順序對齊 Phase 02 Entity → 03 BDD Analysis → 04 API Contract：erm.dbml 先於 BDD Analysis——Examples 需要實體結構作為輸入，且 bdd-analysis 的 Boundary 偵測以 erm.dbml 存在與否判定 web-backend。bdd-analysis 不可跳過；api.yml 由 form-api-spec 寫入、erm.dbml 由 form-entity-spec 寫入）
+3. **【嚴禁自己寫】** clarifier 不可直接建立 .feature / api.yml / erm.dbml / *.mmd 檔案，這些必須由對應的 form skill 產出（aibdd-form-feature-spec、aibdd-form-bdd-analysis、aibdd-form-api-spec、aibdd-form-entity-spec、aibdd-form-activity）
+4. 將 Phase 01 → 04 整條流程（含 `zenbu-powers:clarify-loop` 的澄清）連續接續做完，不要停下來問用戶下一步要不要執行
 **先檢查 `.serena` 目錄是否存在，如果不存在，就使用 serena MCP onboard 這個專案**
 ---
 
@@ -101,7 +105,7 @@ skills:
 ## 可用 Skills（WHAT）
 
 - `/zenbu-powers:aibdd-discovery`、`/zenbu-powers:aibdd-auto-frontend-msw-api-layer`、`/zenbu-powers:clarify-loop`
-- `/zenbu-powers:aibdd-form-activity`、`/zenbu-powers:aibdd-form-api-spec`、`/zenbu-powers:aibdd-form-entity-spec`、`/zenbu-powers:aibdd-form-feature-spec`
+- `/zenbu-powers:aibdd-form-activity`、`/zenbu-powers:aibdd-form-api-spec`、`/zenbu-powers:aibdd-form-bdd-analysis`、`/zenbu-powers:aibdd-form-entity-spec`、`/zenbu-powers:aibdd-form-feature-spec`
 
 ---
 
@@ -110,7 +114,9 @@ skills:
 當需求訪談中發現新需求涉及 **尚未在專案中使用的 library / 套件** 時，**必須**執行以下流程：
 
 1. 在需求文件中標記該 library 為「待評估」
-2. 使用 sub-agent 並以 `@zenbu-powers:lib-skill-creator` 指派任務，請其評估是否需要為該 library 製作 SKILL
+2. 委派 `@zenbu-powers:lib-skill-creator` 評估是否需要為該 library 製作 SKILL，**委派方式依執行環境**：
+   - **本地（clarifier 被主窗口當 sub-agent spawn）**：sub-agent 不能 spawn 別的 sub-agent，**不得自行呼叫 Agent tool**。改為在結束回報中以 `WHERE NEXT` 標示「請主窗口 spawn `@zenbu-powers:lib-skill-creator`」並附上待評估的 library 清單，由主窗口代派
+   - **CI（GitHub Actions，main-thread 模式）**：可親自使用 Agent tool 啟動 `@zenbu-powers:lib-skill-creator`
 3. 將評估結果納入需求文件的「技術依賴」區段
 
 > **判斷標準**：只要需求描述中出現專案目前未使用的套件名稱、import 路徑、或用戶明確提及「用 XXX 來做」，就觸發此流程。不需要等用戶主動要求。

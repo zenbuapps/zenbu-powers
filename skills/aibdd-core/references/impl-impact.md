@@ -1,6 +1,6 @@
 # IMPL_IMPACT：Spec → Implementation 影響標記
 
-從 `reconciler-contract.md` 拆出。所有 spec reconciler（Phase 02-04）改動 spec artifact 時，可能影響已存在的 implementation artifacts（Phase 05-08）。Reconciler **不直接讀取或修改** implementation artifacts（無職責汙染），但在 change_summary 中標記影響，由 Execution Plan 傳播給下游 Phase。
+從 `reconciler-contract.md` 拆出。所有 spec reconciler（Phase 02-04）改動 spec artifact 時，可能影響已存在的 implementation artifacts（Phase 05-07）。Reconciler **不直接讀取或修改** implementation artifacts（無職責汙染），但在 change_summary 中標記影響，由 Execution Plan 傳播給下游 Phase。
 
 ---
 
@@ -47,14 +47,14 @@
    - Step Definitions / Models / Endpoints / Migrations → Phase 05
    - MSW Handlers / Frontend Pages → Phase 06
    - Test Plan → Phase 07（當 Activity 結構變更時）
-   - Integration → Phase 08（當 Phase 05 或 06 有影響時自動觸發重驗）
-4. **Greenfield 不產出 IMPL_IMPACT**：全部是 create → 全部是 `NEW_OPERATION` → Phase 05-08 正常走 one-shot 流程
+   - Integration → Phase 07（當 Phase 05 或 06 有影響時自動觸發重驗）
+4. **Greenfield 不產出 IMPL_IMPACT**：全部是 create → 全部是 `NEW_OPERATION` → Phase 05-07 正常走 one-shot 流程
 
 ---
 
 ## 下游消費方式
 
-Phase 05-08 從 Execution Plan 讀取 IMPL_IMPACT hints：
+Phase 05-07 從 Execution Plan 讀取 IMPL_IMPACT hints：
 
 | 模式 | 觸發條件 | 行為 |
 |------|---------|------|

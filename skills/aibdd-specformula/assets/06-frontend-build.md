@@ -9,6 +9,7 @@
 
 以 Phase 04 的 api.yml + Phase 01 的 Activity Diagram 為輸入，
 建立前端基礎建設（MSW Starter）、API 層（MSW handlers）、頁面實作。
+**本 phase 含前端 E2E 驗證（Chrome Test Guard，mock 模式）**——所有頁面與可互動元素以瀏覽器實際操作驗證，詳見下方 Chrome Test Guard 章節。
 
 **雙模式運作**：依 Execution Plan 的 IMPL_IMPACT 決定走哪種模式。
 
@@ -26,7 +27,7 @@
 |---|------|------|------|
 | 1 | api.yml | Phase 04 交付 | API 契約 — MSW handlers 的生成依據 |
 | 2 | Activity Diagrams | Phase 01 交付 | 流程結構（路線、分支）— 頁面導航的依據 |
-| 3 | UI Specs（若有） | Phase 01 交付 | `${SPECS_ROOT_DIR}/specs/ui/*.md` |
+| 3 | UI Specs（若有） | Phase 01 交付 | `${SPECS_ROOT_DIR}/ui/*.md` |
 
 ## 交付物
 

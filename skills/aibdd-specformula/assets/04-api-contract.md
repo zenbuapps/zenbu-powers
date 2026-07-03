@@ -36,21 +36,21 @@ carry-on Step 04.2 觸發時：
 
 1. **DELEGATE `/zenbu-powers:aibdd-form-api-spec`**，傳入：
    - Feature Files 路徑（`${SPECS_ROOT_DIR}/features/`）
-   - erm.dbml 路徑（`${SPECS_ROOT_DIR}/entity/erm.dbml`）
-   - 輸出路徑（`${SPECS_ROOT_DIR}/api/api.yml`）
+   - erm.dbml 路徑（`${SPECS_ROOT_DIR}/erm.dbml`）
+   - 輸出路徑（`${SPECS_ROOT_DIR}/api.yml`）
    - Execution Plan scope（Phase 04 區段）
 2. api-spec 以 Reconciler 6 步執行：Derive Desired → Read Current → Compute Diff → Preview → Apply with Clarify → Output
 3. 產出 api.yml 後回傳控制權
 
 | # | 交付物 | 路徑 | 狀態 |
 |---|--------|------|------|
-| 04.1 | api.yml | `${SPECS_ROOT_DIR}/api/api.yml` | PENDING |
+| 04.1 | api.yml | `${SPECS_ROOT_DIR}/api.yml` | PENDING |
 | 04.2 | 澄清紀錄 | `${SPECS_ROOT_DIR}/clarify/` | PENDING |
 
 ### 驗收點
 
 - [ ] api.yml 已產出
-- [ ] Grep `CiC\(` 掃描 `api/api.yml` 結果為空
+- [ ] Grep `CiC\(` 掃描 `api.yml` 結果為空
 - [ ] 每個 Feature 的 command/query 都有對應的 API endpoint
 - [ ] Request/Response schema 與 erm.dbml 欄位一致
 - [ ] Response envelope 格式統一（`{ success, data/error }`）

@@ -122,4 +122,7 @@ Read `references/openapi-format.md` 取得型別推斷與格式規則。
 
 ## Hand-off / Next Agent
 
-完成後交還 orchestrator。所有 form skill 重構（#4）的 sub-agent 階段於本檔對齊後告一段落；Stage D 必須 human-in-the-loop 跑回歸驗證（活化 reconciler 一致性、greenfield 行為等價性、IMPL_IMPACT 傳播鏈），交由後續處理。
+完成後交還呼叫者，回傳 change_summary（含 IMPL_IMPACT）：
+- **clarifier 路徑**：回報 clarifier，由其接續呼叫 `/zenbu-powers:aibdd-form-entity-spec` 完成 Entity 視圖
+- **carry-on 路徑**：REPORT 給 carry-on，由 carry-on 進入該 Phase 的 Feedback Loop
+- **獨立調用**：直接回報使用者
