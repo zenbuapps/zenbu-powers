@@ -83,6 +83,10 @@ flowchart TD
 
 ## 安裝方式
 
+### 前置需求
+
+- **uv（uvx）** — 內建的 Serena MCP（`.mcp.json`）以 `uvx` 啟動，需先安裝 [Python uv](https://docs.astral.sh/uv/)。未安裝時 Serena MCP 無法啟動，其餘 skill / agent 不受影響
+
 ### 從 Marketplace 安裝
 
 ```bash
@@ -151,7 +155,7 @@ zenbu-powers 的核心紀律仰賴 hook 注入，**預設不啟用**。在 `~/.c
 | Agent | 說明 |
 |---|---|
 | `planner` | 複雜功能與重構的實作計畫設計師 |
-| `clarifier` | 結構化需求訪談，輸出使用者故事與驗收標準 |
+| `clarifier` | AIBDD 規格化訪談入口（Phase 01→04），產出 .feature / api.yml / erm.dbml 等結構化規格並交接 planner |
 | `ddd-architect` | DDD 重構規劃，識別 Code Smell、排序重構步驟 |
 | `tdd-coordinator` | 接收 planner 計畫，強制執行 Red→Green→Refactor 迴圈 |
 
@@ -161,7 +165,8 @@ zenbu-powers 的核心紀律仰賴 hook 注入，**預設不啟用**。在 `~/.c
 |---|---|
 | `browser-tester` | git diff 驅動的瀏覽器模擬測試，錄製影片與截圖 |
 | `test-creator` | 通用測試工程師，E2E + 整合測試完整覆蓋 |
-| `security-reviewer` | OWASP Top 10、WordPress XSS/SQL Injection/CSRF、依賴漏洞（**opt-in**：用戶顯式喚醒才上場；不在自動流程中。涉及 auth / payment / external-api 時強烈建議補派） |
+| `security-reviewer` | OWASP Top 10、WordPress XSS/SQL Injection/CSRF、依賴漏洞（**opt-in**：用戶顯式喚醒才上場；不在自動流程中。WordPress 專案涉及 auth / payment / external-api 時強烈建議補派） |
+| `acceptance-evaluator` | 驗收標準對齊審查（**人工調用專用**：僅 `@zenbu-powers:acceptance-evaluator` 顯式喚醒；orchestrator 禁止自動派發） |
 
 ### DevOps / CI
 
@@ -236,7 +241,7 @@ AIBDD 是 zenbu-powers 的核心差異化能力。從 BDD 分析到整合測試�
 
 ### WordPress（19 個 skill-set，條件複製）
 
-> 全部位於 `skill-sets/`，非全域常駐。`/copy-sets` 偵測到 WordPress 專案時複製進 `.claude/skills/`，複製後以無前綴名稱調用。其中 `wordpress-standards`、`wordpress-router`、`wp-phpstan`、`wp-project-triage`、`wp-testing` 為近期從 `skills/` 全域常駐搬遷而來。
+> 全部位於 `skill-sets/`，非全域常駐。`/copy-sets` 偵測到 WordPress 專案時複製進 `.claude/skills/`，複製後以無前綴名稱調用。其中 `wordpress-master`、`wordpress-standards`、`wordpress-router`、`wp-phpstan`、`wp-project-triage`、`wp-testing` 為近期從 `skills/` 全域常駐搬遷而來。
 
 | Skill | 說明 |
 |---|---|
@@ -253,12 +258,12 @@ AIBDD 是 zenbu-powers 的核心差異化能力。從 BDD 分析到整合測試�
 | `/wp-testing` | WordPress Plugin 測試統一入口（E2E + Integration；含決策樹） |
 | `/wp-project-triage` | WP 專案健康檢查 |
 | `/wp-mcp-adapter` | WP MCP 適配器 |
+| `/wordpress-master` | wordpress-master agent playbook（隨 wordpress agent-set 條件複製） |
 | `/wordpress-router` | 前端路由決策樹 |
 | `/wordpress-standards` | WordPress 規範統一入口（coding / review checklist / security checklist 三視角） |
 | `/woocommerce-hpos` | WooCommerce HPOS 高效能訂單存儲 |
 | `/wpds` | WordPress 元件設計系統 |
 | `/vite-for-wp-v0-12` | Vite for WordPress |
-| `/powerhouse-v3-3` | Powerhouse v3.3 |
 
 ### React / 前端框架（24 個）
 
@@ -289,7 +294,7 @@ AIBDD 是 zenbu-powers 的核心差異化能力。從 BDD 分析到整合測試�
 | `/react-hook-form-v7` | React Hook Form v7 |
 | `/tiptap-v2` | Tiptap 富文本編輯器 |
 
-### NestJS / Node.js / 後端（11 個）
+### NestJS / Node.js / 後端（12 個）
 
 | Skill | 說明 |
 |---|---|
@@ -303,7 +308,26 @@ AIBDD 是 zenbu-powers 的核心差異化能力。從 BDD 分析到整合測試�
 | `/zod-v3` | Zod v3 資料驗證 |
 | `/better-auth-v1-4` | Better Auth v1.4 |
 | `/stripe-node-v22` | Stripe Node.js SDK v22 |
-| `/docker-compose` | Docker Compose |
+| `/powerhouse-v3-3` | Powerhouse v3.3（依 `@powerhousedao/*` npm 依賴自動配對複製） |
+| `/docker-compose` | Docker Compose（無 npm 依賴可自動配對，需 `/copy-sets --set docker-compose` 手動複製） |
+
+### Skill-sets 全覽與手動複製（--set）
+
+`skill-sets/` 共 59 個 set。多數由 `/copy-sets` 自動配對（npm 依賴或 WordPress 專案偵測）；**無自動配對條件**的 set（`docker-compose`、多數 `line-*`、`telegram-api`、`whatsapp-api`）需以 `--set` 明確指定手動複製：
+
+```bash
+/copy-sets --set docker-compose
+/copy-sets --set line-pay --set telegram-api   # 可重複指定多個
+```
+
+| 分類 | Skill-sets |
+|---|---|
+| WordPress（WP 專案偵測自動配對，19 個） | `wordpress-master`、`wordpress-router`、`wordpress-standards`、`wp-abilities-api`、`wp-block-development`、`wp-block-themes`、`wp-interactivity-api`、`wp-mcp-adapter`、`wp-performance`、`wp-phpstan`、`wp-playground`、`wp-plugin-development`、`wp-project-triage`、`wp-rest-api`、`wp-testing`、`wp-wpcli-and-ops`、`wpds`、`woocommerce-hpos`、`vite-for-wp-v0-12` |
+| 前端框架 / Library（npm 依賴自動配對，16 個） | `ant-design-pro-v2`、`antd-toolkit`、`antd-v5`、`antd-v6`、`blocknote-v0-30`、`i18next-v25`、`jotai-v2`、`next-intl-v4`、`nextjs`、`pdf-lib-v1-17`、`react-flow-v12`、`react-hook-form-v7`、`refine-v4`、`refine-v5`、`tiptap-v2`、`vidstack-hls-v1` |
+| 後端 / Library（npm 依賴自動配對，7 個） | `better-auth-v1-4`、`bullmq-v5`、`cloudflare-pages-wrangler`、`drizzle-orm-v0-38`、`powerhouse-v3-3`、`stripe-node-v22`、`typeorm-v0-3` |
+| LINE 平台（14 個；僅 `line-liff`（`@line/liff`）與 `line-message-api`（`@line/bot-sdk`）可 npm 自動配對，其餘需 `--set` 手動） | `line-ads-api`、`line-conversion-api`、`line-developers-console`、`line-liff`、`line-login`、`line-login-sdks`、`line-ly-ads-network`、`line-message-api`、`line-mini-app`、`line-mini-dapp`、`line-options-for-corporate-customers`、`line-pay`、`line-platform-basics`、`line-social-plugins` |
+| Messaging（需 `--set` 手動，2 個） | `telegram-api`（Telethon user API，非 npm）、`whatsapp-api`（WhatsApp Cloud API 官方文件） |
+| DevOps / 其他（需 `--set` 手動，1 個） | `docker-compose` |
 
 ### DevOps / CI / 工具（7 個）
 
@@ -423,16 +447,17 @@ sequenceDiagram
 
 **AIBDD 觸發判斷**：
 - **關鍵字**：`AIBDD` / `BDD` / `TDD`
-- **比對規則**：word boundary（`\b...\b`）＋ case-insensitive
-- **覆寫詞先命中時整段跳過**：`直接 / 自己來 / 跳過 skill / 不要 BDD / 先 patch / skip BDD` 等
+- **比對規則**：ASCII 邊界（前後非 ASCII 英數 / 底線即成立）＋ case-insensitive——CJK 緊鄰（如「用TDD開發」）也觸發，`fooTDDbar` 這類英數緊鄰不觸發
+- **覆寫詞先命中時整段跳過**：`直接做 / 直接改 / 直接修 / 直接寫 / 直接執行 / 直接處理 / 直接來 / 直接實作 / 自己來 / 跳過 skill / 不要 BDD / 先 patch / skip BDD` 等；否定前綴（「不要直接」「別直接」等）不觸發覆寫
 
-**AIBDD 三條 dispatch 路由**：
+**AIBDD 四條 dispatch 路由**：
 
 | 情境 | 派發目標 |
 |---|---|
 | 全流程（預設） | `@zenbu-powers:clarifier` → 規格化 + 紅綠重構鏈 |
 | 僅 Phase 01 拆解 | `zenbu-powers:aibdd-discovery` skill |
-| 僅 TDD 紅綠重構 | `@zenbu-powers:tdd-coordinator` |
+| 僅 TDD 紅綠重構 | `@zenbu-powers:tdd-coordinator`（無 specs/ 時以 spec-less TDD 模式運作，不中止） |
+| 單一 stage 動作（重構 / 綠燈 / control-flow） | `zenbu-powers:aibdd-auto-tdd` skill |
 
 **Milestone Status 觸發判斷**：
 - **條件**：cwd 內 `specs/milestones/STATUS.md` 存在（用 hook stdin `.cwd` 或 `$PWD` 偵測）
@@ -458,7 +483,7 @@ Sub-agent 回報後，主窗口讀取「Hand-off / Next Agent」標示自動 dis
 
 `*-reviewer` agents 預設**不在**自動開發流程中——`*-master` 完成後直接交給主窗口；用戶可在主窗口交付後顯式喚醒 reviewer 做深度審查。
 
-若用戶顯式啟動「reviewer ↔ master」修復迴圈，適用「**最多 3 輪**」上限，第 3 輪未過則升級用戶裁決。涉及 auth / payment / external-api 等敏感領域，建議補派 `@security-reviewer`。
+若用戶顯式啟動「reviewer ↔ master」修復迴圈，適用「**最多 3 輪**」上限，第 3 輪未過則升級用戶裁決。WordPress 專案涉及 auth / payment / external-api 等敏感領域，建議補派 `@security-reviewer`。
 
 ### Milestone 追蹤管理（v3.16）
 
@@ -561,7 +586,7 @@ Claude 的自動流程：
 
 0. **`/copy-sets`** — 偵測到 WordPress 專案，複製 wordpress agent-set 與 wp-* skill-sets 進 `.claude/`（WordPress agent / skill 非全域常駐，需此步後方可無前綴調用）
 1. **`/brainstorming`** — Socratic 對話精煉需求（支援哪些欄位？權限？Rate limit？）
-2. **`@clarifier`** — 輸出結構化使用者故事與驗收標準
+2. **`@clarifier`** — AIBDD 規格化訪談，產出 .feature 等結構化規格並交接 planner
 3. **`@planner`** — 產出實作計畫
 4. **`@wordpress-master`** — 依計畫實作，過程中自動參考 `/wp-plugin-development`、`/wp-rest-api`、`/woocommerce-hpos`
 5. **完成 → 直接交付用戶**
@@ -588,7 +613,7 @@ Claude 的自動流程：
 
 啟動 AIBDD 儀式後，Claude 依序引導：
 
-1. **`/aibdd-discovery`** → **`/aibdd-form-feature-spec`** → **`/aibdd-form-entity-spec`** → **`/aibdd-form-api-spec`**
+1. **`/aibdd-discovery`** → **`/aibdd-form-feature-spec`** → **`/aibdd-form-entity-spec`** → **`/aibdd-form-bdd-analysis`** → **`/aibdd-form-api-spec`**
 2. **`@tdd-coordinator`** 接管，依序透過 `/aibdd-auto-tdd（lang=typescript）` 執行 red → green → refactor 三階段
 3. 全程由 skill 約束，確保測試先於實作、測試覆蓋各種 Handler 類型（Command / Query / Aggregate / ReadModel）
 
