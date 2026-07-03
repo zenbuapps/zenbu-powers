@@ -1,13 +1,13 @@
 ---
 name: markdown-creator.svg-mermaid-rendering
 description: >
-  非 URL 型視覺內容（Inline SVG、Mermaid 圖表）的 playwright-cli 渲染流程。
+  非 URL 型視覺內容（Inline SVG、Mermaid 圖表）的 agent-browser 渲染流程。
   包含繁體中文字型支援、HTML 模板、渲染失敗處理。
 ---
 
 # SVG / Mermaid 渲染流程（Phase 3.6）
 
-對偵測到的非 URL 型視覺內容，透過 playwright-cli 渲染為 PNG 截圖。
+對偵測到的非 URL 型視覺內容，透過 agent-browser 渲染為 PNG 截圖。
 
 ## 繁體中文字型支援（適用於所有渲染場景）
 
@@ -52,11 +52,11 @@ description: >
 </html>
 ```
 
-3. 使用 playwright-cli：
-   - `playwright-cli open file:///tmp/markdown-creator-images/svg_001.html`
-   - `playwright-cli snapshot` 確認 SVG 渲染完成
-   - `playwright-cli eval "JSON.stringify(document.querySelector('svg').getBoundingClientRect())"` 取得 SVG 元素的實際尺寸
-   - `playwright-cli screenshot --filename=/tmp/markdown-creator-images/svg_001.png` 截圖
+3. 使用 agent-browser：
+   - `agent-browser open "file:///tmp/markdown-creator-images/svg_001.html" --allow-file-access`
+   - `agent-browser snapshot` 確認 SVG 渲染完成
+   - `agent-browser get box svg` 取得 SVG 元素的實際尺寸
+   - `agent-browser screenshot /tmp/markdown-creator-images/svg_001.png` 截圖
 
 
 4. 上傳截圖至 GitHub Issue（使用 image-processing skill 的 Step 3.4 流程）
@@ -100,10 +100,10 @@ description: >
 </html>
 ```
 
-3. 使用 playwright-cli：
-   - `playwright-cli open file:///tmp/markdown-creator-images/mermaid_001.html`
-   - `playwright-cli eval "await document.querySelector('.mermaid svg') || await new Promise(r => setTimeout(r, 2000))"` 等待 Mermaid 渲染完成
-   - `playwright-cli screenshot --filename=/tmp/markdown-creator-images/mermaid_001.png` 截圖渲染結果
+3. 使用 agent-browser：
+   - `agent-browser open "file:///tmp/markdown-creator-images/mermaid_001.html" --allow-file-access`
+   - `agent-browser wait ".mermaid svg"` 等待 Mermaid 渲染完成
+   - `agent-browser screenshot /tmp/markdown-creator-images/mermaid_001.png` 截圖渲染結果
 
 4. 上傳截圖至 GitHub Issue（使用 image-processing skill 的 Step 3.4 流程）
 5. 在 Markdown 中替換：

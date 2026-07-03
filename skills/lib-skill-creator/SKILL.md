@@ -27,7 +27,7 @@ bash scripts/check-skill-creator.sh
 ## Reference Files
 
 - `references/lib-crawl-workflow.md` — 文件爬取與閱讀的完整 Phase 流程：依賴掃描（Phase 0）、版本定位（Phase 1）、URL 蒐集（Phase 2）、深度閱讀（Phase 3）、主題模式（Phase T1-T3）
-- `references/lib-quality-rules.md` — 品質規範與行為準則：絕對規則、品質準則、韌性準則、playwright-cli 使用準則、錯誤處理對照表
+- `references/lib-quality-rules.md` — 品質規範與行為準則：絕對規則、品質準則、韌性準則、agent-browser 使用準則、錯誤處理對照表
 - `references/lib-skill-output.md` — SKILL 產出規範：Phase 4（結構設計、SKILL.md 模板、references 規範）、Phase 5（自我檢查、官方規範審查、交付報告）
 
 Read the relevant reference file(s) based on the task at hand.
@@ -39,6 +39,6 @@ Read the relevant reference file(s) based on the task at hand.
 ├─ package.json / pyproject.toml / go.mod → references/lib-crawl-workflow.md（Phase 0 依賴掃描）
 ├─ 特定套件名稱（如 zod v4） → references/lib-crawl-workflow.md（Phase 1-3 Library 模式）
 ├─ 技術主題/領域（如 CQRS） → references/lib-crawl-workflow.md（Phase T1-T3 主題模式）
-├─ 需要檢查品質或 playwright 用法 → references/lib-quality-rules.md
+├─ 需要檢查品質或 agent-browser 用法 → references/lib-quality-rules.md
 └─ 要產出 SKILL 或驗收 → references/lib-skill-output.md（Phase 4-5）
 ```

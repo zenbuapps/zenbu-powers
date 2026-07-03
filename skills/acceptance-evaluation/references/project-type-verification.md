@@ -28,7 +28,7 @@
 
 ### 首選工具：Claude in Chrome（本機互動式驗收）
 
-**為何 Chrome 優先（第一性原理）**：Chrome 直連用戶**真實** Chrome → 真實 cookie / session / 正在跑的頁面，最貼近現實狀態，直接對齊「零假設、驗真實狀態」精神。playwright 是隔離 headless 環境，需自行重建登入態，離真實一層。故**本機互動式驗收一律 Chrome 優先**，僅 CI / headless / 需隔離可重現時降級 playwright。
+**為何 Chrome 優先（第一性原理）**：Chrome 直連用戶**真實** Chrome → 真實 cookie / session / 正在跑的頁面，最貼近現實狀態，直接對齊「零假設、驗真實狀態」精神。agent-browser 是隔離 headless 環境，需自行重建登入態，離真實一層。故**本機互動式驗收一律 Chrome 優先**，僅 CI / headless / 需隔離可重現時降級 agent-browser。
 
 ```
 1. 先用 ToolSearch 載入 mcp__claude-in-chrome__* 工具 schema（deferred 工具，未載入無法呼叫）
@@ -41,17 +41,17 @@
 
 > ⚠️ 勿觸發 alert / confirm / prompt 對話框——會凍結 Chrome extension，後續指令全部失效（見 MCP server instructions）。
 
-### 次選工具：`playwright-cli` SKILL（CI / headless / 隔離可重現）
+### 次選工具：`agent-browser`（CI / headless / 隔離可重現）
 
-下列情境改用 playwright-cli：
+下列情境改用 agent-browser（vercel-labs/agent-browser 外部 CLI，非本 plugin 打包；偵測 `agent-browser --version`）：
 - **CI 環境**（GitHub Actions 等）——無 GUI，Claude in Chrome 不可用，**唯一可行方案**
 - **需隔離可重現**——乾淨環境、固定 viewport、無用戶既有狀態干擾
 - **用戶環境未配置 Claude in Chrome**
 
 ```
-1. 載入 /playwright-cli SKILL
+1. 若環境有 agent-browser skill 則載入，否則直接以 agent-browser CLI 操作（未安裝先提示 `npm install -g agent-browser`，首次使用再 `agent-browser install` 下載瀏覽器；CLI 自助文件 `agent-browser skills get core --full`）
 2. 啟動本地 dev server（依 package.json scripts）
-3. 用 playwright-cli 模擬人類操作：導航、點擊、輸入、提交、斷言元素出現/消失/含特定文字、截圖記錄關鍵節點
+3. 用 agent-browser 模擬人類操作：`agent-browser open <url>` 導航、`agent-browser snapshot` 取 `@ref` → `agent-browser click @ref` / `agent-browser fill @ref "<text>"` 互動、`agent-browser get text <sel>` / `agent-browser is visible <sel>` 斷言、`agent-browser screenshot <file>` 截圖（全頁 `--full`）
 4. 對照 testable criteria 逐條驗收
 ```
 
@@ -68,20 +68,20 @@
 
 ### WEB 反向訊號掃描清單（強制執行）
 
-每次截圖後**必跑**（每項列出 Chrome 首選 / playwright 次選兩套對應手法）：
+每次截圖後**必跑**（每項列出 Chrome 首選 / agent-browser 次選兩套對應手法）：
 
-1. **整頁文字 dump**（**不只截圖**）：Chrome `get_page_text` ／ playwright `page.innerText('body')`
+1. **整頁文字 dump**（**不只截圖**）：Chrome `get_page_text` ／ agent-browser `get text body`
 2. **grep 反向訊號**（中英文，對上一步取得的整頁文字做）：
    - 服務不可用：`尚未啟用 / 未啟用 / 服務暫停 / 維護中 / coming soon / unavailable / disabled / not enabled`
    - 認證失敗：`未授權 / 權限不足 / 請先登入 / unauthorized / forbidden / 401 / 403`
    - 錯誤：`錯誤 / 失敗 / 異常 / error / failed / exception`
    - 警告：`警告 / 注意 / warning / deprecated`
 3. **DOM 屬性掃描**：找所有 `[disabled]`、`[aria-disabled="true"]`、CSS class 含 `error|warning|disabled|unavailable`
-   - Chrome：`find` 定位 ／ `javascript_tool` 跑 `querySelectorAll`　·　playwright：`page.$$eval` / `querySelectorAll`
+   - Chrome：`find` 定位 ／ `javascript_tool` 跑 `querySelectorAll`　·　agent-browser：`eval "<js>"` 或 `snapshot` 掃結構
 4. **Network 掃描**：列出所有 4xx/5xx response，即使是非阻擋性的也要記錄
-   - Chrome `read_network_requests` ／ playwright network 攔截（`page.on('response')`）
+   - Chrome `read_network_requests` ／ agent-browser `network requests`（可 `--filter <pattern>` 濾 4xx/5xx）
 5. **Console 掃描**：error / unhandled promise rejection
-   - Chrome `read_console_messages`（可用 pattern 過濾）／ playwright listen `pageerror` + `console.error`
+   - Chrome `read_console_messages`（可用 pattern 過濾）／ agent-browser `errors`（page errors）+ `console`（console 訊息）
 6. **第三方 iframe / 外連頁面**：跳轉到第三方（金流、OAuth）時，**也要對該頁做整頁文字 dump 與 grep**——
    不是「能跳轉」就 PASS，要驗第三方頁面**內容**沒有反向訊號
 
@@ -103,8 +103,8 @@
 
 ### CI 環境注意（Chrome 優先的唯一例外）
 
-CI 中沒有 GUI，Claude in Chrome **不可用** → 此時**降級**為 playwright-cli headless mode（預設支援）。
-acceptance-evaluator 啟動時若偵測到 `GITHUB_ACTIONS=true`，直接跳過 Chrome、走 playwright-cli，不需逐項判斷。
+CI 中沒有 GUI，Claude in Chrome **不可用** → 此時**降級**為 agent-browser headless mode（預設支援）。
+acceptance-evaluator 啟動時若偵測到 `GITHUB_ACTIONS=true`，直接跳過 Chrome、走 agent-browser（CI 未安裝可自動 `npm install -g agent-browser && agent-browser install`），不需逐項判斷。
 
 ---
 
@@ -278,14 +278,14 @@ acceptance-evaluator 啟動時若偵測到 `GITHUB_ACTIONS=true`，直接跳過 
 ### 處理原則
 
 1. **依 criterion 分流**：每條 criterion 看它涉及哪一類，套對應驗收手法
-2. **不要試圖用一種方法驗所有 criterion**：例如 PHP backend 用 CLI 驗、Block UI 用 playwright 驗
+2. **不要試圖用一種方法驗所有 criterion**：例如 PHP backend 用 CLI 驗、Block UI 用 agent-browser 驗
 3. **報告中明確標註每條 criterion 用了哪種驗收手法**：方便 orchestrator/用戶 review
 
 ### 範例
 
 WordPress Plugin 專案：
 - C1 [PHP backend]: REST API 端點回傳正確 JSON → CLI/curl 驗
-- C2 [Block UI]: Gutenberg block 能 render → playwright-cli 啟 wp-env 驗
+- C2 [Block UI]: Gutenberg block 能 render → agent-browser 啟 wp-env 驗
 - C3 [文件]: README.md 更新 → Read 對照
 - C4 [設定]: plugin.php header 正確 → grep 驗證
 

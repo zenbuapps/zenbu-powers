@@ -15,7 +15,7 @@ description: >
 
 - `references/conversion-workflow.md` — Phase 1-2：markitdown MCP server 啟動、輸入辨識、內容轉換、JS-heavy 網站備援
 - `references/image-processing.md` — Phase 3：掃描圖片引用、驗證可存取性、下載非公開圖片、上傳至 GitHub Issue CDN、替換引用
-- `references/svg-mermaid-rendering.md` — Phase 3.6：Inline SVG / Mermaid 圖表的 playwright-cli 渲染流程、中文字型支援
+- `references/svg-mermaid-rendering.md` — Phase 3.6：Inline SVG / Mermaid 圖表的 agent-browser 渲染流程、中文字型支援
 - `references/output-and-cleanup.md` — Phase 4：最終品質處理、檔案儲存、MCP server 關閉、暫存檔清理、結果回報
 
 Read the relevant reference file(s) based on the task at hand.
@@ -37,7 +37,7 @@ Phase 1-2: 轉換（markitdown MCP + JS-heavy 備援）
    ↓ references/conversion-workflow.md
 Phase 3: 圖片處理（掃描 → 驗證 → 上傳 → 替換）
    ↓ references/image-processing.md
-Phase 3.6: SVG / Mermaid 渲染（playwright-cli）
+Phase 3.6: SVG / Mermaid 渲染（agent-browser）
    ↓ references/svg-mermaid-rendering.md
 Phase 4: 輸出與清理（品質 → 儲存 → 關閉 → 回報）
    ↓ references/output-and-cleanup.md

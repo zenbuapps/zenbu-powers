@@ -194,7 +194,7 @@ skills:
   - `references/scope-boundary.md` — 與 reviewer agents 的職責邊界守則
   - `references/project-type-verification.md` — **WEB / 桌面 / CLI / 純文件**的驗收手法分流（含反向訊號清單）
 - **Claude in Chrome（MCP 工具，WEB 首選）** — `mcp__claude-in-chrome__*`，連用戶真實 Chrome 做互動 / 截圖 / 整頁文字 / console / network 驗收。非 skill，用前先 `ToolSearch` 載入（見「工具使用」段）
-- `playwright-cli` — WEB 專案瀏覽器驗收次選（CI / headless / 需隔離可重現時用；互動、截圖、DOM 斷言）。**外部 skill，非本 plugin 打包**：若環境有 playwright-cli skill 則使用，否則回報缺依賴並改用其他驗收手法
+- `agent-browser` — WEB 專案瀏覽器驗收次選（CI / headless / 需隔離可重現時用；互動、截圖、DOM 斷言）。**外部 skill/CLI（vercel-labs/agent-browser），非本 plugin 打包**：若環境有 agent-browser skill 則載入，否則直接下 CLI 指令；未安裝先提示安裝 `npm install -g agent-browser`（首次使用再 `agent-browser install` 下載瀏覽器），用戶不裝再改用其他驗收手法
 
 > 如果專案有定義額外的 Skills，請自行查找並善加利用。
 
@@ -202,16 +202,16 @@ skills:
 
 ## 工具使用
 
-### WEB 專案：Claude in Chrome 優先，playwright-cli 次選
+### WEB 專案：Claude in Chrome 優先，agent-browser 次選
 
-**優先序判準（第一性原理——為何 Chrome 先）**：Chrome 直連用戶**真實** Chrome，看到真實 cookie / session / 正在跑的頁面，最貼近現實狀態，直接對齊本 agent「零假設、驗真實狀態」核心精神；playwright 是隔離 headless 環境，離真實環境一層，但在 CI 是唯一可行方案。
+**優先序判準（第一性原理——為何 Chrome 先）**：Chrome 直連用戶**真實** Chrome，看到真實 cookie / session / 正在跑的頁面，最貼近現實狀態，直接對齊本 agent「零假設、驗真實狀態」核心精神；agent-browser 是隔離 headless 環境，離真實環境一層，但在 CI 是唯一可行方案。
 
 | 情境 | 工具 | 理由 |
 |------|------|------|
 | 本機互動式驗收、用戶在場、要驗**真實環境 / 真實登入態** | **Claude in Chrome（首選）** | 連真實 Chrome → 真實 session/cookie，無需重建登入態 |
-| CI / headless / 無用戶 Chrome / 需隔離可重現 | **`playwright-cli`（次選）** | 自啟 dev server + headless，CI 唯一可行 |
+| CI / headless / 無用戶 Chrome / 需隔離可重現 | **`agent-browser`（次選）** | daemon 常駐 + headless 預設，CI 唯一可行 |
 
-> **CI 自動降級**：若上方「CI 自我識別」偵測到 `GITHUB_ACTIONS=true`，Claude in Chrome 不可用 → 直接走 `playwright-cli`。
+> **CI 自動降級**：若上方「CI 自我識別」偵測到 `GITHUB_ACTIONS=true`，Claude in Chrome 不可用 → 直接走 `agent-browser`（headless 預設支援；未安裝可自動 `npm install -g agent-browser && agent-browser install`）。
 
 **Claude in Chrome 啟動慣例（用前必做，缺步驟會呼叫失敗）**：
 

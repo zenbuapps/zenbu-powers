@@ -82,11 +82,13 @@ curl -s http://127.0.0.1:3001/mcp -X POST \
 
 ### Step 2.3：JS-heavy 網站備援
 
-如果轉換結果不佳（內容缺失、只有導航元素、缺少主要文章內容），使用 playwright-cli 作為備援：
+如果轉換結果不佳（內容缺失、只有導航元素、缺少主要文章內容），使用 agent-browser 作為備援：
 
-1. 使用 `playwright-cli open` 開啟瀏覽器，再用 `playwright-cli goto <url>` 導航至目標網頁
-2. 等待動態內容載入後，使用 `playwright-cli snapshot` 取得頁面的 accessibility snapshot
-3. 使用 `playwright-cli eval "document.documentElement.outerHTML"` 取得完整 HTML
+> **agent-browser 是外部 CLI（非本 plugin 打包）**：偵測 `agent-browser --version`，未安裝則提示用戶安裝 `npm install -g agent-browser`，首次使用再執行 `agent-browser install` 下載瀏覽器。若環境有 agent-browser skill 則優先載入，否則直接下 CLI 指令。daemon 常駐、指令間 session 保留。
+
+1. 使用 `agent-browser open <url>` 直接開啟並導航至目標網頁（open 即導航，無需分開 goto）
+2. 等待動態內容載入後，使用 `agent-browser snapshot` 取得頁面的 accessibility snapshot
+3. 使用 `agent-browser eval "document.documentElement.outerHTML"` 取得完整 HTML
 4. 將完整 HTML 儲存為暫存檔案
 5. 再次使用 markitdown 轉換 HTML 檔案
-6. 使用 `playwright-cli close` 關閉瀏覽器
+6. 使用 `agent-browser close` 關閉瀏覽器

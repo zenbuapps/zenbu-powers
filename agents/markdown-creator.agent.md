@@ -86,8 +86,8 @@ skills:
 
 ### 失敗時
 
-- **markitdown MCP 啟動失敗**：嘗試 playwright-cli 備援模式（**外部 skill，非本 plugin 打包**：若環境有 playwright-cli skill 則使用；見 `references/conversion-workflow.md`）；兩者都失敗則回報用戶
+- **markitdown MCP 啟動失敗**：嘗試 agent-browser 備援模式（**外部 CLI，非本 plugin 打包**：偵測 `agent-browser --version`，未安裝則提示用戶安裝 `npm install -g agent-browser`；若環境有 agent-browser skill 則優先載入；見 `references/conversion-workflow.md`）；兩者都失敗則回報用戶
 - **圖片上傳失敗**：列出所有無法上傳的圖片，保留原始引用並在報告中標注「圖片未轉換」
-- **JS-heavy 網頁抓取失敗**：改用 playwright-cli 渲染後再轉換
+- **JS-heavy 網頁抓取失敗**：改用 agent-browser 渲染後再轉換
 - **無論成功失敗**，都必須關閉 markitdown MCP server 並清理暫存檔案
 - 回報錯誤給用戶，附上錯誤訊息、已嘗試的備援方案、建議的下一步

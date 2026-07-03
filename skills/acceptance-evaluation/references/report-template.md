@@ -67,7 +67,7 @@
 ### C1: {Criterion 敘述}
 - **判定**：✅ PASS / ❌ FAIL / ⚠️ PASS w/ Note
 - **維度**：[Coverage / Boundary / On-Topic / Quality Floor]
-- **驗收動作**：{用了哪種手法，例如「Claude in Chrome 開頁面點按鈕 + get_page_text」/「CI 環境 playwright-cli headless」/「Read CLAUDE.md grep 關鍵字」}
+- **驗收動作**：{用了哪種手法，例如「Claude in Chrome 開頁面點按鈕 + get_page_text」/「CI 環境 agent-browser headless」/「Read CLAUDE.md grep 關鍵字」}
 - **觀察**：{具體看到什麼}
 - **若 FAIL**：缺漏項是 {X}，建議改善為 {Y}
 
@@ -263,7 +263,7 @@ agent + skill 部分達標，但 CLAUDE.md 整合未完成。屬於可快速修�
 # 驗收評估報告
 
 **任務**：驗收第三方金流（綠界）信用卡付款 E2E 測試
-**評估對象**：tests/e2e/payment-ecpay.spec.ts + 實際跑 playwright 互動
+**評估對象**：tests/e2e/payment-ecpay.spec.ts + 實際跑 agent-browser 互動
 **專案類型**：WEB（含第三方金流）
 **評估迴圈**：第 1 輪 / 上限 3 輪
 **總體判定**：❌ FAIL
@@ -315,7 +315,7 @@ agent + skill 部分達標，但 CLAUDE.md 整合未完成。屬於可快速修�
 ### C2: 完成付款
 - **判定**：❌ FAIL
 - **維度**：[Reality Check]（前置鐵律觸發）
-- **驗收動作**：playwright `page.innerText('body')` 取得綠界頁面整頁文字
+- **驗收動作**：`agent-browser get text body` 取得綠界頁面整頁文字
 - **觀察**：頁面正文明確顯示「尚未啟用信用卡服務」。**雖然頁面 render 成功，但服務本身不可用**——這是過程訊號（跳轉成功）與現實訊號（服務未啟用）的衝突，依鐵律必信反向訊號
 - **若 FAIL**：建議先到綠界商家後台啟用信用卡服務，再重跑 E2E
 

@@ -1,48 +1,41 @@
 ---
 name: "browser-tester"
-description: "Git diff 驅動的瀏覽器模擬人工測試工作流程。分析程式碼變更、映射影響範圍、使用 playwright-cli 執行瀏覽器測試、錄製影片截圖、產出測試報告。"
+description: "Git diff 驅動的瀏覽器模擬人工測試工作流程。分析程式碼變更、映射影響範圍、使用 agent-browser 執行瀏覽器測試、錄製影片截圖、產出測試報告。"
 ---
 
 # /browser-tester — Diff 驅動瀏覽器模擬測試
 
-根據 git diff 自動判斷受影響頁面，使用 playwright-cli 模擬人類操作，錄製影片並截圖重點。
+根據 git diff 自動判斷受影響頁面，使用 agent-browser 模擬人類操作，錄製影片並截圖重點。
 
 ---
 
 ## Phase 0: 前置檢查
 
-### 0.1 偵測 playwright 執行介面（fallback 鏈）
+### 0.1 偵測 agent-browser（唯一主工具）
 
-依序偵測，取**第一個可用者**作為本次測試的執行介面：
+agent-browser 為**外部 CLI，非本 plugin 打包**。偵測方式：
 
-1. **playwright-cli skill**（優先）：若環境中可調用 `playwright-cli` skill，直接以該 skill 執行後續所有瀏覽器操作（`open` / `resize` / `snapshot` / `screenshot` / `video-start` 等指令語意相同）。
-2. **$CODEX_HOME 腳本**（存在才用）：
-
-   ```bash
-   export CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
-   export PWCLI="$CODEX_HOME/skills/playwright/scripts/playwright_cli.sh"
-   [ -f "$PWCLI" ] && "$PWCLI" --version
-   ```
-
-   腳本存在且 `--version` 成功 → 後續以 `$PWCLI` 執行。
-3. **npx playwright**（備援）：
-
-   ```bash
-   npx playwright --version
-   ```
-
-   成功 → 以 `npx playwright` 等價命令驅動後續操作。
-
-**三者皆不可用** → 輸出以下訊息並**中斷所有操作**：
-
-```
-瀏覽器測試依賴缺失。請確認以下任一項可用：
-1. playwright-cli skill
-2. $CODEX_HOME/skills/playwright/scripts/playwright_cli.sh
-3. Node.js / npm 已安裝且 npx 在 PATH 中（npx playwright）
+```bash
+agent-browser --version
 ```
 
-> 後續 Phase 3 的 `"$PWCLI"` 指令一律代表本步驟選定的執行介面：走 skill 路徑時以 playwright-cli skill 的同名指令執行；走 npx 路徑時以 `npx playwright` 等價命令執行。
+- **可用** → 若環境有 user-level `agent-browser` skill 則優先載入該 skill；否則直接下 CLI 指令（自助文件：`agent-browser skills get core --full`）。
+- **未安裝（互動情境）** → 提示用戶安裝並**等其決定**，不得靜默跳過或改用其他工具：
+
+  ```bash
+  npm install -g agent-browser   # 安裝 CLI
+  agent-browser install          # 首次使用下載瀏覽器 binary
+  ```
+
+- **未安裝（CI 環境，`GITHUB_ACTIONS=true`）** → 自動安裝後繼續：
+
+  ```bash
+  npm install -g agent-browser && agent-browser install
+  ```
+
+- **用戶拒裝** → 輸出「瀏覽器測試依賴缺失：請執行 `npm install -g agent-browser && agent-browser install`」並**中斷所有操作**。
+
+> agent-browser daemon 常駐，指令間 session 保留、可用 `&&` 串接；headless 預設，本機除錯可加 `--headed`。後續 Phase 3 的指令一律以 `agent-browser <verb>` 具體形式執行。
 
 ### 0.2 偵測環境
 
@@ -172,35 +165,35 @@ Serena 不可用時：
 
 ### 3.1 單頁測試流程
 
-> **錄影畫質規範**：所有錄影必須為 **1080P (1920x1080)**。Playwright 錄影解析度跟隨 viewport，因此**第 2 步的 `resize 1920 1080` 是強制規範**，不可省略也不可降低——它直接決定了錄影畫質。若未來 playwright-cli 提供 `video-start` 的解析度參數，仍須鎖定 1920x1080。
+> **錄影畫質規範**：所有錄影必須為 **1080P (1920x1080)**。agent-browser 錄影解析度跟隨 viewport，因此**必須先 `agent-browser set viewport 1920 1080` 再 `agent-browser record start`**（第 2 步的 `set viewport 1920 1080` 是強制規範），不可省略也不可降低——它直接決定了錄影畫質。若未來 agent-browser 提供 `record start` 的解析度參數，仍須鎖定 1920x1080。
 
 ```bash
 # 1. 開啟頁面
-"$PWCLI" open "${BASE_URL}${path}" --headed
+agent-browser open "${BASE_URL}${path}" --headed
 
-# 2. 統一視窗解析度為 1920x1080（決定錄影畫質為 1080P，必做）
-"$PWCLI" resize 1920 1080
+# 2. 統一視窗解析度為 1920x1080（決定錄影畫質為 1080P，必做，須在 record start 之前）
+agent-browser set viewport 1920 1080
 
-# 3. 開始錄影（必須在所有操作之前；錄影畫質 = 1920x1080 = 1080P）
-"$PWCLI" video-start
+# 3. 開始錄影（必須在所有操作之前；輸出路徑於此指定；錄影畫質 = 1920x1080 = 1080P）
+agent-browser record start "output/playwright/browser-test/videos/${scenario_name}.webm"
 
-# 4. 取得頁面元素參考
-"$PWCLI" snapshot
+# 4. 取得頁面元素參考（-i 只列互動元素，回傳 @ref）
+agent-browser snapshot -i
 
 # 5. 執行測試操作（見 3.2 各類型操作指引）
 # ...
 
 # 6. 截圖重點時刻（見 3.3 截圖指引）
-"$PWCLI" screenshot
+agent-browser screenshot --full
 
-# 7. 檢查 console 錯誤
-"$PWCLI" console warning
+# 7. 檢查 console 錯誤（log/warn/error/info）
+agent-browser console
 
 # 8. 檢查網路請求
-"$PWCLI" network
+agent-browser network requests
 
 # 9. 停止錄影並儲存
-"$PWCLI" video-stop --filename "output/playwright/browser-test/videos/${scenario_name}.webm"
+agent-browser record stop
 ```
 
 ### 3.2 各變更類型的測試操作
@@ -235,15 +228,14 @@ Serena 不可用時：
 | 變更類型 | 截圖重點 |
 |---------|---------|
 | API 變更 | API 發出後，成功的回應通知（toast / alert / 資料更新） |
-| UI 頁面 | 頁面上**變更的區域**（使用元素截圖 `screenshot <ref>`） |
-| UI 組件 | 頁面上**顯示該變更組件的區域**（使用元素截圖 `screenshot <ref>`） |
+| UI 頁面 | 頁面上**變更的區域**（使用元素截圖 `agent-browser screenshot @ref`） |
+| UI 組件 | 頁面上**顯示該變更組件的區域**（使用元素截圖 `agent-browser screenshot @ref`） |
 
 截圖儲存：
 ```bash
-"$PWCLI" screenshot          # 全頁截圖（備用）
-"$PWCLI" screenshot e15      # 元素截圖（優先）
-# 截圖自動儲存到當前目錄，手動移至：
-# output/playwright/browser-test/screenshots/{scenario}-{step}.png
+agent-browser screenshot --full "output/playwright/browser-test/screenshots/{scenario}-{step}.png"   # 全頁截圖（備用）
+agent-browser screenshot @e15 "output/playwright/browser-test/screenshots/{scenario}-{step}.png"     # 元素截圖（優先，@ref 來自 snapshot）
+# agent-browser 支援 screenshot [selector] [path]，可直接指定輸出路徑，無需再手動搬移
 ```
 
 ### 3.4 Re-snapshot 時機
@@ -321,10 +313,10 @@ CI 模式檢查清單：
 
 | 錯誤情境 | 處理方式 |
 |---------|---------|
-| fallback 鏈全數不可用（skill / $CODEX_HOME 腳本 / npx playwright） | 輸出依賴缺失指引，**中斷操作** |
+| agent-browser 不可用（未安裝且用戶拒裝 / CI 自動安裝失敗） | 輸出依賴缺失指引，**中斷操作** |
 | 測試 URL 不可達 | 輸出提示（啟動 dev server / 提供 URL），**中斷操作** |
 | 頁面載入超時 | 記錄為失敗，繼續測試下一個頁面 |
-| `video-start` 失敗 | 記錄警告，改用連續截圖模式，繼續測試 |
+| `record start` 失敗 | 記錄警告，改用連續截圖模式，繼續測試 |
 | 元素參考過期 | 重新 `snapshot`，重試操作 |
 | 無法映射 URL | 記錄為「無法映射」，跳過該檔案 |
 | git diff 為空 | 輸出「無變更」報告，正常結束 |

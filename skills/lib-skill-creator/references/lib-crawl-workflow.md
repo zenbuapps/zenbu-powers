@@ -133,9 +133,9 @@ description: >
 
 ## Phase 2｜系統性蒐集文件 URL
 
-### Step 2.1｜使用 playwright-cli 開啟文件網站
-- 使用 `playwright-cli open` 開啟瀏覽器，再用 `playwright-cli goto <url>` 導航至目標頁面
-- 等待頁面完全載入後，使用 `playwright-cli snapshot` 取得頁面的 accessibility snapshot
+### Step 2.1｜使用 agent-browser 開啟文件網站
+- 使用 `agent-browser open <url>` 一步開啟瀏覽器並導航至目標頁面（open 即導航）
+- 等待頁面完全載入後，使用 `agent-browser snapshot` 取得頁面的 accessibility snapshot（回傳 `@ref`；`-i` 只列互動元素）
 
 ### Step 2.2｜蒐集側邊欄導航結構（最大深度 2 層）
 1. **解析側邊欄**：從 accessibility snapshot 中辨識所有導航連結
@@ -173,7 +173,7 @@ description: >
 研究範圍 = 該領域的 **全部文件**，包含所有程式碼範例。
 
 對文件地圖中的每一個 URL：
-1. 使用 playwright-cli（`goto` + `snapshot`）或 web_fetch 取得完整頁面內容
+1. 使用 agent-browser（`open` + `snapshot`）或 web_fetch 取得完整頁面內容
 2. 以 **API reference 級別** 提取：
    - **API 簽名**：函式名稱、參數（含型別與預設值）、回傳值型別
    - **Options / Config 物件**：所有可選欄位、型別、預設值、說明

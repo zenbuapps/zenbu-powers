@@ -526,7 +526,7 @@ cwd 內 `specs/milestones/` 存在時，AI 適用 **reflex 第 10 條 Milestone 
 |---|---|
 | Serena | 程式碼語意搜尋，快速定位引用關係與符號 |
 
-> 💡 **為什麼沒有 Playwright MCP？** zenbu-powers 的瀏覽器自動化統一改用 **`playwright-cli` SKILL**（直接呼叫 CLI），不走 MCP server。這樣做的好處：啟動快、無需常駐 process、跨平台穩定、debug 時可直接在終端重現指令。`browser-tester`、`test-creator`、`markdown-creator` 等 agent 皆已改用此模式。
+> 💡 **為什麼沒有 Playwright MCP？** zenbu-powers 的瀏覽器自動化統一改用 **`agent-browser` CLI**（vercel-labs，直接呼叫 CLI），不走 MCP server。這樣做的好處：啟動快、無需常駐 MCP process、跨平台穩定、debug 時可直接在終端重現指令。`browser-tester`、`test-creator`、`markdown-creator` 等 agent 皆已改用此模式。
 
 ---
 
@@ -765,14 +765,14 @@ Claude 自動 `milestone-tracker complete M01-ingestion-hardening` → 簽名 + 
 
 但**建議讓 Orchestrator 自動判斷**，通常選擇最優。
 
-### Q8：MCP Server 跟 playwright-cli SKILL 差在哪？一定要裝嗎？
+### Q8：MCP Server 跟 agent-browser CLI 差在哪？一定要裝嗎？
 
 **答：** zenbu-powers 目前只依賴 **Serena MCP**（程式碼 symbol 搜尋），**不再使用 Playwright MCP**。
 
-- **瀏覽器自動化** → 改用 `playwright-cli` SKILL，直接呼叫 CLI 指令。優勢：啟動快、無常駐 process、跨平台穩定、debug 可在終端重現
+- **瀏覽器自動化** → 改用 `agent-browser` CLI 直接下指令。優勢：啟動快、無常駐 process、跨平台穩定、debug 可在終端重現
 - **程式碼 symbol 搜尋** → 使用 Serena MCP。若不用 `@ddd-architect` 或大型重構功能，不裝也可以，其餘 skill / agent 不受影響
 
-第一次使用 `playwright-cli` 時會自動下載 Playwright runtime，之後執行會很快。
+需先安裝：`npm install -g agent-browser`，第一次使用執行 `agent-browser install` 下載瀏覽器；未安裝時 agent 會提示安裝。
 
 ### Q9：更新 plugin 後，原本的設定會不會被覆蓋？
 

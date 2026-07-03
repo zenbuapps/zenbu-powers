@@ -31,8 +31,8 @@ mcpServers:
       - "--context"
       - "ide"
       - "--project-from-cwd"
-  # 瀏覽器自動化：使用 playwright-cli SKILL（非 MCP server）
-  # 在 skills 區塊加入 "playwright-cli" 即可
+  # 瀏覽器自動化：使用 agent-browser（外部 CLI，非 MCP server）
+  # 在 skills 區塊加入 "agent-browser" 即可
   # NotebookLM 知識查詢：使用 notebooklm SKILL（非 MCP server）
   # 在 skills 區塊加入 "zenbu-powers:notebooklm" 即可
 
@@ -41,7 +41,7 @@ skills:
   - "zenbu-powers:skill-a"
   - "zenbu-powers:skill-b"
   - "zenbu-powers:git-commit"
-  # - "playwright-cli"               # 瀏覽器自動化（全域 SKILL）
+  # - "agent-browser"  # 瀏覽器自動化（外部 CLI + 全域 SKILL）
 
 # === 進階（通常不需要）===
 # isolation: worktree                   # 在臨時 git worktree 中隔離執行
