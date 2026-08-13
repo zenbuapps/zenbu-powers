@@ -2,7 +2,7 @@
 
 > 為 **zenbu org** 量身打造的 Claude Code Plugin。內建 Orchestrator 心法注入、21 個全域 Agent、59 個全域 Skill，外加 `agent-sets/` / `skill-sets/` 條件載入資源（含 WordPress 全棧），覆蓋 WordPress、React / NestJS / Node.js 現代應用、AIBDD 行為驅動開發三大領域，讓 AI 工程師團隊從第一個 session 就知道如何分工。
 
-**兩層 Hook 架構**：SessionStart 注心法、UserPromptSubmit 注 reflex（10 條交接規則）+ AIBDD 條件式 + Milestone Status 條件式注入。主窗口完成後直接交付用戶。AIBDD 三語言整合測試（TypeScript / PHP / C#）完整覆蓋。內建 **Milestone Tracker** 專案級任務追蹤管理，AI 開工前自動知道當前進度與下一步。
+**兩層 Hook 架構**：SessionStart 注心法、UserPromptSubmit 注 reflex（11 條交接規則）+ AIBDD 條件式 + Milestone Status 條件式注入。主窗口完成後直接交付用戶。AIBDD 三語言整合測試（TypeScript / PHP / C#）完整覆蓋。內建 **Milestone Tracker** 專案級任務追蹤管理，AI 開工前自動知道當前進度與下一步。
 
 ---
 
@@ -31,7 +31,7 @@ Orchestrator（Claude 主窗口）
 **兩層 Hook 架構**讓「協調紀律」在第一輪 prompt 之前就到位：
 
 1. **SessionStart hook** — session 啟動 / `/clear` / `/compact` 時注入 `using-zenbu-powers` 的完整 Orchestrator 心法（Agent 索引、Skill 快取、Red Flags、全域一致性守則）
-2. **UserPromptSubmit hook** — 每次送 prompt 注入 reflex-dictionary 10 條反射規則；命中 `BDD/TDD/AIBDD` 觸發詞時加注 AIBDD dispatch 路由；cwd 內 `specs/milestones/STATUS.md` 存在時加注 Milestone Status dashboard
+2. **UserPromptSubmit hook** — 每次送 prompt 注入 reflex-dictionary 11 條反射規則；命中 `BDD/TDD/AIBDD` 觸發詞時加注 AIBDD dispatch 路由；cwd 內 `specs/milestones/STATUS.md` 存在時加注 Milestone Status dashboard
 
 整套機制由 `ZENBU_HOOKS_ENABLED=1` 環境變數**顯式啟用**（opt-in，避免干擾未準備好的 user）。
 
@@ -51,7 +51,7 @@ flowchart TD
     subgraph 每輪Prompt[每輪 User Prompt]
         F[User 送出 prompt] --> G{Hook 啟用?}
         G -- Yes --> H[UserPromptSubmit hook]
-        H --> I[注入 reflex-dictionary<br>10 條反射規則]
+        H --> I[注入 reflex-dictionary<br>11 條反射規則]
         I --> J{prompt 含 BDD/<br>TDD/AIBDD?}
         J -- Yes --> K[加注 AIBDD<br>dispatch 路由表]
         J -- No --> M{cwd 有 specs/<br>milestones/STATUS.md?}
@@ -407,7 +407,7 @@ sequenceDiagram
 
     U->>CC: 送出 prompt
     CC->>H2: 觸發 UserPromptSubmit hook
-    H2->>LLM: 注入 reflex-dictionary 10 條
+    H2->>LLM: 注入 reflex-dictionary 11 條
     alt prompt 含 BDD/TDD/AIBDD
         H2->>LLM: 加注 AIBDD dispatch 路由
     end
@@ -440,8 +440,8 @@ sequenceDiagram
 
 **動作**：合併輸出三段 context（同一個 `additionalContext` 字串）：
 
-1. **Reflex Dictionary（無條件）** — `hooks/reflex-dictionary.txt` 的 10 條協調紀律：
-   - ① 命名規範 ② orchestrator 角色 ③ 自主決策 ④ 鏈式委派 ⑤ 第一性原理 default-on ⑥ 不中途停下 ⑦ WHAT vs HOW ⑧ Skill 優先順序 ⑨ 瀏覽器自助 ⑩ Milestone 自查
+1. **Reflex Dictionary（無條件）** — `hooks/reflex-dictionary.txt` 的 11 條協調紀律：
+   - ① 命名規範 ② orchestrator 角色 ③ 自主決策 ④ 鏈式委派 ⑤ 第一性原理 default-on ⑥ 不中途停下 ⑦ WHAT vs HOW ⑧ Skill 優先順序 ⑨ 瀏覽器自助 ⑩ Milestone 自查 ⑪ 回覆模板
 2. **AIBDD 模式（條件式）** — `hooks/aibdd-mode-prompt.txt` 的 dispatch 路由表，僅當 prompt 含 `AIBDD` / `BDD` / `TDD` 觸發詞時注入
 3. **Milestone Status（條件式）** — cwd 內 `specs/milestones/STATUS.md` 存在時，注入 `<MILESTONE_STATUS>` 區塊（STATUS.md head -40 + 活躍 milestone 列表）。讓 AI 每輪自動知道「現在做到哪 / 下一步 48h」
 
@@ -542,7 +542,7 @@ zenbu-powers/
 │   ├── run-hook.cmd           # 跨平台 polyglot wrapper
 │   ├── session-start          # SessionStart hook 實作（注入 using-zenbu-powers）
 │   ├── user-prompt-submit     # UserPromptSubmit hook 實作（reflex + AIBDD 條件式）
-│   ├── reflex-dictionary.txt  # 10 條每輪反射規則（含 milestone 自查）
+│   ├── reflex-dictionary.txt  # 11 條每輪反射規則（含 milestone 自查、回覆模板）
 │   └── aibdd-mode-prompt.txt  # AIBDD dispatch 路由表
 ├── agents/                    # 21 個全域 Agent 定義檔
 │   ├── nestjs-master.agent.md
