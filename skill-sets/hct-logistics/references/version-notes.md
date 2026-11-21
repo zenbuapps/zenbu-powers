@@ -51,7 +51,7 @@
 |---|---|---|
 | **① SOAP WSDL / namespace / SOAPAction** | ❌ **未解決** | V15 仍只給 Content-Type=`text/xml; charset=utf-8`、POST、HTTPS、UTF-8，未附 WSDL / namespace / SOAPAction。實作前須抓 `?wsdl`（見 §4 實打觀察）。|
 | **② `eprdct`（傳票類別）在 JSON/XML 模式如何帶入** | ✅ **已解決** | V15 把 `eprdct` 補進 TransData 欄位表（field 18, String(2), `11`/`21`/`31`/`41`）。直接以普通欄位帶入 JSON/XML payload。|
-| **③ 貨況查詢加解密演算法與金鑰** | ✅ **已解決**（V15 移除整段，另由查貨串接文件補齊）| 演算法 = **DES CBC**（KEY=當日±n天 yyyyMMdd、IV=8位固定、PKCS7、Base64）；zenbu 參數（n=`-33`/IV=`FECDTDYA`/v=`2616225156DC806C618DE4921975A582`）+ 已驗證 test vector + `status_code` 對應表全見 `cargo-tracking-decrypt.md`（Ver3.1 2026/06/11 + zenbu 申請後文件）。|
+| **③ 貨況查詢加解密演算法與金鑰** | ✅ **已解決**（V15 移除整段，另由查貨串接文件補齊）| 演算法 = **DES CBC**（KEY=當日±n天 yyyyMMdd、IV=8位固定、PKCS7、Base64）；zenbu 參數（n=`-33`/IV=`<HCT_TRACK_IV>`/v=`<HCT_TRACK_V>`）+ 已驗證 test vector + `status_code` 對應表全見 `cargo-tracking-decrypt.md`（Ver3.1 2026/06/11 + zenbu 申請後文件）。|
 | **④ 正式 vs 測試環境 URL 區分 / 測試帳號是否打正式** | ✅ **部分解決** | V15 明確分離 DEV（`_test`）/ PROD URL。測試帳號（`test`/`test1`、addrCompare `TEST2`）是否打到正式系統 V15 未明說，E2E 前建議向新竹確認。|
 | **⑤ 回傳欄位筆誤（epino → erstno；addrCompare PUTDATANAME/PUTDATA_S）** | ✅ **TransData 部分已解決** | V15 TransData Return 正式用 `erstno`（不再筆誤為第二個 epino）。addrCompare 的 `PUTDATANAME`/`PUTDATA_S` 筆誤屬舊標籤 PDF，V15 不含此 API，未受影響——以 XML 版語意為準（`*_S`=簡碼、`*Name`=名稱）。|
 | **⑥ 是否有新方法 / 取消託運單 / 貨況查詢替代** | ✅ **部分解決** | V15 收錄 `TransDataCancel_Json`（取消託運單）、`TransDispatchOrder_Json`（派遣收貨）。但 `GetImage_Json` / `onlyImage`（取圖）/ `FrightQuery`（疑似貨況查詢替代）**仍未在 V15 文件中**（見 §4）。|

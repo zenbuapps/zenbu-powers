@@ -304,7 +304,7 @@ http://is1fax.hct.com.tw/Webedi_Erstno_NEW2/Addr_Compare.aspx?USER=TEST2&ADDR=�
 > ✅ **已補齊（原「申請後提供 / PDF 未公開」）** → 完整規格見 **`cargo-tracking-decrypt.md`**。
 >
 > 摘要：`no` = **DES CBC**（KEY = 查詢當日 ± n 天的 `yyyyMMdd` UTF-8、IV = 8 位固定、PKCS7、輸出 Base64），`v` = 32 位固定識別碼（不參與加解密）。
-> zenbu 實際參數（n=`-33` / IV=`FECDTDYA` / v=`2616225156DC806C618DE4921975A582`）、官方 C# + 已驗證 Node 範例、OpenSSL 3 legacy 陷阱、對拍 test vector 全在該檔。
+> zenbu 實際參數（n=`-33` / IV=`<HCT_TRACK_IV>` / v=`<HCT_TRACK_V>`）、官方 C# + 已驗證 Node 範例、OpenSSL 3 legacy 陷阱、對拍 test vector 全在該檔。
 
 ## B.2 網頁串接模式（單筆）
 

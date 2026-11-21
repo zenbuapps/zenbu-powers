@@ -24,7 +24,7 @@ description: >
 1. **出貨 / 託運 / 列印 EDI**（`edi_webservice2/service1.asmx`）— 上傳託運資料、取得新竹貨號 + 到著站 + 標籤圖、修改重量、確認出貨列印總表、查詢貨號、逆物流退貨、取消收貨、派遣收貨。**共 15 個 SOAP 操作。**
 2. **出貨標籤規格** — 標籤欄位、Codabar/Code128/Code39 一維條碼、QRcode 二維條碼、檢查碼演算法、尺寸與列印設備。
 3. **集貨註區 / 地址比對 API**（`WS_addrCompare1.asmx`）— 用地址比對到著站 / 註區 / 疊區 / QRcode 內容（**自繪標籤的補充來源；V15 已可由 TransData 回傳直接取得**）。
-4. **貨況查詢服務**（`searchGoods_*`）— DES CBC 加解密規格 + zenbu 實際參數（offset `-33` / IV `FECDTDYA` / v）+ 貨況代碼（`status_code`）對應表**已補齊**，見 `references/cargo-tracking-decrypt.md`（V15 主文件未收錄；取自查貨串接說明 Ver3.1 2026/06/11 + zenbu 申請後文件）。
+4. **貨況查詢服務**（`searchGoods_*`）— DES CBC 加解密規格 + zenbu 實際參數（offset `-33` / IV `<HCT_TRACK_IV>` / v）+ 貨況代碼（`status_code`）對應表**已補齊**，見 `references/cargo-tracking-decrypt.md`（V15 主文件未收錄；取自查貨串接說明 Ver3.1 2026/06/11 + zenbu 申請後文件）。
 
 > **文件版本**：主來源 = 新竹物流出貨串接 WebServices 文件 **V15（2026-04-28）**。補充來源 = API 服務說明 V2.0（2022/12/30，提供 V15 已移除的「貨況查詢」）、標籤規格說明 V2.42（2023/04/14，提供 V15 以圖片呈現的「條碼尺寸規格」與獨立的「集貨註區 addrCompare API」）。**凡 V15 有講到的，一律以 V15 為準。**
 
@@ -145,7 +145,7 @@ const payload = [{
 | 查 15 個 SOAP 方法的完整欄位（名稱 / 型別長度 / 必填 / 說明）、回傳結構、JSON/XML 請求回應範例、錯誤明細表 | `references/api-reference.md` |
 | 出貨標籤完整規格（24 欄位、一維 / 二維條碼尺寸、檢查碼演算法、列印設備、自繪檢核清單）| `references/label-spec.md` |
 | 集貨註區 / 地址比對 API（SOAP + URL）完整欄位 + CODE1~6 / MDCODE 對照、貨況查詢（searchGoods）+ 貨況對應表（V15 已移除，取自舊版）| `references/cargo-status-and-addr-compare.md` |
-| **貨況查詢（searchGoods）DES CBC 加解密**：演算法規格、zenbu 實際參數（offset `-33` / IV `FECDTDYA` / v）、官方 C# + 已驗證 Node 範例、OpenSSL 3 legacy 陷阱、已對拍 test vector、**`status_code` 貨況代碼對應表（62 碼）+ `ShippingState` 建議映射（FU-4）**| `references/cargo-tracking-decrypt.md` |
+| **貨況查詢（searchGoods）DES CBC 加解密**：演算法規格、zenbu 實際參數（offset `-33` / IV `<HCT_TRACK_IV>` / v）、官方 C# + 已驗證 Node 範例、OpenSSL 3 legacy 陷阱、已對拍 test vector、**`status_code` 貨況代碼對應表（62 碼）+ `ShippingState` 建議映射（FU-4）**| `references/cargo-tracking-decrypt.md` |
 | TypeScript / NestJS 整合範例（SOAP client 手組 envelope、TransData service、image hex 還原、Codabar 檢查碼）+ 官方 C# image function | `references/code-examples.md` |
 | V15 vs 舊版逐項變更、舊「待澄清」解決狀態、實打 WSDL（`Service1.asmx?wsdl`）觀察 vs V15 文件一致性 | `references/version-notes.md` |
 
@@ -156,6 +156,6 @@ const payload = [{
 V15 已解掉舊版多數缺口（`eprdct` JSON 欄位、DEV/PROD URL、`erstno` 正名、取消 / 派遣方法）。**仍懸而未決**：
 
 - **SOAP WSDL / namespace / SOAPAction**：V15 仍未明載 target namespace、SOAPAction、完整 WSDL，只給 Content-Type=`text/xml; charset=utf-8`。實作前應抓 `?wsdl`（`service1.asmx?wsdl`）確認。**實打 WSDL 的觀察（namespace、SOAPAction、未文件化方法）見 `references/version-notes.md`。**
-- ~~**貨況查詢加解密演算法與金鑰**~~ **已解決**：`searchGoods_*` 的 `no` = **DES CBC**（KEY = 查詢當日 ± n 天的 `yyyyMMdd`、IV = 8 位固定、PKCS7、輸出 Base64）、`v` = 32 位固定識別碼。zenbu 實際參數（n=`-33` / IV=`FECDTDYA` / v=`2616225156DC806C618DE4921975A582`）+ 官方 C# / 已驗證 Node 範例 + 對拍 test vector + `status_code` 對應表，全見 `references/cargo-tracking-decrypt.md`。⚠️ Node 22/OpenSSL 3 跑 `des-cbc` 需注意 legacy provider（同檔 §2）。剩餘僅「以真實回傳資料校準 `status_code`→`ShippingState` 映射」上線前 follow-up。
+- ~~**貨況查詢加解密演算法與金鑰**~~ **已解決**：`searchGoods_*` 的 `no` = **DES CBC**（KEY = 查詢當日 ± n 天的 `yyyyMMdd`、IV = 8 位固定、PKCS7、輸出 Base64）、`v` = 32 位固定識別碼。zenbu 實際參數（n=`-33` / IV=`<HCT_TRACK_IV>` / v=`<HCT_TRACK_V>`）+ 官方 C# / 已驗證 Node 範例 + 對拍 test vector + `status_code` 對應表，全見 `references/cargo-tracking-decrypt.md`。⚠️ Node 22/OpenSSL 3 跑 `des-cbc` 需注意 legacy provider（同檔 §2）。剩餘僅「以真實回傳資料校準 `status_code`→`ShippingState` 映射」上線前 follow-up。
 - **GetImage_Json / onlyImage / FrightQuery / TransDispatchOrder 細節**：V15 **未收錄** `GetImage_Json` / `onlyImage`（專門取圖）/ `FrightQuery`（疑似貨況查詢替代）；但**已收錄** `TransDataCancel_Json` / `TransDispatchOrder_Json`。實打 live WSDL 另有這些未文件化方法（見 `references/version-notes.md`）。
 - **正式 vs 測試環境帳號**：V15 明確分離 DEV/PROD URL，但測試帳號（出貨 `test`/`test1`、集貨註區 `TEST2`）是否打到正式系統未說明，整合 E2E 前建議向新竹確認。

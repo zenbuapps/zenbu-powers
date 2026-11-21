@@ -12,11 +12,11 @@
 
 ## ⚠️ 0. 安全須知（production 憑證）
 
-下方「zenbu 實際參數」（金鑰日期偏移 `-33`、IV `FECDTDYA`、v `2616225156DC806C618DE4921975A582`）為
-**zenbu 正式環境的查貨憑證**，等同 `.claude/rules/hct-logistics.rule.md` 的 `shipping.hct_track_query_key` 材料。
+下方「zenbu 實際參數」中的 IV `<HCT_TRACK_IV>`、v `<HCT_TRACK_V>` 為**佔位值**——
+**實際值請由環境變數 HCT_TRACK_V / HCT_TRACK_IV 提供，勿寫入 repo**。兩者屬 zenbu 正式環境的查貨憑證，等同 `.claude/rules/hct-logistics.rule.md` 的 `shipping.hct_track_query_key` 材料。
 
-- **必須走 DB settings**（`shipping.hct_track_query_*`），對齊 hct-logistics rule Rule 4「endpoint / 憑證走 SettingsService（禁直讀 process.env）」與「禁硬編」。**禁止**把這些值硬編進 `hct-logistics.service.ts`。
-- 此檔位於 `.claude-j7-backup/`（**gitignored**，`.gitignore:90`），僅本機參考；若日後憑證外洩或輪替，須同步更新此檔並重發。
+- **必須走 DB settings**（`shipping.hct_track_query_*`），對齊 hct-logistics rule Rule 4「endpoint / 憑證走 SettingsService（禁直讀 process.env）」與「禁硬編」。**禁止**把這些值硬編進程式碼、測試或任何會被 commit 的文件。
+- 本 skill 檔**會被 commit**，因此只放佔位值；原始申請文件（PDF，設有開啟密碼）與實際值請向負責人索取，勿在任何文件中揭露 PDF 密碼或其線索。
 - 對齊 memory `public-settings-leak-rotate-creds`：`shipping.` prefix 已在 `PUBLIC_BLOCKED_SETTING_PREFIXES`，天然不洩漏公開 settings。
 
 ---
@@ -57,12 +57,12 @@
 | 參數 | zenbu 值 | 說明 |
 |---|---|---|
 | 金鑰日期偏移 `n` | **`-33`** | KEY = `DateTime.Today.AddDays(-33)` 的 `yyyyMMdd`（**當日減 33 天**）|
-| 加密向量 IV | **`FECDTDYA`** | 8 位固定 |
-| `v` 值 | **`2616225156DC806C618DE4921975A582`** | 32 位固定（注意：尾段 `...75A582` = 此 PDF 開啟密碼）|
+| 加密向量 IV | **`<HCT_TRACK_IV>`** | 8 位固定（實際值請由環境變數 HCT_TRACK_IV 提供，勿寫入 repo）|
+| `v` 值 | **`<HCT_TRACK_V>`** | 32 位固定（實際值請由環境變數 HCT_TRACK_V 提供，勿寫入 repo；原始申請文件 PDF 設有開啟密碼，密碼不在 repo 揭露，請向負責人索取）|
 
 ```
 單筆端點範例（zenbu）：
-https://hctapiweb.hct.com.tw/phone/searchGoods_Main.aspx?no={DES-CBC(貨號)}&v=2616225156DC806C618DE4921975A582
+https://hctapiweb.hct.com.tw/phone/searchGoods_Main.aspx?no={DES-CBC(貨號)}&v=<HCT_TRACK_V>
 ```
 
 ### 1.2 通用模板參數（Ver3.1 文件，非 zenbu）
@@ -128,8 +128,8 @@ string str_return = Convert.ToBase64String(mStream.ToArray());
 ```csharp
 //KEY 是以日期做為 Random key（zenbu = 當日 -33 天）
 byte[] rgbKey = Encoding.UTF8.GetBytes(DateTime.Today.AddDays(-33).ToString("yyyyMMdd"));
-//向量值，固定 = FECDTDYA
-byte[] rgbIV = Encoding.UTF8.GetBytes("FECDTDYA");
+//向量值，固定 = <HCT_TRACK_IV>
+byte[] rgbIV = Encoding.UTF8.GetBytes("<HCT_TRACK_IV>");
 //查詢貨號
 byte[] inputByteArray = Encoding.UTF8.GetBytes("1234567891");
 DESCryptoServiceProvider dCSP = new DESCryptoServiceProvider();
@@ -181,8 +181,8 @@ export function hctTrackDecrypt(b64: string, keyYmd: string, iv: string): string
 
 // 用法（zenbu）：
 // const keyYmd = hctTrackKeyDate(-33);            // 查詢當日 -33 天
-// const no = hctTrackEncrypt('1234567891', keyYmd, 'FECDTDYA');
-// const url = `https://hctapiweb.hct.com.tw/phone/searchGoods_Main.aspx?no=${encodeURIComponent(no)}&v=2616225156DC806C618DE4921975A582`;
+// const no = hctTrackEncrypt('1234567891', keyYmd, '<HCT_TRACK_IV>');
+// const url = `https://hctapiweb.hct.com.tw/phone/searchGoods_Main.aspx?no=${encodeURIComponent(no)}&v=<HCT_TRACK_V>`;
 ```
 
 ---
@@ -402,7 +402,7 @@ URL ：https://hctapiweb.hct.com.tw/phone/searchGoods_Main.aspx?no=W/19ch1m+WBi9
 | 既有資產 | 對接方式 |
 |---|---|
 | `hct-logistics.service.ts` `queryShipment`（**已實作 FU-4 / 2026-06-30**）| DES CBC 加密 `<qrylist>` → POST `searchGoods_Main_Xml.ashx` → 解密 → 取最新 `<order>` → `mapHctStatusToState`。未設定 / 格式錯誤 / 任何例外 → degrade pending（rule Rule 6，P-2）。crypto 在 `hct-track-crypto.ts` |
-| `shipping.hct_track_query_key`（settings，rule Rule 4）| **採單一 JSON**（保留既有單一 reserved key，不擴 3 key）：`{"offsetDays":-33,"iv":"FECDTDYA","v":"2616225156DC806C618DE4921975A582"}`。`parseTrackQueryConfig` 解析（缺 / 非 JSON / offsetDays 非數字 / iv≠8 字元 / v 空 → undefined → degrade）。受 `ShippingCredentials` index signature 約束故存 string |
+| `shipping.hct_track_query_key`（settings，rule Rule 4）| **採單一 JSON**（保留既有單一 reserved key，不擴 3 key）：`{"offsetDays":-33,"iv":"<HCT_TRACK_IV>","v":"<HCT_TRACK_V>"}`。`parseTrackQueryConfig` 解析（缺 / 非 JSON / offsetDays 非數字 / iv≠8 字元 / v 空 → undefined → degrade）。受 `ShippingCredentials` index signature 約束故存 string |
 | `mapHctStatusToState`（rule Rule 6，輸出 9 state）| **已實作**：`HCT_STATUS_CODE_STATE`（§7，status_code 主鍵）+ 中文 `status` 關鍵字 fallback；未知 → `pending` + `logger.warn`。簽名改 `(statusCode?, statusText?)` |
 | OpenSSL 3 legacy（§2）| **採方案 0**：`des-ede3-cbc` + 三重相同金鑰 = 單組 DES（OpenSSL 3 非 legacy，無全域旗標、無新依賴）。實作 `hct-track-crypto.ts`，已對 vector 驗證 |
 | `cargo-status-and-addr-compare.md` Part B | 該檔為**舊版 V2.0** searchGoods 補充（無 status_code、無加解密）；**本檔取代其 B.1 加解密占位**，B.1 已改指回此檔。status_code 完整表以**本檔 §6** 為準 |
